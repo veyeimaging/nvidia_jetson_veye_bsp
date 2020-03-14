@@ -110,6 +110,7 @@ read_wdrmode()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x32 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.1;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	wdrmode=$?;
 	printf "r wdrmode is 0x%2x\n" $wdrmode;
@@ -132,6 +133,7 @@ read_videoformat()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.1;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	videoformat=$?;
 	echo "frame rate reg "$videoformat;
@@ -167,6 +169,7 @@ read_mirrormode()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x57 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.1;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	mirrormode=$?;
 	printf "r mirrormode is 0x%2x\n" $mirrormode;
@@ -189,6 +192,7 @@ read_denoise()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD8 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x9B );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.1;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	denoise=$?;
 	printf "r denoise is 0x%2x\n" $denoise;
@@ -211,6 +215,7 @@ read_agc()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x67 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.1;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	agc=$?;
 	printf "r agc is 0x%2x\n" $agc;
@@ -233,6 +238,7 @@ read_lowlight()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x64 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.1;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	lowlight=$?;
 	printf "r lowlight is 0x%2x\n" $lowlight;
@@ -255,6 +261,7 @@ read_mshutter()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x66 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.1;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	mshutter=$?;
 	printf "r mshutter is 0x%2x\n" $mshutter;

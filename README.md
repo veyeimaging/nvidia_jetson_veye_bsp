@@ -6,6 +6,7 @@ Jetson TX2
 Jetson AGX-Xavier
 
 http://wiki.veye.cc/index.php/VEYE_MIPI_290/327_for_Jetson_Nano
+
 http://wiki.veye.cc/index.php/CS-MIPI-IMX307_for_Jetson_Nano
 
 http://wiki.veye.cc/index.php/VEYE_CS_Camera_for_Jetson_TX2

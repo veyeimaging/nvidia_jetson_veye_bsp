@@ -18,7 +18,8 @@ print_usage()
 	echo "    -p1 [param1] 			   param1 of each function"
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
-	echo "support functions: devid,hdver,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger¡ê?mshutter"
+	echo "support functions: devid,hdver,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger,mshutter"
+    echo "saturation,wdrbtargetbr,wdrtargetbr"
 }
 ######################parse arg###################################
 MODE=read;
@@ -110,7 +111,7 @@ read_wdrmode()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x32 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.1;
+    sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	wdrmode=$?;
 	printf "r wdrmode is 0x%2x\n" $wdrmode;
@@ -133,7 +134,7 @@ read_videoformat()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.1;
+    sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	videoformat=$?;
 	echo "frame rate reg "$videoformat;
@@ -169,7 +170,7 @@ read_mirrormode()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x57 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.1;
+    sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	mirrormode=$?;
 	printf "r mirrormode is 0x%2x\n" $mirrormode;
@@ -192,7 +193,7 @@ read_denoise()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD8 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x9B );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.1;
+    sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	denoise=$?;
 	printf "r denoise is 0x%2x\n" $denoise;
@@ -215,7 +216,7 @@ read_agc()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x67 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.1;
+    sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	agc=$?;
 	printf "r agc is 0x%2x\n" $agc;
@@ -238,7 +239,7 @@ read_lowlight()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x64 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.1;
+    sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	lowlight=$?;
 	printf "r lowlight is 0x%2x\n" $lowlight;
@@ -261,7 +262,7 @@ read_mshutter()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x66 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.1;
+    sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
 	mshutter=$?;
 	printf "r mshutter is 0x%2x\n" $mshutter;
@@ -324,6 +325,78 @@ write_irtrigger()
 	printf "w irtrigger is 0x%2x\n" $PARAM1;
 }
 
+read_saturation()
+{
+	local saturation=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD8 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x7A );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	saturation=$?;
+	printf "r saturation is 0x%2x\n" $saturation;
+}
+write_saturation()
+{
+	local saturation=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD8 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x7A );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD8 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x7B );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w saturation is 0x%2x\n" $PARAM1;
+}
+
+read_wdrbtargetbr()
+{
+	local wdrbtargetbr=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xCA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	wdrbtargetbr=$?;
+	printf "r wdrbtargetbr is 0x%2x\n" $wdrbtargetbr;
+}
+write_wdrbtargetbr()
+{
+	local wdrbtargetbr=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xCA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w wdrbtargetbr is 0x%2x\n" $PARAM1;
+}
+
+read_wdrtargetbr()
+{
+	local wdrtargetbr=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC1 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	wdrtargetbr=$?;
+	printf "r wdrtargetbr is 0x%2x\n" $wdrtargetbr;
+}
+write_wdrtargetbr()
+{
+	local wdrtargetbr=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC1 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w wdrtargetbr is 0x%2x\n" $PARAM1;
+}
 
 #######################Action# BEGIN##############################
 
@@ -373,6 +446,15 @@ if [ ${MODE} = "read" ] ; then
 		"mshutter")
 			read_mshutter;
 			;;
+        "saturation")
+			read_saturation;
+			;;
+        "wdrbtargetbr")
+			read_wdrbtargetbr;
+			;;
+        "wdrtargetbr")
+			read_wdrtargetbr;
+			;;
 	esac
 fi
 
@@ -416,7 +498,16 @@ if [ ${MODE} = "write" ] ; then
 		"mshutter")
 			write_mshutter;
 			;;
+        "saturation")
+			write_saturation;
+			;;
+        "wdrbtargetbr")
+			write_wdrbtargetbr;
+			;;
+        "wdrtargetbr")
+			write_wdrtargetbr;
+			;;
 	esac
 fi
-./i2c_write $I2C_DEV $I2C_ADDR  0x07 0xFF&> /dev/null;
+
 

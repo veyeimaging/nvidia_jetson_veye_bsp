@@ -32,6 +32,8 @@ print_usage()
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -p3 [param1] 			   param3 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
+    echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
+    echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,sysreset,paramsave"
 }
 
 ######################reglist###################################
@@ -39,9 +41,20 @@ print_usage()
 deviceID=0x00;
 HardWare=0x01;
 Csi2_Enable=0x03;
-TriggerMode=0x10;
-SlaveMode=0x11;
+CAM_CAP_L=0X04;
+CAM_CAP_H=0X05;
+I2c_addr=0x06;
 
+StreamMode=0x0E;
+SlaveMode=0x0F;
+
+StrobeIO_MODE=0x10;
+Strobe_sel=0x11;
+Strobe_value=0x12;
+
+TriggerIO_MODE=0x14;
+Trigger_sel=0x15;
+Trigger_value=0x16;
 
 ########################this is isp mcu reglist#####################
 ARM_VER_L=0x0100;
@@ -83,7 +96,7 @@ b_arg_param2=0;
 b_arg_param3=0;
 b_arg_functin=0;
 b_arg_bus=0;
-
+b_arg_addr=0;
 
 for arg in $@
 do
@@ -112,6 +125,10 @@ do
 		b_arg_bus=0;
 		I2C_DEV=$arg;
 	fi
+    if [ $b_arg_addr -eq 1 ] ; then
+		b_arg_addr=0;
+		I2C_ADDR=$arg;
+	fi
 	case $arg in
 		"-r")
 			MODE=read;
@@ -134,6 +151,9 @@ do
 		"-b")
 			b_arg_bus=1;
 			;;
+        "-d")
+			b_arg_addr=1;
+			;;
 		"-h")
 			print_usage;
 			;;
@@ -152,16 +172,21 @@ pinmux()
 	sh ./camera_i2c_config >> /dev/null 2>&1
 }
 
-read_hardwareid()
+read_devid()
 {
-	local verid=0;
-    local hardver=0;
+	local devid=0;
+    
 	local res=0;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $deviceID );
-	verid=$?;
+	devid=$?;
+	printf "hardwareid is 0x%2x \n" $devid;
+}
+read_hdver()
+{
+    local hardver=0;
     res=$(./i2c_read $I2C_DEV $I2C_ADDR  $HardWare );
 	hardver=$?;
-	printf "hardwareid is 0x%2x%2x \n" $verid $hardver;
+    printf "hardware logic version is 0x%2x \n" $hardver;
 }
 
 read_firmware_ver()
@@ -176,6 +201,17 @@ read_firmware_ver()
     printf "r firmware version is %2d.%02d\n" $firmwarever_h $firmwarever_l;
 }
 
+read_camcap()
+{
+    local camcap_l=0;
+    local camcap_h=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $CAM_CAP_L );
+	camcap_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $CAM_CAP_H );
+	camcap_h=$?;
+    printf "r camera capbility 0x%02x%02x\n" $camcap_h $camcap_l;
+}
 read_productmodel()
 {
 	local productmodel_l=0;
@@ -352,15 +388,93 @@ write_sysreset()
     printf "w sysreset,all param will reset\n";
 }
 
+read_i2caddr()
+{
+	local i2caddr=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $I2c_addr );
+	i2caddr=$?;
+    printf "r i2caddr  0x%2x\n" $i2caddr;
+}
 
+write_i2caddr()
+{
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $I2c_addr $PARAM1 );
+    printf "w i2caddr  0x%2x and save\n" $PARAM1;
+    I2C_ADDR=$PARAM1
+    write_paramsave;
+}
+
+read_streammode()
+{
+	local streammode=0;
+    local slavemode=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $StreamMode );
+	streammode=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $SlaveMode );
+	slavemode=$?;
+    
+    printf "r streammode 0x%2x slave mode is %d\n" $streammode $slavemode;
+}
+
+write_sync_slavemode()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $SlaveMode 0x1 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $StrobeIO_MODE 0x0 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $Strobe_sel 0x1 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $TriggerIO_MODE 0x0 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $Trigger_sel 0x2 );
+    printf "w stream mode slave \n";
+}
+
+write_sync_mastermode()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $SlaveMode 0x0 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $StrobeIO_MODE 0x1 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $Strobe_sel 0x1 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $TriggerIO_MODE 0x1 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $Trigger_sel 0x2 );
+    printf "w stream mode master \n";
+}
+
+write_streammode()
+{
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $StreamMode $PARAM1 );
+    if [ $PARAM1 -eq 1 ] ; then
+        if [ $PARAM2 -eq 1 ] ; then
+            write_sync_slavemode;
+        else
+            write_sync_mastermode;
+        fi
+    fi
+    printf "w streammode 0x%2x slave mode 0x%2x and save param\n" $PARAM1 $PARAM2;
+    write_paramsave;
+}
 #######################Action# BEGIN##############################
 
+if [ `whoami` != "root" ];then
+    echo " please use root or sudo run me"
+    exit 1
+fi 
+
 pinmux;
+
 
 if [ ${MODE} = "read" ] ; then
 	case $FUNCTION in
 		"devid"|"deviceid")
-			read_hardwareid;
+			read_devid;
+			;;
+        "hdver")
+			read_hdver;
+			;;
+        "camcap")
+			read_camcap;
 			;;
 		"firmwarever")
 			read_firmware_ver;
@@ -379,6 +493,12 @@ if [ ${MODE} = "read" ] ; then
 			;;
 		"powerhz")
 			read_powerhz;
+			;;
+        "i2caddr")
+			read_i2caddr;
+			;;
+        "streammode")
+            read_streammode;
 			;;
         *)
 			echo "NOT SUPPORTED!";
@@ -399,6 +519,12 @@ if [ ${MODE} = "write" ] ; then
 			;;
 		"powerhz")
 			write_powerhz;
+			;;
+        "i2caddr")
+			write_i2caddr;
+			;;
+        "streammode")
+            write_streammode;
 			;;
         *)
 			echo "NOT SUPPORTED!";

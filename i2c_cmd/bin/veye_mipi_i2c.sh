@@ -19,7 +19,7 @@ print_usage()
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
 	echo "support functions: devid,hdver,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger,mshutter"
-    echo "saturation,wdrbtargetbr,wdrtargetbr"
+    echo "saturation,wdrbtargetbr,wdrtargetbr,contrast"
 }
 ######################parse arg###################################
 MODE=read;
@@ -398,6 +398,29 @@ write_wdrtargetbr()
 	printf "w wdrtargetbr is 0x%2x\n" $PARAM1;
 }
 
+read_contrast()
+{
+	local contrast=0;
+	local res=0;
+    	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0x49 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x59 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    	sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	contrast=$?;
+	printf "r contrast is 0x%2x\n" $contrast;
+}
+write_contrast()
+{
+	local contrast=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0x49 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x59 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w contrast is 0x%2x\n" $PARAM1;
+}
+
 #######################Action# BEGIN##############################
 
 if [ `whoami` != "root" ];then
@@ -455,6 +478,9 @@ if [ ${MODE} = "read" ] ; then
         "wdrtargetbr")
 			read_wdrtargetbr;
 			;;
+	"contrast")
+			read_contrast;
+			;;
 	esac
 fi
 
@@ -506,6 +532,9 @@ if [ ${MODE} = "write" ] ; then
 			;;
         "wdrtargetbr")
 			write_wdrtargetbr;
+			;;
+	"contrast")
+			write_contrast;
 			;;
 	esac
 fi

@@ -2,19 +2,60 @@
 #!/bin/sh
 
 <<'COMMENT_SAMPLE'
-sudo ./cs_mipi_i2c.sh -r -f devid
-sudo ./cs_mipi_i2c.sh -r -f firmwarever
-sudo ./cs_mipi_i2c.sh -r -f productmodel
-sudo ./cs_mipi_i2c.sh -r -f videofmtcap
-sudo ./cs_mipi_i2c.sh -r -f videofmt
-sudo ./cs_mipi_i2c.sh -r -f ispcap
-sudo ./cs_mipi_i2c.sh -r -f powerhz
+sudo su
+./cs_mipi_i2c.sh -r -f devid
+./cs_mipi_i2c.sh -r -f firmwarever
+./cs_mipi_i2c.sh -r -f productmodel
+./cs_mipi_i2c.sh -r -f videofmtcap
+./cs_mipi_i2c.sh -r -f videofmt
+./cs_mipi_i2c.sh -r -f ispcap
+./cs_mipi_i2c.sh -r -f powerhz
+
+./cs_mipi_i2c.sh -w -f videofmt -p1 1280 -p2 720 -p3 60
+./cs_mipi_i2c.sh -w -f powerhz -p1 50
+./cs_mipi_i2c.sh -w -f i2caddr -p1 newaddr
 
 
-sudo ./cs_mipi_i2c.sh -w -f videofmt -p1 1280 -p2 720 -p3 60
-sudo ./cs_mipi_i2c.sh -w -f powerhz -p1 50
-sudo ./cs_mipi_i2c.sh -w -f sysreset
-sudo ./cs_mipi_i2c.sh -w -f paramsave
+./cs_mipi_i2c.sh -r -f expostate 
+./cs_mipi_i2c.sh -r -f wbstate
+
+./cs_mipi_i2c.sh -r -f daynightmode 
+./cs_mipi_i2c.sh -w -f daynightmode -p1 0/1/2
+
+./cs_mipi_i2c.sh -r -f hue 
+./cs_mipi_i2c.sh -w -f hue -p1 50 
+
+./cs_mipi_i2c.sh -r -f contrast 
+./cs_mipi_i2c.sh -w -f contrast -p1 50 
+
+./cs_mipi_i2c.sh -r -f satu 
+./cs_mipi_i2c.sh -w -f satu -p1 50 
+
+./cs_mipi_i2c.sh -w -f sysreset
+./cs_mipi_i2c.sh -r -f sysreset
+
+./cs_mipi_i2c.sh -w -f aemode -p1 1
+./cs_mipi_i2c.sh -r -f aemode
+
+./cs_mipi_i2c.sh -w -f metime -p1 10000
+./cs_mipi_i2c.sh -r -f metime
+
+./cs_mipi_i2c.sh -w -f meagain -p1 3 -p2 3
+./cs_mipi_i2c.sh -r -f meagain
+
+./cs_mipi_i2c.sh -w -f medgain -p1 3 -p2 3
+./cs_mipi_i2c.sh -r -f medgain
+
+./cs_mipi_i2c.sh -w -f awbmode -p1 1
+./cs_mipi_i2c.sh -r -f awbmode
+
+./cs_mipi_i2c.sh -w -f mwbgain -p1 0x20 -p2 0x20
+./cs_mipi_i2c.sh -r -f mwbgain
+
+./cs_mipi_i2c.sh -w -f mwbcolortemp -p1 3200
+./cs_mipi_i2c.sh -r -f mwbcolortemp
+
+./cs_mipi_i2c.sh -w -f paramsave
 
 COMMENT_SAMPLE
 I2C_DEV=6;
@@ -33,7 +74,8 @@ print_usage()
 	echo "    -p3 [param1] 			   param3 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
     echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
-    echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,sysreset,paramsave"
+    echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,
+     daynightmode ,hue ,contrast , satu , expostate , wbstate ,aemode , metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain sysreset,paramsave"
 }
 
 ######################reglist###################################
@@ -84,7 +126,58 @@ ISP_CAP_M=0x0201;
 ISP_CAP_H=0x0202;
 ISP_CAP_E=0x0203;
 POWER_HZ=0x0204;
-    
+
+DAY_NIGHT_MODE=0x0205;
+
+CSC_HUE=0x0206;
+CSC_CONTT=0x0207;
+CSC_SATU=0x0208;
+
+AE_MODE=0x0210;
+EXP_TIME_L=0x0211;
+EXP_TIME_M=0x0212;
+EXP_TIME_H=0x0213;
+EXP_TIME_E=0x0214;
+
+AGAIN_NOW_DEC=0x0215;
+AGAIN_NOW_INTER=0x0216;
+DGAIN_NOW_DEC=0x0217;
+DGAIN_NOW_INTER=0x0218;
+
+AE_SPEED=0x0219;
+AE_TARGET=0x021A;
+AE_MAXTIME_L=0x021B;
+AE_MAXTIME_M=0x021C;
+AE_MAXTIME_H=0x021D;
+AE_MAXTIME_E=0x021E;
+AE_MAXGAIN_DEC=0x021F;
+AE_MAXGAIN_INTER=0x0220;
+
+
+ME_TIME_L=0x0226;
+ME_TIME_M=0x0227;
+ME_TIME_H=0x0228;
+ME_TIME_E=0x0229;
+ME_AGAIN_DEC=0x022A;
+ME_AGAIN_INTER=0x022B;
+ME_DGAIN_DEC=0x022C;
+ME_DGAIN_INTER=0x022D;
+
+AWB_MODE=0x0230;
+WB_RGAIN=0x0231;
+WB_GGAIN=0x0232;
+WB_BGAIN=0x0233;
+WB_COLORTEMPL=0x0235;
+WB_COLORTEMPH=0x0236;
+
+MWB_COLORTEMPL=0x023A;
+MWB_COLORTEMPH=0x023B;
+
+MWB_RGAIN=0x023C;
+MWB_GGAIN=0x023D;
+MWB_BGAIN=0x023E;
+
+
 ######################parse arg###################################
 MODE=read;
 FUNCTION=version;
@@ -455,6 +548,298 @@ write_streammode()
     printf "w streammode 0x%2x slave mode 0x%2x and save param\n" $PARAM1 $PARAM2;
     write_paramsave;
 }
+
+read_daynightmode()
+{
+    local dnmode=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DAY_NIGHT_MODE );
+	dnmode=$?;
+    printf "r daynight  0x%2x\n" $dnmode;
+}
+
+write_daynightmode()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $DAY_NIGHT_MODE $PARAM1 );
+    printf "w day night mode  0x%2x \n" $PARAM1;
+}
+
+read_hue()
+{
+    local hue=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $CSC_HUE );
+	hue=$?;
+    printf "r hue  %d\n" $hue;
+}
+
+write_hue()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $CSC_HUE $PARAM1 );
+    printf "w hue %d \n" $PARAM1;
+}
+
+read_contrast()
+{
+    local contrast=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $CSC_CONTT );
+	contrast=$?;
+    printf "r contrast %d\n" $contrast;
+}
+
+write_contrast()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $CSC_CONTT $PARAM1 );
+    printf "w contrast %d \n" $PARAM1;
+}
+
+read_satu()
+{
+    local saturation=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  $CSC_SATU );
+	saturation=$?;
+    printf "r saturation %d\n" $saturation;
+}
+
+write_satu()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $CSC_SATU $PARAM1 );
+    printf "w saturation  %d \n" $PARAM1;
+}
+
+read_expostate()
+{
+    local exptime=0;
+    local again_dec=0;
+    local dgain_dec=0;
+    local again_int=0;
+    local dgain_int=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local data_e=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $EXP_TIME_L);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $EXP_TIME_M);
+	data_m=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $EXP_TIME_H);
+	data_h=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $EXP_TIME_E);
+	data_e=$?;
+    exptime=$((data_e*256*256*256+data_h*256*256+data_m*256+data_l));
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AGAIN_NOW_DEC);
+	again_dec=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AGAIN_NOW_INTER);
+	again_int=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DGAIN_NOW_DEC);
+	dgain_dec=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DGAIN_NOW_INTER);
+	dgain_int=$?;
+    
+    printf "r exptime %d us, again %d.%d dB, dgain %d.%d dB \n" $exptime $again_int $again_dec $dgain_int $dgain_dec;
+}
+
+read_wbstate()
+{
+    local rgain=0;
+    local ggain=0;
+    local bgain=0;
+    local colortemp=0;
+    local data_l=0;
+    local data_h=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $WB_RGAIN);
+	rgain=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $WB_GGAIN);
+	ggain=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $WB_BGAIN);
+	bgain=$?;
+    
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $WB_COLORTEMPL);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $WB_COLORTEMPH);
+	data_h=$?;
+    colortemp=$((data_h*256+data_l));
+    printf "r wb state rgain %02x , ggain %02x, bgain %02x  color temperature %d\n" $rgain $ggain $bgain $colortemp;
+}
+
+read_aemode()
+{
+    local aemode=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR $AE_MODE);
+	aemode=$?;
+    printf "r aemode 0x%2x\n" $aemode;
+}
+
+write_aemode()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AE_MODE $PARAM1 );
+    printf "w aemode 0x%2x \n" $PARAM1;
+}
+
+read_metime()
+{
+    local exptime=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local data_e=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_TIME_L);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_TIME_M);
+	data_m=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_TIME_H);
+	data_h=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_TIME_E);
+	data_e=$?;
+    exptime=$((data_e*256*256*256+data_h*256*256+data_m*256+data_l));
+    printf "r mnual exptime %d us\n" $exptime;
+}
+
+write_metime()
+{
+    local exptime=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local data_e=0;
+    exptime=$PARAM1;
+    data_e=$((exptime>>24&0xFF));
+    data_h=$((exptime>>16&0xFF));
+    data_m=$((exptime>>8&0xFF));
+    data_l=$((width&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ME_TIME_L $data_l);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ME_TIME_M $data_m);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ME_TIME_H $data_h);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ME_TIME_E $data_e);
+    printf "w mnual exptime %d us\n" $exptime;
+}
+
+read_meagain()
+{
+    local again_dec=0;
+    local again_int=0;
+    again_int=$PARAM1;
+    again_dec=$PARAM2;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_AGAIN_DEC);
+	again_dec=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_AGAIN_INTER);
+	again_int=$?;
+	printf "r manual again %d.%d dB\n" $again_int $again_dec;
+}
+
+write_meagain()
+{
+    local again_dec=0;
+    local again_int=0;
+    again_int=$PARAM1;
+    again_dec=$PARAM2;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $ME_AGAIN_DEC $again_dec);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $ME_AGAIN_INTER $again_int);
+	printf "w manual again %d.%d dB\n" $again_int $again_dec;
+}
+
+read_medgain()
+{
+    local dgain_dec=0;
+    local dgain_int=0;
+    dgain_int=$PARAM1;
+    dgain_dec=$PARAM2;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_DGAIN_DEC);
+	dgain_dec=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ME_DGAIN_INTER);
+	dgain_int=$?;
+	printf "r manual dgain %d.%d dB\n" $dgain_int $dgain_dec;
+}
+
+write_medgain()
+{
+    local dgain_dec=0;
+    local dgain_int=0;
+    dgain_int=$PARAM1;
+    dgain_dec=$PARAM2;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $ME_DGAIN_DEC $dgain_dec);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $ME_DGAIN_INTER $dgain_int);
+	printf "w manual dgain %d.%d dB\n" $dgain_int $dgain_dec;
+}
+
+read_awbmode()
+{
+    local awbmode=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR $AWB_MODE);
+	awbmode=$?;
+    printf "r awbmode 0x%2x\n" $awbmode;
+}
+
+write_awbmode()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AWB_MODE $PARAM1 );
+    printf "w awbmode 0x%2x \n" $PARAM1;
+}
+
+read_mwbcolortemp()
+{
+    local data_l=0;
+    local data_h=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MWB_COLORTEMPL);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MWB_COLORTEMPH);
+	data_h=$?;
+    colortemp=$((data_h*256+data_l));
+    printf "r manual wb color temperature %d\n" $colortemp;
+}
+
+write_mwbcolortemp()
+{
+    colortemp=$PARAM1;
+    data_h=$((colortemp>>8&0xFF));
+    data_l=$((colortemp&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $MWB_COLORTEMPL $data_l);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $MWB_COLORTEMPH $data_h);
+    printf "w mnualwb color temperature %d \n" $colortemp;
+}
+
+read_mwbgain()
+{
+    local rgain=0;
+    #local ggain=0;
+    local bgain=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MWB_RGAIN);
+	rgain=$?;
+    #res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MWB_GGAIN);
+	#ggain=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MWB_BGAIN);
+	bgain=$?;
+    printf "r rgain %02x, bgain %02x\n" $rgain $bgain;
+}
+
+write_mwbgain()
+{
+    local rgain=$PARAM1;
+    #local ggain=$PARAM2;
+    local bgain=$PARAM2;
+    local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $MWB_RGAIN $rgain);
+    #res=$(./i2c_write $I2C_DEV $I2C_ADDR  $MWB_RGAIN $ggain);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $MWB_BGAIN $bgain);
+    printf "b rgain %02x, bgain %02x\n" $rgain $bgain;
+}
+
+
 #######################Action# BEGIN##############################
 
 if [ `whoami` != "root" ];then
@@ -463,7 +848,6 @@ if [ `whoami` != "root" ];then
 fi 
 
 pinmux;
-
 
 if [ ${MODE} = "read" ] ; then
 	case $FUNCTION in
@@ -500,6 +884,45 @@ if [ ${MODE} = "read" ] ; then
         "streammode")
             read_streammode;
 			;;
+        "daynightmode")
+            read_daynightmode;
+			;;
+        "hue")
+            read_hue;
+			;;
+        "contrast")
+            read_contrast;
+			;;
+        "satu")
+            read_satu;
+			;;
+        "expostate")
+            read_expostate;
+			;;
+        "wbstate")
+            read_wbstate;
+			;;
+        "aemode")
+            read_aemode;
+			;;
+        "metime")
+            read_metime;
+			;;
+        "meagain")
+            read_meagain;
+			;;
+        "medgain")
+            read_medgain;
+			;;
+        "awbmode")
+            read_awbmode;
+			;;
+        "mwbcolortemp")
+            read_mwbcolortemp;
+			;;
+        "mwbgain")
+            read_mwbgain;
+			;;
         *)
 			echo "NOT SUPPORTED!";
 			;;
@@ -525,6 +948,39 @@ if [ ${MODE} = "write" ] ; then
 			;;
         "streammode")
             write_streammode;
+			;;
+        "daynightmode")
+            write_daynightmode;
+			;;
+        "hue")
+            write_hue;
+			;;
+        "contrast")
+            write_contrast;
+			;;
+        "satu")
+            write_satu;
+			;;
+        "aemode")
+            write_aemode;
+			;;
+        "metime")
+            write_metime;
+			;;
+        "meagain")
+            write_meagain;
+			;;
+        "medgain")
+            write_medgain;
+			;;
+        "awbmode")
+            write_awbmode;
+			;;
+        "mwbcolortemp")
+            write_mwbcolortemp;
+			;;
+        "mwbgain")
+            write_mwbgain;
 			;;
         *)
 			echo "NOT SUPPORTED!";

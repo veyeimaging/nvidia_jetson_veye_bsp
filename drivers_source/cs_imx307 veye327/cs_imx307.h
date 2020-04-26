@@ -154,9 +154,23 @@ static cs307_reg cs307_reg_1280x720_crop_60fps[] = {
 	{CS307_TABLE_END, 0x00}
 };
 
+static cs307_reg cs307_reg_640x480_crop_130fps[] = {
+    {FMT_WIDTH_L,0x80},
+    {FMT_WIDTH_H,0x2},
+    {CS307_TABLE_WAIT_MS, CS307_WAIT_MS_CMD},
+    {FMT_HEIGHT_L,0xE0},
+    {FMT_HEIGHT_H,0x1},
+    {CS307_TABLE_WAIT_MS, CS307_WAIT_MS_CMD},
+    {FMT_FRAMRAT_L,0x82},
+    {FMT_FRAMRAT_H,0x00},
+    {CS307_TABLE_WAIT_MS, CS307_WAIT_MS_STREAM},
+	{CS307_TABLE_END, 0x00}
+};
+
 enum {
 	CS307_MODE_1920X1080_30FPS,
     CS307_MODE_1280X720_CROP_60FPS,
+    CS307_MODE_640X480_CROP_130FPS,
 	CS307_MODE_START_STREAM,
 	CS307_MODE_STOP_STREAM,
 	//IMX307_MODE_TEST_PATTERN
@@ -165,6 +179,7 @@ enum {
 static cs307_reg *mode_table[] = {
 	[CS307_MODE_1920X1080_30FPS] = cs307_reg_1920x1080_30fps,
     [CS307_MODE_1280X720_CROP_60FPS] = cs307_reg_1280x720_crop_60fps,
+    [CS307_MODE_640X480_CROP_130FPS] = cs307_reg_640x480_crop_130fps,
 	[CS307_MODE_START_STREAM] = cs307_start,
 	[CS307_MODE_STOP_STREAM] = cs307_stop,
 	//[IMX307_MODE_TEST_PATTERN] = tp_colorbars,
@@ -176,6 +191,9 @@ static const int cs307_30fps[] = {
 static const int cs307_60fps[] = {
 	60,
 };
+static const int cs307_130fps[] = {
+	130,
+};
 /*
  * WARNING: frmfmt ordering need to match mode definition in
  * device tree!
@@ -185,6 +203,8 @@ static const struct camera_common_frmfmt cs_imx307_frmfmt[] = {
 	CS307_MODE_1920X1080_30FPS},
     {{1280, 720}, cs307_60fps, 1, 0,
 	CS307_MODE_1280X720_CROP_60FPS},
+    {{640, 480}, cs307_130fps, 1, 0,
+	CS307_MODE_640X480_CROP_130FPS},
 	/* Add modes with no device tree support after below */
 };
 

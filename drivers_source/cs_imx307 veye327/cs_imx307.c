@@ -40,7 +40,7 @@
 //#define CS307_MODEL_ID_ADDR		0x01
 
 
-#define DEBUG_PRINTK
+//#define DEBUG_PRINTK
 #ifndef DEBUG_PRINTK
 #define debug_printk(s , ... )
 #define VEYE_TRACE 

@@ -57,8 +57,7 @@
 ./cs_mipi_i2c.sh -w -f paramsave
 
 COMMENT_SAMPLE
-
-I2C_DEV=0;
+I2C_DEV=6;
 I2C_ADDR=0x3b;
 
 print_usage()
@@ -929,6 +928,11 @@ write_aeagc()
 	printf "w ae agc max %d.%d dB\n" $agc_int $agc_dec;
 }
 #######################Action# BEGIN##############################
+
+if [ `whoami` != "root" ];then
+    echo " please use root or sudo run me"
+    exit 1
+fi 
 
 pinmux;
 

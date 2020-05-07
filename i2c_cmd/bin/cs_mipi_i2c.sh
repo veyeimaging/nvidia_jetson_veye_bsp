@@ -57,7 +57,8 @@
 ./cs_mipi_i2c.sh -w -f paramsave
 
 COMMENT_SAMPLE
-I2C_DEV=6;
+
+I2C_DEV=0;
 I2C_ADDR=0x3b;
 
 print_usage()
@@ -74,7 +75,7 @@ print_usage()
 	echo "    -b [i2c bus num] 		   i2c bus number"
     echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
     echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,
-     daynightmode ,hue ,contrast , satu , expostate , wbstate ,aemode , aetarget, aetime,aeagc,metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain,imagedir sysreset,paramsave"
+     daynightmode ,hue ,contrast , satu , expostate , wbstate ,aemode , aetarget, aetime,aeagc,metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,sysreset,paramsave"
 }
 
 ######################reglist###################################
@@ -177,6 +178,10 @@ MWB_RGAIN=0x023C;
 MWB_GGAIN=0x023D;
 MWB_BGAIN=0x023E;
 
+SNSOR_REG_FLG=0x700;
+SNSOR_REG_ADDR_L=0x701;
+SNSOR_REG_ADDR_H=0x702;
+SNSOR_REG_VAL=0x703;
 
 ######################parse arg###################################
 MODE=read;
@@ -895,6 +900,7 @@ write_aetime()
     local data_m=0;
     local data_h=0;
     local data_e=0;
+    local res=0;
     exptime=$PARAM1;
     data_e=$((exptime>>24&0xFF));
     data_h=$((exptime>>16&0xFF));
@@ -911,6 +917,7 @@ read_aeagc()
 {
     local agc_dec=0;
     local agc_int=0;
+    local res=0;
     res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AE_MAXGAIN_DEC);
 	agc_dec=$?;
     res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AE_MAXGAIN_INTER);
@@ -921,18 +928,40 @@ write_aeagc()
 {
     local agc_dec=0;
     local agc_int=0;
+    local res=0;
     agc_int=$PARAM1;
     agc_dec=$PARAM2;
     res=$(./i2c_write $I2C_DEV $I2C_ADDR $AE_MAXGAIN_DEC $agc_dec);
     res=$(./i2c_write $I2C_DEV $I2C_ADDR $AE_MAXGAIN_INTER $agc_int);
 	printf "w ae agc max %d.%d dB\n" $agc_int $agc_dec;
 }
+read_senreg()
+{
+    local senregaddr=0;
+    local senregval=0;
+    local senregflag=0;
+    local data_l=0;
+    local data_h=0;
+    local res=0;
+    senregaddr=$PARAM1;
+    data_h=$((senregaddr>>8&0xFF));
+    data_l=$((senregaddr&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $SNSOR_REG_FLG 0x0);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $SNSOR_REG_ADDR_L $data_l);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $SNSOR_REG_ADDR_H $data_h);
+    sleep 0.01;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $SNSOR_REG_FLG);
+	senregflag=$?;
+     if [ $senregflag -eq  $((16#FF)) ] ; then
+		printf "read sensor register failed\n";
+	else
+        res=$(./i2c_read $I2C_DEV $I2C_ADDR $SNSOR_REG_VAL);
+        senregval=$?;
+        printf "r sensor addr 0x%4x value 0x%2x\n" $senregaddr $senregval;
+    fi
+	
+}
 #######################Action# BEGIN##############################
-
-if [ `whoami` != "root" ];then
-    echo " please use root or sudo run me"
-    exit 1
-fi 
 
 pinmux;
 
@@ -1021,6 +1050,9 @@ if [ ${MODE} = "read" ] ; then
 			;;
         "aeagc")
             read_aeagc;
+			;;
+        "sreg")
+            read_senreg;
 			;;
         *)
 			echo "NOT SUPPORTED!";

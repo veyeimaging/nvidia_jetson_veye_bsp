@@ -57,8 +57,7 @@
 ./cs_mipi_i2c.sh -w -f paramsave
 
 COMMENT_SAMPLE
-
-I2C_DEV=0;
+I2C_DEV=6;
 I2C_ADDR=0x3b;
 
 print_usage()
@@ -75,7 +74,7 @@ print_usage()
 	echo "    -b [i2c bus num] 		   i2c bus number"
     echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
     echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,
-     daynightmode ,hue ,contrast , satu , expostate , wbstate ,aemode , aetarget, aetime,aeagc,metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,sysreset,paramsave"
+     daynightmode ,hue ,contrast , satu , expostate , wbstate ,aemode , aetarget, aetime,aeagc,metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,striggerone,triggeredge,autotgcnt,tgdebncr,tgdly,pickmode,discardfrm,pickone,mipistatus,sysreboot,sysreset,paramsave"
 }
 
 ######################reglist###################################
@@ -98,6 +97,28 @@ TriggerIO_MODE=0x14;
 Trigger_sel=0x15;
 Trigger_value=0x16;
 
+ExtTrigEdge=0x18;
+ExtTrigDebouncerEn=0x19;
+ExtTrigDebouncerTimeL=0x1a;
+ExtTrigDebouncerTimeM=0x1b;
+ExtTrigDebouncerTimeH=0x1c;
+SoftTrig=0x1d;
+TrigDlyL=0x1e;
+TrigDlyM=0x1f;
+TrigDlyH=0x20;
+TrigDlyE=0x21;
+PickModeEnable=0x26;
+PickOne=0x27;
+DiscardedQnt=0x28;
+
+AutoTrigCntMaxL=0xC7;
+AutoTrigCntMaxM=0XC8;
+AutoTrigCntMaxH=0XC9;
+AutoTrigEnable=0xCA;
+
+MIPI_COUNT_L=0xCE;
+MIPI_COUNT_H=0xCF;
+MIPI_STAT=0xD0;
 ########################this is isp mcu reglist#####################
 ARM_VER_L=0x0100;
 ARM_VER_H=0x0101;
@@ -121,6 +142,7 @@ FMT_HEIGHT_H=0x0183;
 FMT_FRAMRAT_L=0x0184;
 FMT_FRAMRAT_H=0x0185;
 IMAGE_DIR=0x0186;
+SYSTEM_REBOOT=0x0187;
 
 ISP_CAP_L=0x0200;
 ISP_CAP_M=0x0201;
@@ -935,6 +957,13 @@ write_aeagc()
     res=$(./i2c_write $I2C_DEV $I2C_ADDR $AE_MAXGAIN_INTER $agc_int);
 	printf "w ae agc max %d.%d dB\n" $agc_int $agc_dec;
 }
+write_striggerone()
+{
+    local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $SoftTrig 0x1);
+	printf "w software trigger one frame!\n";
+}
+
 read_senreg()
 {
     local senregaddr=0;
@@ -961,6 +990,217 @@ read_senreg()
     fi
 	
 }
+
+read_triggeredge()
+{
+    local triggeredge=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ExtTrigEdge);
+	triggeredge=$?;
+	printf "r trigger edge %d\n" $triggeredge ;
+}
+
+write_triggeredge()
+{
+    local triggeredge=0;
+    local res=0;
+    triggeredge=$PARAM1;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $ExtTrigEdge $triggeredge);
+	printf "w trigger edge %d\n" $triggeredge ;
+}
+
+read_autotgcnt()
+{
+    local count=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local enable=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AutoTrigCntMaxL);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AutoTrigCntMaxM);
+	data_m=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AutoTrigCntMaxH);
+	data_h=$?;
+    count=$((data_h*256*256+data_m*256+data_l));
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $AutoTrigEnable);
+	enable=$?;
+    printf "r auto auto trigger count  %d *10us enable %d\n" $count $enable;
+}
+
+write_autotgcnt()
+{
+    local count=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local res=0;
+    count=$PARAM1;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AutoTrigEnable 0);
+    data_h=$((count>>16&0xFF));
+    data_m=$((count>>8&0xFF));
+    data_l=$((count&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AutoTrigCntMaxL $data_l);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AutoTrigCntMaxM $data_m);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AutoTrigCntMaxH $data_h);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AutoTrigEnable 1);
+    printf "w auto count %d *10us\n" $count;
+}
+##TrigDebouncer
+read_tgdebncr()
+{
+    local enable=0;
+    local value=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerEn);
+	enable=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeL);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeM);
+	data_m=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeH);
+	data_h=$?;
+    value=$((data_h*256*256+data_m*256+data_l));
+    printf "r trigger debouncer enable %d value %d us\n" $enable $value;
+}
+
+write_tgdebncr()
+{
+    local enable=0;
+    local value=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local res=0;
+    enable=$PARAM1;
+    value=$PARAM2;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerEn $data_l);
+    data_h=$((value>>16&0xFF));
+    data_m=$((value>>8&0xFF));
+    data_l=$((value&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeL $data_l);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeM $data_m);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeH $data_h);
+    printf "w trigger debouncer enable %d value %d us\n" $enable $value;
+}
+
+read_tgdly()
+{
+    local triggerdly=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local data_e=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $TrigDlyL);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $TrigDlyM);
+	data_m=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $TrigDlyH);
+	data_h=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $TrigDlyE);
+	data_e=$?;
+    triggerdly=$((data_e*256*256*256+data_h*256*256+data_m*256+data_l));
+    printf "r triggerdly %d us\n" $triggerdly;
+    
+}
+
+write_tgdly()
+{
+    local triggerdly=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local data_e=0;
+    local res=0;
+    triggerdly=$PARAM1;
+    data_e=$((triggerdly>>24&0xFF));
+    data_h=$((triggerdly>>16&0xFF));
+    data_m=$((triggerdly>>8&0xFF));
+    data_l=$((triggerdly&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $TrigDlyL $data_l);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $TrigDlyM $data_m);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $TrigDlyH $data_h);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $TrigDlyE $data_e);
+    printf "w triggerdly %d us\n" $triggerdly;
+}
+
+read_pickmode()
+{
+    local pickmode=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR $PickModeEnable);
+	pickmode=$?;
+	printf "r pickmode %d\n" $pickmode ;
+}
+
+write_pickmode()
+{
+    local pickmode=0;
+    local res=0;
+    pickmode=$PARAM1;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $PickModeEnable $pickmode);
+	printf "w pickmode %d\n" $pickmode ;
+}
+
+write_pickone()
+{
+    local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $PickOne 1);
+	printf " pick mode pick one!\n" ;
+}
+
+read_discardfrm()
+{
+    local discardfrm=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR $DiscardedQnt);
+	discardfrm=$?;
+	printf "r discardfrm %d\n" $discardfrm ;
+}
+
+write_discardfrm()
+{
+    local discardfrm=0;
+    local res=0;
+    discardfrm=$PARAM1;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $DiscardedQnt $discardfrm);
+	printf "w discardfrm %d\n" $discardfrm ;
+}
+
+read_mipistatus()
+{
+    local mipi_count=0;
+    local data_l=0;
+    local data_h=0;
+    local mipi_stat=0;
+    local res=0;
+
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MIPI_COUNT_L);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MIPI_COUNT_H);
+	data_h=$?;
+    mipi_count=$((data_h*256+data_l));
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $MIPI_STAT);
+	mipi_stat=$?;
+    printf "r mipi count %d, mipi state %d\n" $mipi_count $mipi_stat;
+}
+
+write_sysreboot()
+{
+    local reboot_type=0;
+    local res=0;
+    reboot_type=$PARAM1;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $SYSTEM_REBOOT $reboot_type);
+	printf "w system reboot %d\n" $reboot_type;
+}
+
 #######################Action# BEGIN##############################
 
 pinmux;
@@ -1054,6 +1294,27 @@ if [ ${MODE} = "read" ] ; then
         "sreg")
             read_senreg;
 			;;
+        "triggeredge")
+            read_triggeredge;
+			;;
+        "autotgcnt")
+            read_autotgcnt;
+			;;
+        "tgdebncr")
+            read_tgdebncr;
+			;;
+        "pickmode")
+            read_pickmode;
+			;;
+        "tgdly")
+            read_tgdly;
+			;;
+        "discardfrm")
+            read_discardfrm;
+			;;
+	"mipistatus")
+            read_mipistatus;
+	    		;;
         *)
 			echo "NOT SUPPORTED!";
 			;;
@@ -1124,6 +1385,33 @@ if [ ${MODE} = "write" ] ; then
 			;;
         "aeagc")
             write_aeagc;
+			;;
+        "striggerone")
+            write_striggerone;
+			;;
+        "triggeredge")
+            write_triggeredge;
+			;;
+        "autotgcnt")
+            write_autotgcnt;
+			;;
+        "tgdebncr")
+            write_tgdebncr;
+			;;
+        "pickmode")
+            write_pickmode;
+			;;
+        "pickone")
+            write_pickone;
+			;;
+        "tgdly")
+            write_tgdly;
+			;;
+        "discardfrm")
+            write_discardfrm;
+			;;
+	"sysreboot")
+            write_sysreboot;
 			;;
         *)
 			echo "NOT SUPPORTED!";

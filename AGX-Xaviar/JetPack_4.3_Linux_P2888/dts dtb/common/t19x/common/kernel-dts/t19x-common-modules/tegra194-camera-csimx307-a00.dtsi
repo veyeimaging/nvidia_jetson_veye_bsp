@@ -215,7 +215,7 @@
 	};
 
 	i2c@3180000 {
-		tca9548@70 {
+		tca9546@70 {
 			i2c@0 {
 				csimx307_a@3b {
 					devnode = "video0";
@@ -917,7 +917,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 30-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@0/csimx307_a@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@0/csimx307_a@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -931,7 +931,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 31-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@1/csimx307_b@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@1/csimx307_b@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -945,7 +945,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 32-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@2/csimx307_c@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@2/csimx307_c@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -959,7 +959,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 33-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@3/csimx307_d@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@3/csimx307_d@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -973,7 +973,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 34-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@4/csimx307_e@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@4/csimx307_e@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -987,7 +987,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csimx307 35-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@5/csimx307_g@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@5/csimx307_g@3b";
 				};
 			/*	drivernode1 {
 					pcl_id = "v4l2_lens";

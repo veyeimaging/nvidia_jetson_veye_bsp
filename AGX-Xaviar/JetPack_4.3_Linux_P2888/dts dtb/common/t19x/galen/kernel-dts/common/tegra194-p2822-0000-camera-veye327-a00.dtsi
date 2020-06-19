@@ -44,8 +44,8 @@
 	};
 
 	i2c@3180000 {
-		tca9548@70 {
-			compatible = "nxp,pca9548";
+		tca9546@70 {
+			compatible = "nxp,pca9546";
 			reg = <0x70>;
 			#address-cells = <1>;
 			#size-cells = <0>;
@@ -95,7 +95,7 @@
 /* camera control gpio definitions */
 / {
 	i2c@3180000 {
-		tca9548@70 {
+		tca9546@70 {
 			i2c@0 {
 				veye327_a@3b {
 					clocks = <&bpmp_clks TEGRA194_CLK_EXTPERIPH1>;

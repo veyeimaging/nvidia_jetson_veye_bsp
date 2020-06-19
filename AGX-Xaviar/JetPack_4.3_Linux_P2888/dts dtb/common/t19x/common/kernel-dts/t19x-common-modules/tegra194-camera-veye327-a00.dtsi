@@ -215,7 +215,7 @@
 	};
 
 	i2c@3180000 {
-		tca9548@70 {
+		tca9546@70 {
 			i2c@0 {
 				veye327_a@3b {
 					devnode = "video0";
@@ -691,7 +691,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 30-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@0/veye327_a@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@0/veye327_a@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -705,7 +705,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 31-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@1/veye327_b@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@1/veye327_b@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -719,7 +719,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 32-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@2/veye327_c@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@2/veye327_c@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -733,7 +733,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 33-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@3/veye327_d@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@3/veye327_d@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -747,7 +747,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "csx307 34-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@4/veye327_e@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@4/veye327_e@3b";
 				};
 				/*drivernode1 {
 					pcl_id = "v4l2_lens";
@@ -761,7 +761,7 @@
 					status = "okay";
 					pcl_id = "v4l2_sensor";
 					devname = "veye327 35-003b";
-					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@5/veye327_g@3b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9546@70/i2c@5/veye327_g@3b";
 				};
 			/*	drivernode1 {
 					pcl_id = "v4l2_lens";

@@ -33,8 +33,8 @@
 ./cs_mipi_i2c.sh -w -f sysreset
 ./cs_mipi_i2c.sh -r -f sysreset
 
-./cs_mipi_i2c.sh -w -f aemode -p1 1
-./cs_mipi_i2c.sh -r -f aemode
+./cs_mipi_i2c.sh -w -f expmode -p1 1
+./cs_mipi_i2c.sh -r -f expmode
 
 ./cs_mipi_i2c.sh -w -f metime -p1 10000
 ./cs_mipi_i2c.sh -r -f metime
@@ -74,7 +74,7 @@ print_usage()
 	echo "    -b [i2c bus num] 		   i2c bus number"
     echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
     echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,
-     daynightmode ,hue ,contrast , satu , expostate , wbstate ,aemode , aetarget, aetime,aeagc,metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,striggerone,triggeredge,autotgcnt,tgdebncr,tgdly,pickmode,discardfrm,pickone,mipistatus,sysreboot,sysreset,paramsave"
+     daynightmode ,hue ,contrast , satu , expostate , wbstate ,expmode , aetarget, aetime,aeagc,metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,striggerone,triggeredge,autotgcnt,tgdebncr,tgdly,pickmode,pickone,mipistatus,ledstrobe,sysreboot,sysreset,paramsave"
 }
 
 ######################reglist###################################
@@ -561,6 +561,13 @@ write_sync_mastermode()
     printf "w stream mode master \n";
 }
 
+write_hardtrigger_mode()
+{
+    local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $TriggerIO_MODE 0x0 );
+    printf "w stream mode master \n";
+}
+
 write_streammode()
 {
 	local res=0;
@@ -571,6 +578,8 @@ write_streammode()
         else
             write_sync_mastermode;
         fi
+    elif [ $PARAM1 -eq 2 ] ; then
+        write_hardtrigger_mode;
     fi
     printf "w streammode 0x%2x slave mode 0x%2x and save param\n" $PARAM1 $PARAM2;
     write_paramsave;
@@ -697,20 +706,20 @@ read_wbstate()
     printf "r wb state rgain %02x , ggain %02x, bgain %02x  color temperature %d\n" $rgain $ggain $bgain $colortemp;
 }
 
-read_aemode()
+read_expmode()
 {
-    local aemode=0;
+    local expmode=0;
 	local res=0;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR $AE_MODE);
-	aemode=$?;
-    printf "r aemode 0x%2x\n" $aemode;
+	expmode=$?;
+    printf "r expmode 0x%2x\n" $expmode;
 }
 
-write_aemode()
+write_expmode()
 {
     local res=0;
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  $AE_MODE $PARAM1 );
-    printf "w aemode 0x%2x \n" $PARAM1;
+    printf "w expmode 0x%2x \n" $PARAM1;
 }
 
 read_metime()
@@ -1079,13 +1088,15 @@ write_tgdebncr()
     local res=0;
     enable=$PARAM1;
     value=$PARAM2;
-    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerEn $data_l);
+    
     data_h=$((value>>16&0xFF));
     data_m=$((value>>8&0xFF));
     data_l=$((value&0xFF));
     res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeL $data_l);
     res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeM $data_m);
     res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerTimeH $data_h);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $ExtTrigDebouncerEn $enable);
+    
     printf "w trigger debouncer enable %d value %d us\n" $enable $value;
 }
 
@@ -1155,24 +1166,6 @@ write_pickone()
 	printf " pick mode pick one!\n" ;
 }
 
-read_discardfrm()
-{
-    local discardfrm=0;
-    local res=0;
-    res=$(./i2c_read $I2C_DEV $I2C_ADDR $DiscardedQnt);
-	discardfrm=$?;
-	printf "r discardfrm %d\n" $discardfrm ;
-}
-
-write_discardfrm()
-{
-    local discardfrm=0;
-    local res=0;
-    discardfrm=$PARAM1;
-    res=$(./i2c_write $I2C_DEV $I2C_ADDR $DiscardedQnt $discardfrm);
-	printf "w discardfrm %d\n" $discardfrm ;
-}
-
 read_mipistatus()
 {
     local mipi_count=0;
@@ -1199,6 +1192,21 @@ write_sysreboot()
     reboot_type=$PARAM1;
     res=$(./i2c_write $I2C_DEV $I2C_ADDR $SYSTEM_REBOOT $reboot_type);
 	printf "w system reboot %d\n" $reboot_type;
+}
+
+write_ledstrobe()
+{
+    local res=0;
+    local led_enable=$PARAM1;
+    if [ $led_enable -eq 1 ]; then
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  $StrobeIO_MODE 0x1);
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  $Strobe_sel 0x3);
+        printf "w led strobe enable\n";
+    else
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  $StrobeIO_MODE 0x0);
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  $Strobe_sel 0x0);
+        printf "w led strobe disable\n";
+    fi
 }
 
 #######################Action# BEGIN##############################
@@ -1258,8 +1266,8 @@ if [ ${MODE} = "read" ] ; then
         "wbstate")
             read_wbstate;
 			;;
-        "aemode")
-            read_aemode;
+        "expmode")
+            read_expmode;
 			;;
         "metime")
             read_metime;
@@ -1309,10 +1317,7 @@ if [ ${MODE} = "read" ] ; then
         "tgdly")
             read_tgdly;
 			;;
-        "discardfrm")
-            read_discardfrm;
-			;;
-	"mipistatus")
+        "mipistatus")
             read_mipistatus;
 	    		;;
         *)
@@ -1353,8 +1358,8 @@ if [ ${MODE} = "write" ] ; then
         "satu")
             write_satu;
 			;;
-        "aemode")
-            write_aemode;
+        "expmode")
+            write_expmode;
 			;;
         "metime")
             write_metime;
@@ -1407,11 +1412,11 @@ if [ ${MODE} = "write" ] ; then
         "tgdly")
             write_tgdly;
 			;;
-        "discardfrm")
-            write_discardfrm;
-			;;
-	"sysreboot")
+        "sysreboot")
             write_sysreboot;
+			;;
+        "ledstrobe")
+            write_ledstrobe;
 			;;
         *)
 			echo "NOT SUPPORTED!";

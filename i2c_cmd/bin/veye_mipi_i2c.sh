@@ -18,8 +18,8 @@ print_usage()
 	echo "    -p1 [param1] 			   param1 of each function"
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
-	echo "support functions: devid,hdver,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger,mshutter"
-    echo "saturation,wdrbtargetbr,wdrtargetbr,contrast"
+	echo "support functions: devid,hdver,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger¡ê?mshutter"
+    echo "cameramode, notf, capture, csienable,saturation,wdrbtargetbr,wdrtargetbr, brightness ,contrast , sharppen, aespeed"
 }
 ######################parse arg###################################
 MODE=read;
@@ -325,6 +325,65 @@ write_irtrigger()
 	printf "w irtrigger is 0x%2x\n" $PARAM1;
 }
 
+read_cameramode()
+{
+	local cameramode=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x1A );
+	cameramode=$?;
+	printf "r cameramode is 0x%2x\n" $cameramode;
+}
+write_cameramode()
+{
+	local cameramode=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR 0x1A $PARAM1);
+	printf "w cameramode is 0x%2x\n" $PARAM1;
+}
+
+read_nodf()
+{
+	local nodf=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x1B );
+	nodf=$?;
+	printf "r nodf is 0x%2x\n" $notf;
+}
+
+write_nodf()
+{
+	local nodf=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR 0x1B $PARAM1);
+	printf "w nodf is 0x%2x\n" $PARAM1;
+}
+
+write_capture()
+{
+	local capture=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR 0x1C 0x1);
+	printf "w capture\n" ;
+}
+
+read_csienable()
+{
+	local csienable=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x1D );
+	csienable=$?;
+	printf "r csienable is 0x%2x\n" $csienable;
+}
+
+write_csienable()
+{
+	local csienable=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR 0x1D $PARAM1);
+	printf "w csienable is 0x%2x\n" $PARAM1;
+}
+
+
 read_saturation()
 {
 	local saturation=0;
@@ -374,6 +433,109 @@ write_wdrbtargetbr()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
 	printf "w wdrbtargetbr is 0x%2x\n" $PARAM1;
 }
+    
+read_brightness()
+{
+    local videoformat=0;
+    local brightness=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	videoformat=$?;
+    sleep 0.01;
+    if [ $videoformat -eq 1 ] ; then
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x65 );
+		printf "Video Format is NTSC(60Hz) \n";
+	fi
+	if [ $videoformat -eq 0 ] ; then
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1A );
+		printf "Video Format is PAL(50Hz)\n";
+	fi
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	brightness=$?;
+	printf "r brightness is 0x%2x\n" $brightness;
+}
+write_brightness()
+{
+    local videoformat=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	videoformat=$?;
+    sleep 0.01;
+    if [ $videoformat -eq 1 ] ; then
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x65 );
+		printf "Video Format is NTSC(60Hz) \n";
+	fi
+	if [ $videoformat -eq 0 ] ; then
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1A );
+		printf "Video Format is PAL(50Hz)\n";
+	fi
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w brightness is 0x%2x\n" $PARAM1;
+}
+
+
+read_sharppen()
+{
+    printf "sharppen not supported yet\n";
+}
+
+write_sharppen()
+{
+    printf "sharppen not supported yet\n";
+}
+
+read_aespeed()
+{
+    local agcspeed=0;
+    local shutterspeed=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x18 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	agcspeed=$?;
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1B );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	shutterspeed=$?;
+	printf "r agcspeed is 0x%2x shutter speed is 0x%2x\n" $agcspeed $shutterspeed;
+}
+write_aespeed()
+{
+    local agcspeed=0;
+    local shutterspeed=0;
+	local res=0;
+
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x18 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1B );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM2);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w agcspeed is 0x%2x shutterspeed is 0x%2x\n" $PARAM1 $PARAM2;
+}
 
 read_wdrtargetbr()
 {
@@ -402,8 +564,8 @@ read_contrast()
 {
 	local contrast=0;
 	local res=0;
-    	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0x49 );
-	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x59 );
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0x49 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5B );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
     	sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
@@ -415,7 +577,7 @@ write_contrast()
 	local contrast=0;
 	local res=0;
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0x49 );
-	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x59 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5B );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
 	printf "w contrast is 0x%2x\n" $PARAM1;
@@ -469,17 +631,38 @@ if [ ${MODE} = "read" ] ; then
 		"mshutter")
 			read_mshutter;
 			;;
+        "cameramode")
+			read_cameramode;
+			;;
+        "nodf")
+			read_nodf;
+			;;
+        "csienable")
+			read_csienable;
+			;;
         "saturation")
 			read_saturation;
 			;;
         "wdrbtargetbr")
 			read_wdrbtargetbr;
 			;;
-        "wdrtargetbr")
-			read_wdrtargetbr;
+        "brightness")
+			read_brightness;
 			;;
-	"contrast")
-			read_contrast;
+        "aespeed")
+			read_aespeed;
+			;;
+        "contrast")
+            read_contrast;
+            ;;
+        "satu")
+            read_satu;
+            ;;
+        "sharppen")
+            read_sharppen;
+            ;;
+	"wdrtargetbr")
+			read_wdrtargetbr;
 			;;
 	esac
 fi
@@ -524,17 +707,41 @@ if [ ${MODE} = "write" ] ; then
 		"mshutter")
 			write_mshutter;
 			;;
+        "cameramode")
+			write_cameramode;
+			;;
+        "nodf")
+			write_nodf;
+			;;
+        "capture")
+			write_capture;
+			;;
+        "csienable")
+			write_csienable;
+			;;
         "saturation")
 			write_saturation;
 			;;
         "wdrbtargetbr")
 			write_wdrbtargetbr;
 			;;
+        "brightness")
+			write_brightness;
+			;;
+        "aespeed")
+			write_aespeed;
+			;;
+        "contrast")
+            write_contrast;
+            ;;
+        "satu")
+            write_satu;
+            ;;
+        "sharppen")
+            write_sharppen;
+            ;;
         "wdrtargetbr")
 			write_wdrtargetbr;
-			;;
-	"contrast")
-			write_contrast;
 			;;
 	esac
 fi

@@ -341,7 +341,7 @@ fail:
 
 static int cs_imx307_set_frame_rate(struct tegracam_device *tc_dev, s64 val)
 {
-    debug_printk("veye327_set_frame_rate want set rate %d\n",val);
+   // debug_printk("veye327_set_frame_rate want set rate %d\n",val);
     #if 0
 	struct camera_common_data *s_data = tc_dev->s_data;
 	struct cs_imx307 *priv = (struct cs_imx307 *)tc_dev->priv;

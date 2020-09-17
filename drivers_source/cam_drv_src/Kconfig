@@ -49,6 +49,15 @@ config VIDEO_CSSC132
 	  To compile this driver as a module, choose M here: the module
 	  will be called cssc132.
     
+config VIDEO_DS90UB954
+        tristate "fpd-linkIII  support"
+	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
+	---help---
+	  This driver supports ds90ub954 and ds90ub953 from veye.cc
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called ds90ub954.
+      
 config VIDEO_IMX268
 	tristate "IMX268 camera sensor support"
 	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API

@@ -28,11 +28,11 @@
 
 //#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-csimx307.dtsi"
 //#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-csimx307-a00.dtsi"
-//#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-cssc132.dtsi"
-//#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-cssc132-a00.dtsi"
+#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-cssc132.dtsi"
+#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-cssc132-a00.dtsi"
 
-#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-veye327.dtsi"
-#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-veye327-a00.dtsi"
+//#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-veye327.dtsi"
+//#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-veye327-a00.dtsi"
 
 
 /* comms dtsi file should be included after gpio dtsi file */

@@ -26,8 +26,10 @@ MODE=read;
 FUNCTION=version;
 PARAM1=0;
 PARAM2=0;
+PARAM3=0;
 b_arg_param1=0;
 b_arg_param2=0;
+b_arg_param3=0;
 b_arg_functin=0;
 b_arg_bus=0;
 
@@ -50,6 +52,10 @@ do
 		b_arg_param2=0;
 		PARAM2=$arg;
 	fi
+    if [ $b_arg_param3 -eq 1 ] ; then
+		b_arg_param3=0;
+		PARAM3=$arg;
+	fi
 	if [ $b_arg_bus -eq 1 ] ; then
 		b_arg_bus=0;
 		I2C_DEV=$arg;
@@ -69,6 +75,9 @@ do
 			;;
 		"-p2")
 			b_arg_param2=1;
+			;;
+        "-p3")
+			b_arg_param3=1;
 			;;
 		"-b")
 			b_arg_bus=1;
@@ -491,12 +500,42 @@ write_brightness()
 
 read_sharppen()
 {
-    printf "sharppen not supported yet\n";
+    local sharppen_enable=0;
+    local sharppen_val=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD9 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5D );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	sharppen_enable=$?;
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD9 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x52 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	sharppen_val=$(($?>>4));
+	printf "r sharppen enable is 0x%2x val is 0x%2x\n" $sharppen_enable $sharppen_val;
 }
 
 write_sharppen()
 {
-    printf "sharppen not supported yet\n";
+    local sharppen_enable=0;
+    local sharppen_val=0;
+	local res=0;
+
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD9 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5D );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    
+    sharppen_val=$(($PARAM2<<4|0x3));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD9 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x52 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $sharppen_val);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w sharppen enable is 0x%2x val is 0x%2x \n" $PARAM1 $PARAM2;
 }
 
 read_aespeed()

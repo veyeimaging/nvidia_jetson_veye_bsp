@@ -69,8 +69,9 @@ print_usage()
 	echo "    -w                       write"
 	echo "    -f [function name]       function name"
 	echo "    -p1 [param1] 			   param1 of each function"
-	echo "    -p2 [param1] 			   param2 of each function"
-	echo "    -p3 [param1] 			   param3 of each function"
+	echo "    -p2 [param2] 			   param2 of each function"
+	echo "    -p3 [param3] 			   param3 of each function"
+    echo "    -p4 [param4] 		   param4 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
     echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
     echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,
@@ -143,6 +144,9 @@ FMT_FRAMRAT_L=0x0184;
 FMT_FRAMRAT_H=0x0185;
 IMAGE_DIR=0x0186;
 SYSTEM_REBOOT=0x0187;
+NEW_FMT_FRAMRAT_MODE=0x0188;
+NEW_FMT_FRAMRAT_L=0x0189;
+NEW_FMT_FRAMRAT_H=0x018A;
 
 ISP_CAP_L=0x0200;
 ISP_CAP_M=0x0201;
@@ -213,9 +217,11 @@ FUNCTION=version;
 PARAM1=0;
 PARAM2=0;
 PARAM3=0;
+PARAM4=0;
 b_arg_param1=0;
 b_arg_param2=0;
 b_arg_param3=0;
+b_arg_param4=0;
 b_arg_functin=0;
 b_arg_bus=0;
 b_arg_addr=0;
@@ -243,6 +249,10 @@ do
 		b_arg_param3=0;
 		PARAM3=$arg;
 	fi
+    if [ $b_arg_param4 -eq 1 ] ; then
+		b_arg_param4=0;
+		PARAM4=$arg;
+	fi
 	if [ $b_arg_bus -eq 1 ] ; then
 		b_arg_bus=0;
 		I2C_DEV=$arg;
@@ -269,6 +279,9 @@ do
 			;;
         "-p3")
 			b_arg_param3=1;
+			;;
+        "-p4")
+			b_arg_param4=1;
 			;;
 		"-b")
 			b_arg_bus=1;
@@ -412,6 +425,9 @@ read_videofmt()
     local width=0;
     local height=0;
     local framerate=0;
+    local newframerate=0;
+    local fnewframerate=0;
+    local frmratemode=0;
     local data_l=0;
     local data_h=0;
 	local res=0;
@@ -427,12 +443,24 @@ read_videofmt()
 	data_h=$?;
     height=$((data_h*256+data_l));
     
-    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $FMT_FRAMRAT_L);
-	data_l=$?;
-    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $FMT_FRAMRAT_H);
-	data_h=$?;
-    framerate=$((data_h*256+data_l));
-    printf "r videofmt width %d height %d framerate %d\n" $width $height $framerate;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $NEW_FMT_FRAMRAT_MODE);
+	frmratemode=$?;
+    if [ $frmratemode -eq 0 ]; then
+        res=$(./i2c_read $I2C_DEV $I2C_ADDR  $FMT_FRAMRAT_L);
+        data_l=$?;
+        res=$(./i2c_read $I2C_DEV $I2C_ADDR  $FMT_FRAMRAT_H);
+        data_h=$?;
+        framerate=$((data_h*256+data_l));
+        printf "r old type videofmt width %d height %d framerate %d\n" $width $height $framerate;
+    else
+        res=$(./i2c_read $I2C_DEV $I2C_ADDR  $NEW_FMT_FRAMRAT_L);
+        data_l=$?;
+        res=$(./i2c_read $I2C_DEV $I2C_ADDR  $NEW_FMT_FRAMRAT_H);
+        data_h=$?;
+        newframerate=$((data_h*256+data_l));
+        fnewframerate=$("scale=2;$newframerate / 100"|bc);
+        printf "r old type videofmt width %d height %d framerate %.2f \n" $width $height $fnewframerate;
+    fi
 }
 
 write_videofmt()
@@ -440,12 +468,18 @@ write_videofmt()
     local width=0;
     local height=0;
     local framerate=0;
+    local fnewframerate=0;
+    local newframerate=0;
+    local frmratemode=0;
     local data_l=0;
     local data_h=0;
     local res=0;
     width=$PARAM1;
     height=$PARAM2;
     framerate=$PARAM3;
+    
+    # if you use p4, means new video framerate number
+    fnewframerate=$PARAM4;
     data_h=$((width/256));
     data_l=$((width%256));
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR $FMT_WIDTH_L $data_l);
@@ -454,11 +488,27 @@ write_videofmt()
     data_l=$((height%256));
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR $FMT_HEIGHT_L $data_l);
     res=$(./i2c_write $I2C_DEV $I2C_ADDR $FMT_HEIGHT_H $data_h);
-    data_h=$((framerate/256));
-    data_l=$((framerate%256));
-	res=$(./i2c_write $I2C_DEV $I2C_ADDR $FMT_FRAMRAT_L $data_l);
-    res=$(./i2c_write $I2C_DEV $I2C_ADDR $FMT_FRAMRAT_H $data_h);
-    printf "w videofmt width %d height %d framerate %d\n" $width $height $framerate;
+
+    if [ `echo "$fnewframerate > 0" | bc` -eq 1 ]; then
+        frmratemode=1;
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR $NEW_FMT_FRAMRAT_MODE $frmratemode);
+        newframerate=$(echo "$fnewframerate * 100"|bc);
+        newframerate=${newframerate%.*};
+        #printf "new framerate %d\n" $newframerate;
+        data_h=$((newframerate/256));
+        data_l=$((newframerate%256));
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR $NEW_FMT_FRAMRAT_L $data_l);
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR $NEW_FMT_FRAMRAT_H $data_h);
+        printf "w new type videofmt width %d height %d framerate %.2f\n" $width $height $fnewframerate;
+    else
+        frmratemode=0;
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR $NEW_FMT_FRAMRAT_MODE $frmratemode);
+        data_h=$((framerate/256));
+        data_l=$((framerate%256));
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR $FMT_FRAMRAT_L $data_l);
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR $FMT_FRAMRAT_H $data_h);
+        printf "w old videofmt width %d height %d framerate %d\n" $width $height $framerate;
+    fi
 }
 
 read_ispcap()

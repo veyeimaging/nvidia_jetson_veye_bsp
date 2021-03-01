@@ -192,7 +192,7 @@ static int veye327_set_group_hold(struct tegracam_device *tc_dev, bool val)
     VEYE_TRACE
 	return 0;
 }
-
+#if 0
 static int veye327_set_gain(struct tegracam_device *tc_dev, s64 val)
 {
     #if 0
@@ -225,6 +225,7 @@ fail:
     VEYE_TRACE
     return 0;
 }
+#endif
 #if 0
 static int veye327_set_coarse_time(struct veye327 *priv, s64 val)
 {
@@ -336,7 +337,7 @@ fail:
     return 0;
 }
 #endif
-
+#if 0
 static int veye327_set_frame_rate(struct tegracam_device *tc_dev, s64 val)
 {
     #if 0
@@ -436,7 +437,7 @@ static int veye327_set_exposure(struct tegracam_device *tc_dev, s64 val)
      #endif
     return 0;
 }
-
+  #endif
 static int veye327_fill_string_ctrl(struct tegracam_device *tc_dev,
 				struct v4l2_ctrl *ctrl)
 {
@@ -464,9 +465,9 @@ static struct tegracam_ctrl_ops veye327_ctrl_ops = {
 	.numctrls = ARRAY_SIZE(ctrl_cid_list),
 	.ctrl_cid_list = ctrl_cid_list,
 	//.string_ctrl_size = {0, VEYE327_FUSE_ID_STR_SIZE},
-	.set_gain = veye327_set_gain,
-	.set_exposure = veye327_set_exposure,
-	.set_frame_rate = veye327_set_frame_rate,
+	//.set_gain = veye327_set_gain,
+	//.set_exposure = veye327_set_exposure,
+	//.set_frame_rate = veye327_set_frame_rate,
 	.set_group_hold = veye327_set_group_hold,
 	.fill_string_ctrl = veye327_fill_string_ctrl,
 };

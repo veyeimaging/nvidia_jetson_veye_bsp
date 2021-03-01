@@ -194,7 +194,7 @@ static int cs_imx307_set_group_hold(struct tegracam_device *tc_dev, bool val)
     VEYE_TRACE
 	return 0;
 }
-
+#if 0
 static int cs_imx307_set_gain(struct tegracam_device *tc_dev, s64 val)
 {
     #if 0
@@ -227,7 +227,7 @@ fail:
     VEYE_TRACE
     return 0;
 }
-#if 0
+
 static int cs_imx307_set_coarse_time(struct cs_imx307 *priv, s64 val)
 {
     
@@ -337,11 +337,11 @@ fail:
     VEYE_TRACE
     return 0;
 }
-#endif
+
 
 static int cs_imx307_set_frame_rate(struct tegracam_device *tc_dev, s64 val)
 {
-   // debug_printk("veye327_set_frame_rate want set rate %d\n",val);
+    //debug_printk("veye327_set_frame_rate want set rate %d\n",val);
     #if 0
 	struct camera_common_data *s_data = tc_dev->s_data;
 	struct cs_imx307 *priv = (struct cs_imx307 *)tc_dev->priv;
@@ -440,7 +440,7 @@ static int cs_imx307_set_exposure(struct tegracam_device *tc_dev, s64 val)
      #endif
     return 0;
 }
-
+#endif
 static int cs_imx307_fill_string_ctrl(struct tegracam_device *tc_dev,
 				struct v4l2_ctrl *ctrl)
 {
@@ -468,9 +468,10 @@ static struct tegracam_ctrl_ops cs_imx307_ctrl_ops = {
 	.numctrls = ARRAY_SIZE(ctrl_cid_list),
 	.ctrl_cid_list = ctrl_cid_list,
 	//.string_ctrl_size = {0, CS307_FUSE_ID_STR_SIZE},
-	.set_gain = cs_imx307_set_gain,
-	.set_exposure = cs_imx307_set_exposure,
-	.set_frame_rate = cs_imx307_set_frame_rate,
+    //delete for jetpack 4.5
+	//.set_gain = cs_imx307_set_gain,
+	//.set_exposure = cs_imx307_set_exposure,
+	//.set_frame_rate = cs_imx307_set_frame_rate,
 	.set_group_hold = cs_imx307_set_group_hold,
 	.fill_string_ctrl = cs_imx307_fill_string_ctrl,
 };

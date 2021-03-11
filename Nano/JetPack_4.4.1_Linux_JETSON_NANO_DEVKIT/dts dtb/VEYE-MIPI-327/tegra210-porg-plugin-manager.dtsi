@@ -461,7 +461,7 @@
 				};
 			};
 			override@21 {
-				target = <&rbpcv2_cssc132_csi_out1>;
+				target = <&rbpcv2_veye327_csi_out1>;
 				_overlay_ {
 					status = "okay";
 				};

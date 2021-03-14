@@ -458,8 +458,8 @@ read_videofmt()
         res=$(./i2c_read $I2C_DEV $I2C_ADDR  $NEW_FMT_FRAMRAT_H);
         data_h=$?;
         newframerate=$((data_h*256+data_l));
-        fnewframerate=$("scale=2;$newframerate / 100"|bc);
-        printf "r old type videofmt width %d height %d framerate %.2f \n" $width $height $fnewframerate;
+        fnewframerate=$(echo "scale=2;$newframerate/100"|bc);
+        printf "r new type videofmt width %d height %d framerate %.2f \n" $width $height $fnewframerate;
     fi
 }
 

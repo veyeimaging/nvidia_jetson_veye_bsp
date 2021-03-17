@@ -62,7 +62,6 @@ static const u32 ctrl_cid_list[] = {
     TEGRA_CAMERA_CID_FRAME_RATE,
 	TEGRA_CAMERA_CID_FUSE_ID,
 	TEGRA_CAMERA_CID_HDR_EN,*/
-    
 	TEGRA_CAMERA_CID_SENSOR_MODE_ID,
 };
 
@@ -74,6 +73,7 @@ struct cs_imx307 {
 	s64 last_wdr_et_val;
 	struct camera_common_data	*s_data;
 	struct tegracam_device		*tc_dev;
+    
 };
 
 static const struct regmap_config sensor_regmap_config = {
@@ -140,7 +140,6 @@ static inline void cs_imx307_get_gain_reg(cs307_reg *regs,
 
 //static int test_mode;
 //module_param(test_mode, int, 0644);
-
 static inline int cs_imx307_read_reg(struct camera_common_data *s_data,
 				u16 addr, u8 *val)
 {
@@ -170,7 +169,6 @@ static int cs_imx307_write_table(struct cs_imx307 *priv,
 				const cs307_reg table[])
 {
 	struct camera_common_data *s_data = priv->s_data;
-    
 	return regmap_util_write_table_8(s_data->regmap,
 					 table,
 					 NULL, 0,

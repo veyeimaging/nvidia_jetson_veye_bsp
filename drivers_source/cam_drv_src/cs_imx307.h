@@ -26,8 +26,10 @@
 #define CS307_MAX_RETRIES	3
 #define CS307_WAIT_MS_STOP	1
 #define CS307_WAIT_MS_START	30
+
 #define CS307_WAIT_MS_CMD	5
-#define CS307_WAIT_MS_STREAM	200
+#define CS307_WAIT_MS_STREAM	5
+
 
 #define CS307_GAIN_TABLE_SIZE 255
 
@@ -40,9 +42,9 @@ typedef enum
 	CS_MIPI_IMX307 = 0x0037,	
 	CS_LVDS_IMX307 = 0x0038,	
 	CS_USB_IMX307 = 0x0039,	
-	CS_MIPI_GS132 = 0x0132,	
-	CS_LVDS_GS132 = 0x0133,	
-	CS_USB_GS132 = 0x0134
+	CS_MIPI_SC132 = 0x0132,	
+	CS_LVDS_SC132 = 0x0133,	
+	CS_USB_SC132 = 0x0134
 }ENProductID;
 
 typedef enum
@@ -90,7 +92,32 @@ typedef enum
     FMT_HEIGHT_H = 0x0183,
     FMT_FRAMRAT_L = 0x0184,
     FMT_FRAMRAT_H = 0x0185,
-   
+    IMAGE_DIR = 0x0186,
+    SYSTEM_REBOOT = 0x0187,
+    NEW_FMT_FRAMRAT_MODE = 0x0188,
+    NEW_FMT_FRAMRAT_L = 0x0189,
+    NEW_FMT_FRAMRAT_H = 0x018A,
+    
+    EXP_FRM_MODE = 0x020F,
+    AE_MODE = 0x0210,
+    EXP_TIME_L = 0x0211,
+    EXP_TIME_M = 0x0212,
+    EXP_TIME_H = 0x0213,
+    EXP_TIME_E = 0x0214,
+
+    AGAIN_NOW_DEC = 0x0215,
+    AGAIN_NOW_INTER = 0x0216,
+    DGAIN_NOW_DEC = 0x0217,
+    DGAIN_NOW_INTER = 0x0218,
+
+    AE_SPEED = 0x0219,
+    AE_TARGET = 0x021A,
+    AE_MAXTIME_L = 0x021B,
+    AE_MAXTIME_M = 0x021C,
+    AE_MAXTIME_H = 0x021D,
+    AE_MAXTIME_E = 0x021E,
+    AE_MAXGAIN_DEC = 0x021F,
+    AE_MAXGAIN_INTER = 0x0220,
     //ISP cap
     ISP_CAP_L = 0x0200,
     ISP_CAP_M = 0x0201,
@@ -100,14 +127,14 @@ typedef enum
 }ECAMERA_REG;
 
 static cs307_reg cs307_start[] = {
-	{CS307_TABLE_WAIT_MS, CS307_WAIT_MS_START},
+	//{CS307_TABLE_WAIT_MS, CS307_WAIT_MS_START},
     {Csi2_Enable,0x01},
 	{CS307_TABLE_WAIT_MS, CS307_WAIT_MS_STREAM},
 	{CS307_TABLE_END, 0x00 }
 };
 
 static cs307_reg cs307_stop[] = {
-	{CS307_TABLE_WAIT_MS, CS307_WAIT_MS_STOP},
+	//{CS307_TABLE_WAIT_MS, CS307_WAIT_MS_STOP},
     {Csi2_Enable,0x00},
     {CS307_TABLE_WAIT_MS, CS307_WAIT_MS_CMD},
 	{CS307_TABLE_END, 0x00 }
@@ -198,6 +225,7 @@ static const int cs307_130fps[] = {
  * WARNING: frmfmt ordering need to match mode definition in
  * device tree!
  */
+ 
 static const struct camera_common_frmfmt cs_imx307_frmfmt[] = {
 	{{1920, 1080}, cs307_30fps, 1, 0,
 	CS307_MODE_1920X1080_30FPS},

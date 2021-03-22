@@ -62,8 +62,8 @@ I2C_ADDR=0x3b;
 
 print_usage()
 {
-    echo "this shell scripts should be used for CS-MIPI-IMX307!"
-	echo "Usage:  ./cs_mipi_i2c.sh [-r/w] [-f] function name -p1 param1 -p2 param2 -p3 param3 -b bus"
+    echo "this shell scripts should be used for CS-MIPI-X!"
+	echo "Usage:  ./cs_mipi_i2c.sh [-r/w] [-f] function name -p1 param1 -p2 param2 -p3 param3 -p4 param4 -b bus"
 	echo "options:"
 	echo "    -r                       read "
 	echo "    -w                       write"
@@ -75,7 +75,7 @@ print_usage()
 	echo "    -b [i2c bus num] 		   i2c bus number"
     echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
     echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,
-     daynightmode ,hue ,contrast , satu , expostate , wbstate ,expfrmmode,expmode , aetarget, aetime,aeagc,metime ,meagain , medgain , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,striggerone,triggeredge,autotgcnt,tgdebncr,tgdly,pickmode,pickone,mipistatus,ledstrobe,slowshuttergain,sysreboot,sysreset,paramsave"
+     daynightmode ,hue ,contrast , satu , expostate , wbstate ,expfrmmode,expmode , aetarget, aetime,aeagc,metime ,meagain , medgain,dmetime ,dmeagain , dmedgain  , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,striggerone,triggeredge,autotgcnt,tgdebncr,tgdly,pickmode,pickone,mipistatus,ledstrobe,slowshuttergain,sysreboot,sysreset,paramsave"
 }
 
 ######################reglist###################################
@@ -205,6 +205,15 @@ MWB_COLORTEMPH=0x023B;
 MWB_RGAIN=0x023C;
 MWB_GGAIN=0x023D;
 MWB_BGAIN=0x023E;
+
+DME_TIME_L=0x0240;
+DME_TIME_M=0x0241;
+DME_TIME_H=0x0242;
+DME_TIME_E=0x0243;
+DME_AGAIN_DEC=0x0244;
+DME_AGAIN_INTER=0x0245;
+DME_DGAIN_DEC=0x0246;
+DME_DGAIN_INTER=0x0247;
 
 SNSOR_REG_FLG=0x700;
 SNSOR_REG_ADDR_L=0x701;
@@ -897,6 +906,89 @@ write_medgain()
 	printf "w manual dgain %d.%d dB\n" $dgain_int $dgain_dec;
 }
 
+read_dmetime()
+{
+    local exptime=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local data_e=0;
+    local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_TIME_L);
+	data_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_TIME_M);
+	data_m=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_TIME_H);
+	data_h=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_TIME_E);
+	data_e=$?;
+    exptime=$((data_e*256*256*256+data_h*256*256+data_m*256+data_l));
+    printf "r direct mnual exptime %d us\n" $exptime;
+}
+
+write_dmetime()
+{
+    local exptime=0;
+    local data_l=0;
+    local data_m=0;
+    local data_h=0;
+    local data_e=0;
+    exptime=$PARAM1;
+    data_e=$((exptime>>24&0xFF));
+    data_h=$((exptime>>16&0xFF));
+    data_m=$((exptime>>8&0xFF));
+    data_l=$((exptime&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $DME_TIME_L $data_l);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $DME_TIME_M $data_m);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $DME_TIME_H $data_h);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  $DME_TIME_E $data_e);
+    printf "w direct mnual exptime %d us\n" $exptime;
+}
+
+read_dmeagain()
+{
+    local again_dec=0;
+    local again_int=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_AGAIN_DEC);
+	again_dec=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_AGAIN_INTER);
+	again_int=$?;
+	printf "r direct manual again %d.%d dB\n" $again_int $again_dec;
+}
+
+write_dmeagain()
+{
+    local again_dec=0;
+    local again_int=0;
+    again_int=$PARAM1;
+    again_dec=$PARAM2;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $DME_AGAIN_DEC $again_dec);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $DME_AGAIN_INTER $again_int);
+	printf "w direct manual again %d.%d dB\n" $again_int $again_dec;
+}
+
+read_dmedgain()
+{
+    local dgain_dec=0;
+    local dgain_int=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_DGAIN_DEC);
+	dgain_dec=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR  $DME_DGAIN_INTER);
+	dgain_int=$?;
+	printf "r direct manual dgain %d.%d dB\n" $dgain_int $dgain_dec;
+}
+
+write_dmedgain()
+{
+    local dgain_dec=0;
+    local dgain_int=0;
+    dgain_int=$PARAM1;
+    dgain_dec=$PARAM2;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $DME_DGAIN_DEC $dgain_dec);
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $DME_DGAIN_INTER $dgain_int);
+	printf "w direct manual dgain %d.%d dB\n" $dgain_int $dgain_dec;
+}
+
 read_awbmode()
 {
     local awbmode=0;
@@ -1376,6 +1468,15 @@ if [ ${MODE} = "read" ] ; then
         "medgain")
             read_medgain;
 			;;
+        "dmetime")
+            read_dmetime;
+			;;
+        "dmeagain")
+            read_dmeagain;
+			;;
+        "dmedgain")
+            read_dmedgain;
+			;;
         "awbmode")
             read_awbmode;
 			;;
@@ -1473,6 +1574,15 @@ if [ ${MODE} = "write" ] ; then
 			;;
         "medgain")
             write_medgain;
+			;;
+        "dmetime")
+            write_dmetime;
+			;;
+        "dmeagain")
+            write_dmeagain;
+			;;
+        "dmedgain")
+            write_dmedgain;
 			;;
         "awbmode")
             write_awbmode;

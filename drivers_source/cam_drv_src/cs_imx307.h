@@ -68,7 +68,6 @@ typedef enum
     HorTotalTime_H = 0x18,
     HorTotalTime_L = 0x19,
     
-    //for arm part
     ARM_VER_L = 0x0100,
     ARM_VER_H = 0x0101,
     PRODUCTID_L = 0x0102,

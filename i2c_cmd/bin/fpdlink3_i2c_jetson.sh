@@ -18,16 +18,19 @@ COMMENT_SAMPLE
 #   ID ADDR (8BIT)               0x60                               0x30                     0x76(VEYE CAMERA)
 #   ALIAS ADDR (7BIT)             NA                                0x19                     0x3B(VEYE CAMERA)
 #   ALIAS ADDR (8BIT)             NA                                0x32                     0x76(VEYE CAMERA)
-#
+# 
 #
 I2C_DEV=0;
 
-SER_ID=0x19;
-SER_ALAIS_ID=0x32;
+SER_ID_PORT0=0x19;
+SER_ALAIS_ID_PORT0=0x32;
+VEYE_CAM_ID_PORT0=0x3B;
+
+SER_ID_PORT1=0x20;
+SER_ALAIS_ID_PORT1=0x40;
+VEYE_CAM_ID_PORT1=0x3C;
 
 DES_ID=0x30;
-
-VEYE_CAM_ID=0x3B;
 
 FPDLINK_PORT=0;
 
@@ -43,7 +46,7 @@ print_usage()
 	echo "    -p3 [param1] 			   param3 of each function"
 	
 
-    echo "support functions: rpi_init,sync_init,trigger_init"
+    echo "support functions: sync_init,trigger_init"
 }
 
 ######################reglist###################################
@@ -135,49 +138,8 @@ if [ $# -lt 1 ]; then
     exit 0;
 fi
 
-pinmux()
-{
-	sh ./camera_i2c_config >> /dev/null 2>&1
-}
-
-
 #######################Action# BEGIN##############################
 
-pinmux;
-
-write_rpi_init()
-{
-    printf "please use this function ONLY on raspberrypi platform\n";
-    i2cset -f -y $I2C_DEV $DES_ID 0x1f 0x02 
-    i2cset -f -y $I2C_DEV $DES_ID 0x33 0x21 
-    if [ $FPDLINK_PORT -eq 1 ] ; then
-        i2cset -f -y $I2C_DEV $DES_ID 0x20 0x10 
-        i2cset -f -y $I2C_DEV $DES_ID 0x4c 0x12 
-    else
-        i2cset -f -y $I2C_DEV $DES_ID 0x20 0x20 
-        i2cset -f -y $I2C_DEV $DES_ID 0x4c 0x01 
-    fi
-    i2cset -f -y $I2C_DEV $DES_ID 0x6d 0x7c 
-    i2cset -f -y $I2C_DEV $DES_ID 0x58 0x5e 
-
-    i2cset -f -y $I2C_DEV $DES_ID 0x5c 0x32 
-
-    i2cset -f -y $I2C_DEV $DES_ID 0x5d 0x76 
-    i2cset -f -y $I2C_DEV $DES_ID 0x65 0x76 
-
-    i2cset -f -y $I2C_DEV $DES_ID 0x06 0x00 
-    i2cset -f -y $I2C_DEV $DES_ID 0x05 0x00 
-    sleep 0.1;
-
-    i2cset -f -y $I2C_DEV $SER_ID 0x02 0x52 
-    i2cset -f -y $I2C_DEV $SER_ID 0x32 0x49 
-    sleep 0.1;
-
-    i2cset -f -y $I2C_DEV $SER_ID 0x39 0x60 
-    i2cset -f -y $I2C_DEV $SER_ID 0x41 0x60 
-
-    printf "init fpdlink port %d \n" $FPDLINK_PORT;
-}
 ## init for ward channel, port 0 ses gpio 1 to des gpio 1
 forward_port0_pin1_init()
 {
@@ -185,10 +147,10 @@ forward_port0_pin1_init()
     i2cset -f -y $I2C_DEV $DES_ID 0x4c 0x01 
     i2cset -f -y $I2C_DEV $DES_ID 0x58 0x5e 
     ## set ser chip io 1 input
-    i2cset -f -y $I2C_DEV $SER_ID 0x0D 0x00 
-    i2cset -f -y $I2C_DEV $SER_ID 0x0E 0x02
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x0D 0x00 
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x0E 0x02
     ## forward 2 gpio chn 0 1
-    i2cset -f -y $I2C_DEV $SER_ID 0x33 0x02
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x33 0x02
 
     ## set des chip io 1 
     #io 1 set to output
@@ -208,11 +170,11 @@ backward_port0_pin1_init()
     i2cset -f -y $I2C_DEV $DES_ID 0x58 0x5e 
 
     ## set ser chip io  1 output
-    i2cset -f -y $I2C_DEV $SER_ID 0x0E 0x20
-    i2cset -f -y $I2C_DEV $SER_ID 0x0D 0x20
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x0E 0x20
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x0D 0x20
     
     ## 
-    i2cset -f -y $I2C_DEV $SER_ID 0x33 0x00
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x33 0x00
     
     #gpio0 1 input connect to port0 gpio 0 1
     i2cset -f -y $I2C_DEV $DES_ID 0x6E 0x10
@@ -234,8 +196,8 @@ backward_port1_pin1_init()
     i2cset -f -y $I2C_DEV $DES_ID 0x58 0x5e 
 
     ## set ser chip io 1 output
-    i2cset -f -y $I2C_DEV $SER_ID 0x0E 0x20
-    i2cset -f -y $I2C_DEV $SER_ID 0x0D 0x20 
+    i2cset -f -y $I2C_DEV $SER_ID_PORT1 0x0E 0x20
+    i2cset -f -y $I2C_DEV $SER_ID_PORT1 0x0D 0x20 
 
     #gpio 3 input connect to port1,gpio  1
     i2cset -f -y $I2C_DEV $DES_ID 0x6E 0x30
@@ -253,11 +215,11 @@ backward_port0_pin0_init()
     i2cset -f -y $I2C_DEV $DES_ID 0x58 0x5e 
 
     ## set ser chip io 0 1 output
-    i2cset -f -y $I2C_DEV $SER_ID 0x0E 0x10
-    i2cset -f -y $I2C_DEV $SER_ID 0x0D 0x10
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x0E 0x10
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x0D 0x10
     
     ## 
-    i2cset -f -y $I2C_DEV $SER_ID 0x33 0x00
+    i2cset -f -y $I2C_DEV $SER_ID_PORT0 0x33 0x00
     
     #gpio0 input connect to port0 gpio 0
     i2cset -f -y $I2C_DEV $DES_ID 0x6E 0x00
@@ -279,8 +241,8 @@ backward_port1_pin0_init()
     i2cset -f -y $I2C_DEV $DES_ID 0x58 0x5e 
 
     ## set ser chip io 0 1 output
-    i2cset -f -y $I2C_DEV $SER_ID 0x0E 0x10
-    i2cset -f -y $I2C_DEV $SER_ID 0x0D 0x10 
+    i2cset -f -y $I2C_DEV $SER_ID_PORT1 0x0E 0x10
+    i2cset -f -y $I2C_DEV $SER_ID_PORT1 0x0D 0x10 
 
     #gpio2  input connect to port1,gpio 0
     i2cset -f -y $I2C_DEV $DES_ID 0x6E 0x02
@@ -327,9 +289,6 @@ write_trigger_init()
 
 if [ ${MODE} = "write" ] ; then
 	case $FUNCTION in
-		"rpi_init")
-			write_rpi_init;
-			;;
 		"sync_init")
 			write_sync_init;
 			;;

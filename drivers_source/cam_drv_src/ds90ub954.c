@@ -1441,18 +1441,24 @@ static int ds90ub953_parse_dt(struct i2c_client *client,
 			switch(val) {
 			case 1:
 				ds90ub953->hs_clk_div = 0b000;
+				break;
 			case 2:
 				ds90ub953->hs_clk_div = 0b001;
+				break;
 			case 4:
 				ds90ub953->hs_clk_div = 0b010;
+				break;
 			case 8:
 				ds90ub953->hs_clk_div = 0b011;
+				break;
 			case 16:
 				ds90ub953->hs_clk_div = 0b100;
+				break;
 			default:
 				ds90ub953->hs_clk_div = 0b010;
 				dev_info(dev, "%s: - %i no valid value for hs-clk-div\n",
 					 __func__, val);
+				break;
 			}
 			dev_info(dev,"%s: - hs-clk-div set to val: %i (div by %i)\n",
 				 __func__, ds90ub953->hs_clk_div, val);

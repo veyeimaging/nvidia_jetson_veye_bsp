@@ -181,3 +181,8 @@
 	};
 };
 
+//over-lay
+&cam_i2c {
+    clock-frequency = <100000>;
+};
+

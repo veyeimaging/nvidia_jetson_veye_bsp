@@ -608,3 +608,9 @@
 		};
 	};
 };
+&i2c6 {
+			clock-frequency = <100000>;
+		};
+&i2c7 {
+			clock-frequency = <100000>;
+		};

@@ -175,7 +175,7 @@
 			override@0 {
 				target = <&max77620_ldo6>;
 				_overlay_ {
-                                        status = "disabled";
+                    status = "disabled";
 				};
 			};
 			override@1 {
@@ -541,13 +541,13 @@
 					status = "okay";
 				};
 			};
-	            	override@27 {
-					target = <&fpdlink1>;
-					_overlay_ {
+	        override@27 {
+                target = <&fpdlink1>;
+                _overlay_ {
 
-						status = "okay";
-					};
-				};
+                    status = "okay";
+                };
+            };
 		};
 		fragment@12 {
 			ids = ">=3448-0003-400";
@@ -608,3 +608,9 @@
 		};
 	};
 };
+&i2c6 {
+			clock-frequency = <100000>;
+		};
+&i2c7 {
+			clock-frequency = <100000>;
+		};

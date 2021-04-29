@@ -75,7 +75,7 @@ print_usage()
 	echo "    -b [i2c bus num] 		   i2c bus number"
     echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
     echo "support functions: devid,hdver,camcap,firmwarever,productmodel,videofmtcap,videofmt,ispcap,i2caddr,streammode,powerhz,
-     daynightmode ,hue ,contrast , satu , expostate , wbstate ,expfrmmode,expmode , aetarget, aetime,aeagc,metime ,meagain , medgain,dmetime ,dmeagain , dmedgain  , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,striggerone,triggeredge,autotgcnt,tgdebncr,tgdly,pickmode,pickone,mipistatus,ledstrobe,slowshuttergain,sysreboot,sysreset,paramsave"
+     daynightmode ,hue ,contrast , satu , expostate , wbstate ,expfrmmode,expmode , aetarget, aetime,aeagc,metime ,meagain , medgain,dmetime ,dmeagain , dmedgain  , awbmode , mwbcolortemp , mwbgain,imagedir,sreg,striggerone,triggeredge,autotgcnt,tgdebncr,tgdly,pickmode,pickone,mipistatus,ledstrobe,slowshuttergain,sysreboot,sysreset,paramsave,yuvseq,i2cwen"
 }
 
 ######################reglist###################################
@@ -110,7 +110,8 @@ TrigDlyH=0x20;
 TrigDlyE=0x21;
 PickModeEnable=0x26;
 PickOne=0x27;
-DiscardedQnt=0x28;
+YUVSeq=0x28;
+
 
 AutoTrigCntMaxL=0xC7;
 AutoTrigCntMaxM=0XC8;
@@ -147,7 +148,7 @@ SYSTEM_REBOOT=0x0187;
 NEW_FMT_FRAMRAT_MODE=0x0188;
 NEW_FMT_FRAMRAT_L=0x0189;
 NEW_FMT_FRAMRAT_H=0x018A;
-
+I2CWEn=0x190;
 ISP_CAP_L=0x0200;
 ISP_CAP_M=0x0201;
 ISP_CAP_H=0x0202;
@@ -1393,6 +1394,61 @@ write_ledstrobe()
     fi
 }
 
+read_i2c_write_enable()
+{
+    local i2cwenable=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR $I2CWEn);
+	i2cwenable=$?;
+    if [ $i2cwenable -eq 238 ] ; then
+        printf "r i2c write enable\n";
+    else
+		printf "r i2c write disable\n";
+	fi
+	
+}
+write_i2c_write_enable()
+{
+    local i2c_write_enable=0;
+	local res=0;
+    if [ $PARAM1 -eq 0 ] ; then
+        i2c_write_enable=0x11;
+    else
+		i2c_write_enable=0xEE;
+	fi
+
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR $I2CWEn $i2c_write_enable);
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR $I2CWEn $i2c_write_enable);
+	printf "w i2c_write_enable is 0x%2x\n" $PARAM1;
+}
+
+read_yuvseq()
+{
+	local yuvseq=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR $YUVSeq );
+	yuvseq=$?;
+    if [ $yuvseq -eq 1 ] ; then
+		printf "r YUVseq is YUYV\n";
+    else
+        printf "r YUVseq is UYVY\n";
+	fi
+}
+
+write_yuvseq()
+{
+	local csienable=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR $YUVSeq $PARAM1);
+    if [ $PARAM1 = "YUYV" ] ; then
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  $YUVSeq 0x1);
+    else
+        res=$(./i2c_write $I2C_DEV $I2C_ADDR  $YUVSeq 0x0);
+	fi
+	printf "w YUVseq is %s\n" $PARAM1;
+}
+
 #######################Action# BEGIN##############################
 
 pinmux;
@@ -1519,6 +1575,12 @@ if [ ${MODE} = "read" ] ; then
         "mipistatus")
             read_mipistatus;
 	    		;;
+        "i2cwen")
+			read_i2c_write_enable;
+			;;
+        "yuvseq")
+            read_yuvseq;
+                ;;
         *)
 			echo "NOT SUPPORTED!";
 			;;
@@ -1632,6 +1694,12 @@ if [ ${MODE} = "write" ] ; then
         "ledstrobe")
             write_ledstrobe;
 			;;
+        "i2cwen")
+			write_i2c_write_enable;
+			;;
+        "yuvseq")
+            write_yuvseq;
+                ;;
         *)
 			echo "NOT SUPPORTED!";
 			;;

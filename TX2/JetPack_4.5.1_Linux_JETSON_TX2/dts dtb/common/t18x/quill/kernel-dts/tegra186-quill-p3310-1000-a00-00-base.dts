@@ -21,20 +21,8 @@
 //#include "t18x-common-platforms/tegra186-quill-camera-csimx307-a00-9001.dtsi"
 //#include "t18x-common-platforms/tegra186-quill-camera-veye327-a00-9001.dtsi"
 //#include "t18x-common-platforms/tegra186-quill-camera-veye327-a00.dtsi"
-#include "t18x-common-platforms/tegra186-quill-camera-csimx307-a00.dtsi"
-//#include "t18x-common-platforms/tegra186-quill-camera-cssc132-a00.dtsi"
-
-//for fpdlink
-
-//#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-csimx307.dtsi"
-//#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-csimx307-a00.dtsi"
-//#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-cssc132.dtsi"
-//#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-cssc132-a00.dtsi"
-
-//#include "t18x-common-platforms/tegra186-quill-fpdlink-6chn-90ub954-veye327.dtsi"
-//#include "t18x-common-platforms/tegra186-quill-camera-fpdlink-veye327-a00.dtsi"
-
-
+//#include "t18x-common-platforms/tegra186-quill-camera-csimx307-a00.dtsi"
+#include "t18x-common-platforms/tegra186-quill-camera-veyecam2m-a00.dtsi"
 /* comms dtsi file should be included after gpio dtsi file */
 #include <t18x-common-platforms/tegra186-quill-comms.dtsi>
 #include <t18x-common-plugin-manager/tegra186-quill-p3310-1000-a00-plugin-manager.dtsi>

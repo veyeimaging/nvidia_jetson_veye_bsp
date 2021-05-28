@@ -559,7 +559,7 @@ static struct camera_common_pdata *veyecam_parse_dt(struct tegracam_device *tc_d
 	struct device_node *np = dev->of_node;
 	struct camera_common_pdata *board_priv_pdata;
 	const struct of_device_id *match;
-	struct camera_common_pdata *ret = NULL;
+	//struct camera_common_pdata *ret = NULL;
 	int err;
 	int gpio;
 
@@ -579,12 +579,14 @@ static struct camera_common_pdata *veyecam_parse_dt(struct tegracam_device *tc_d
 
 	gpio = of_get_named_gpio(np, "reset-gpios", 0);
 	if (gpio < 0) {
-		if (gpio == -EPROBE_DEFER)
-			ret = ERR_PTR(-EPROBE_DEFER);
+		//if (gpio == -EPROBE_DEFER)
+		//	ret = ERR_PTR(-EPROBE_DEFER);
 		dev_err(dev, "reset-gpios not found \n");
-		goto error;
-	}
-	board_priv_pdata->reset_gpio = (unsigned int)gpio;
+        board_priv_pdata->reset_gpio = 0;
+		//goto error;
+	}else{
+        board_priv_pdata->reset_gpio = (unsigned int)gpio;
+    }
     
 	err = of_property_read_string(np, "mclk", &board_priv_pdata->mclk_name);
 	if (err)
@@ -606,9 +608,9 @@ static struct camera_common_pdata *veyecam_parse_dt(struct tegracam_device *tc_d
     VEYE_TRACE
 	return board_priv_pdata;
 
-error:
+/*error:
 	devm_kfree(dev, board_priv_pdata);
-	return ret;
+	return ret;*/
 }
 
 static int veyecam_set_mode(struct tegracam_device *tc_dev)

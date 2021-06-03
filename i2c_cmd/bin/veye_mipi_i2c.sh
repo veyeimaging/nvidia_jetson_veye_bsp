@@ -446,7 +446,7 @@ read_i2c_aux_enable()
 	local res=0;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x1F);
 	i2c_aux_enable=$?;
-	if [ $board_model -eq 238 ] ; then
+	if [ $i2c_aux_enable -eq 238 ] ; then
 		printf "i2c aux is enable \n";
 	else
 		printf "i2c aux is disable\n";

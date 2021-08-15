@@ -19,7 +19,7 @@ print_usage()
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
 	echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
-	echo "support functions: devid,hdver,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger£¬mshutter"
+	echo "support functions: devid,hdver,sensorid,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger£¬mshutter"
     echo "cameramode, nodf, capture, csienable,saturation,wdrbtargetbr,wdrtargetbr, brightness ,contrast , sharppen, aespeed,lsc,boardmodel,yuvseq,i2cauxenable,i2cwen,awbgain,wbmode,mwbgain"
 }
 ######################parse arg###################################
@@ -120,6 +120,28 @@ read_hardver()
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x00 );
 	hardver=$?;
 	printf "hardware version is 0x%2x\n" $hardver;
+}
+#define SENSOR_TYPR_ADDR_L    0x20
+#define SENSOR_TYPR_ADDR_H    0x21
+#define BOARD_TYPR_ADDR    0x25
+read_sensorid()
+{
+    local sensorid_l=0;
+    local sensorid_h=0;
+    local board_type=0;
+	local res=0;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x20);
+	sensorid_l=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x21);
+	sensorid_h=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x25);
+	board_type=$?;
+    printf "r sensor id is IMX%2x%2x;" $sensorid_l $sensorid_h;
+    if [ $board_type -eq 76 ] ; then
+		printf " ONE board\n";
+	else
+        printf " TWO board\n";
+    fi
 }
 
 read_wdrmode()
@@ -916,6 +938,9 @@ if [ ${MODE} = "read" ] ; then
 		"hdver"|"hardwareversion")
 			read_hardver;
 			;;
+        "sensorid")
+            read_sensorid;
+            ;;
 		"wdrmode")
 			read_wdrmode;
 			;;

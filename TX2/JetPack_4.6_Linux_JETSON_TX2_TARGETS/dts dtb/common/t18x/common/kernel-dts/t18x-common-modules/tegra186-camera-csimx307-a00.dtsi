@@ -1,0 +1,1221 @@
+/*
+ * Copyright (c) 2015-2018, NVIDIA CORPORATION.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* camera control gpio definitions */
+/ {
+	host1x {
+		vi@15700000 {
+			num-channels = <6>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+					e3322_vi_in0: endpoint {
+						port-index = <0>;
+						bus-width = <2>;
+						remote-endpoint = <&e3322_csi_out0>;
+						status = "okay";
+					};
+				};
+				port@1 {
+					reg = <1>;
+					e3322_vi_in1: endpoint {
+						port-index = <1>;
+						bus-width = <2>;
+						remote-endpoint = <&e3322_csi_out1>;
+						status = "okay";
+					};
+				};
+				port@2 {
+					reg = <2>;
+					e3322_vi_in2: endpoint {
+						port-index = <2>;
+						bus-width = <2>;
+						remote-endpoint = <&e3322_csi_out2>;
+						status = "okay";
+					};
+				};
+				port@3 {
+					reg = <3>;
+					e3322_vi_in3: endpoint {
+						port-index = <3>;
+						bus-width = <2>;
+						remote-endpoint = <&e3322_csi_out3>;
+						status = "okay";
+					};
+				};
+				port@4 {
+					reg = <4>;
+					e3322_vi_in4: endpoint {
+						port-index = <4>;
+						bus-width = <2>;
+						remote-endpoint = <&e3322_csi_out4>;
+						status = "okay";
+					};
+				};
+				port@5 {
+					reg = <5>;
+					e3322_vi_in5: endpoint {
+						port-index = <5>;
+						bus-width = <2>;
+						remote-endpoint = <&e3322_csi_out5>;
+						status = "okay";
+					};
+				};
+			};
+		};
+
+		nvcsi@150c0000 {
+			num-channels = <6>;
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			channel@0 {
+				reg = <0>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						e3322_csi_in0: endpoint@0 {
+							port-index = <0>;
+							bus-width = <2>;
+							remote-endpoint = <&e3322_csimx307_out0>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						e3322_csi_out0: endpoint@1 {
+							remote-endpoint = <&e3322_vi_in0>;
+						};
+					};
+				};
+			};
+			channel@1 {
+				reg = <1>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						e3322_csi_in1: endpoint@2 {
+							port-index = <1>;
+							bus-width = <2>;
+							remote-endpoint = <&e3322_csimx307_out1>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						e3322_csi_out1: endpoint@3 {
+							remote-endpoint = <&e3322_vi_in1>;
+						};
+					};
+				};
+			};
+			channel@2 {
+				reg = <2>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						e3322_csi_in2: endpoint@4 {
+							port-index = <2>;
+							bus-width = <2>;
+							remote-endpoint = <&e3322_csimx307_out2>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						e3322_csi_out2: endpoint@5 {
+							remote-endpoint = <&e3322_vi_in2>;
+						};
+					};
+				};
+			};
+			channel@3 {
+				reg = <3>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						e3322_csi_in3: endpoint@6 {
+							port-index = <3>;
+							bus-width = <2>;
+							remote-endpoint = <&e3322_csimx307_out3>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						e3322_csi_out3: endpoint@7 {
+							remote-endpoint = <&e3322_vi_in3>;
+						};
+					};
+				};
+			};
+			channel@4 {
+				reg = <4>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						e3322_csi_in4: endpoint@8 {
+							port-index = <4>;
+							bus-width = <2>;
+							remote-endpoint = <&e3322_csimx307_out4>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						e3322_csi_out4: endpoint@9 {
+							remote-endpoint = <&e3322_vi_in4>;
+						};
+					};
+				};
+			};
+			channel@5 {
+				reg = <5>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						e3322_csi_in5: endpoint@10 {
+							port-index = <5>;
+							bus-width = <2>;
+							remote-endpoint = <&e3322_csimx307_out5>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						e3322_csi_out5: endpoint@11 {
+							remote-endpoint = <&e3322_vi_in5>;
+						};
+					};
+				};
+			};
+		};
+	};
+
+	i2c@3180000 {
+		tca9548@70 {
+			i2c@0 {
+				csimx307_a@3b {
+					devnode = "video0";
+					compatible = "nvidia,cs_imx307";
+					reg = <0x3b>;
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					sensor_model = "csimx307";
+					use_sensor_mode_id = "false";
+					dovdd-supply = <&en_vdd_cam>;
+					avdd-reg = "vana";
+					dvdd-reg = "vdig";
+					iovdd-reg = "dovdd";
+
+					mode0 { /* CS307_MODE_1920X1080_30FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "30000000"; /* 30 fps */
+					step_framerate = "1";
+					default_framerate = "30000000"; /* 30 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "333333"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1280";
+					active_h = "720";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1650";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "60000000"; /* 60 fps */
+					step_framerate = "1";
+					default_framerate = "60000000"; /* 60 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "166666"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode2 { /* CS307_MODE_640X480_CROP_130FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "640";
+					active_h = "480";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1100";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "130000000"; /* 130 fps */
+					step_framerate = "1";
+					default_framerate = "130000000"; /* 130 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "7692"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							e3322_csimx307_out0: endpoint {
+								port-index = <0>;
+								bus-width = <2>;
+								remote-endpoint = <&e3322_csi_in0>;
+							};
+						};
+					};
+				};
+            };
+            i2c@1 {
+				csimx307_b@3b {
+					devnode = "video1";
+					compatible = "nvidia,cs_imx307";
+					reg = <0x3b>;
+                    sensor_model = "csimx307";
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+                    use_sensor_mode_id = "false";
+
+					avdd-reg = "vana";
+					dvdd-reg = "vdig";
+					iovdd-reg = "dovdd";
+                    mode0 { /* CS307_MODE_1920X1080_30FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "30000000"; /* 30 fps */
+					step_framerate = "1";
+					default_framerate = "30000000"; /* 30 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "333333"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1280";
+					active_h = "720";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1650";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "60000000"; /* 60 fps */
+					step_framerate = "1";
+					default_framerate = "60000000"; /* 60 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "166666"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode2 { /* CS307_MODE_640X480_CROP_130FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "640";
+					active_h = "480";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1100";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "130000000"; /* 130 fps */
+					step_framerate = "1";
+					default_framerate = "130000000"; /* 130 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "7692"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							e3322_csimx307_out1: endpoint {
+								port-index = <1>;
+								bus-width = <2>;
+								remote-endpoint = <&e3322_csi_in1>;
+							};
+						};
+					};
+				};
+			};
+			i2c@2 {
+				csimx307_c@3b {
+					devnode = "video2";
+					compatible = "nvidia,cs_imx307";
+					reg = <0x3b>;
+
+                    sensor_model = "csimx307";
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+                    use_sensor_mode_id = "false";
+
+					avdd-reg = "vana";
+					dvdd-reg = "vdig";
+					iovdd-reg = "dovdd";
+                               mode0 { /* CS307_MODE_1920X1080_30FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "30000000"; /* 30 fps */
+					step_framerate = "1";
+					default_framerate = "30000000"; /* 30 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "333333"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1280";
+					active_h = "720";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1650";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "60000000"; /* 60 fps */
+					step_framerate = "1";
+					default_framerate = "60000000"; /* 60 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "166666"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode2 { /* CS307_MODE_640X480_CROP_130FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "640";
+					active_h = "480";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1100";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "130000000"; /* 130 fps */
+					step_framerate = "1";
+					default_framerate = "130000000"; /* 130 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "7692"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};                
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							e3322_csimx307_out2: endpoint {
+								port-index = <2>;
+								bus-width = <2>;
+								remote-endpoint = <&e3322_csi_in2>;
+							};
+						};
+					};
+				};
+            };
+        i2c@3 {
+				csimx307_d@3b {
+					devnode = "video3";
+					compatible = "nvidia,cs_imx307";
+					reg = <0x3b>;
+                    sensor_model = "csimx307";
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+                    use_sensor_mode_id = "false";
+
+					avdd-reg = "vana";
+					dvdd-reg = "vdig";
+					iovdd-reg = "dovdd";
+                mode0 { /* CS307_MODE_1920X1080_30FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "30000000"; /* 30 fps */
+					step_framerate = "1";
+					default_framerate = "30000000"; /* 30 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "333333"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1280";
+					active_h = "720";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1650";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "60000000"; /* 60 fps */
+					step_framerate = "1";
+					default_framerate = "60000000"; /* 60 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "166666"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+            mode2 { /* CS307_MODE_640X480_CROP_130FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "640";
+					active_h = "480";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1100";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "130000000"; /* 130 fps */
+					step_framerate = "1";
+					default_framerate = "130000000"; /* 130 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "7692"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							e3322_csimx307_out3: endpoint {
+								port-index = <3>;
+								bus-width = <2>;
+								remote-endpoint = <&e3322_csi_in3>;
+							};
+						};
+					};
+				};
+			};
+			i2c@4 {
+				csimx307_e@3b {
+					devnode = "video4";
+					compatible = "nvidia,cs_imx307";
+					reg = <0x3b>;
+                    sensor_model = "csimx307";
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+                    use_sensor_mode_id = "false";
+
+					avdd-reg = "vana";
+					dvdd-reg = "vdig";
+					iovdd-reg = "dovdd";
+                mode0 { /* CS307_MODE_1920X1080_30FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "30000000"; /* 30 fps */
+					step_framerate = "1";
+					default_framerate = "30000000"; /* 30 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "333333"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1280";
+					active_h = "720";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1650";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "60000000"; /* 60 fps */
+					step_framerate = "1";
+					default_framerate = "60000000"; /* 60 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "166666"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode2 { /* CS307_MODE_640X480_CROP_130FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "640";
+					active_h = "480";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1100";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "130000000"; /* 130 fps */
+					step_framerate = "1";
+					default_framerate = "130000000"; /* 130 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "7692"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							e3322_csimx307_out4: endpoint {
+								port-index = <4>;
+								bus-width = <2>;
+								remote-endpoint = <&e3322_csi_in4>;
+							};
+						};
+					};
+				};
+            };
+            i2c@5 {
+				csimx307_f@3b {
+					devnode = "video5";
+					compatible = "nvidia,cs_imx307";
+					reg = <0x3b>;
+                    sensor_model = "csimx307";
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+                    use_sensor_mode_id = "false";
+
+					avdd-reg = "vana";
+					dvdd-reg = "vdig";
+					iovdd-reg = "dovdd";
+                mode0 { /* CS307_MODE_1920X1080_30FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "30000000"; /* 30 fps */
+					step_framerate = "1";
+					default_framerate = "30000000"; /* 30 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "333333"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1280";
+					active_h = "720";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1650";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "60000000"; /* 60 fps */
+					step_framerate = "1";
+					default_framerate = "60000000"; /* 60 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "166666"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+                mode2 { /* CS307_MODE_640X480_CROP_130FPS */
+					mclk_khz = "24000";
+					num_lanes = "2";
+					tegra_sinterface = "serial_a";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "640";
+					active_h = "480";
+					pixel_t = "yuv_uyvy16";
+					readout_orientation = "0";
+					line_length = "1100";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "74250000";
+
+					gain_factor = "16";
+					framerate_factor = "1000000";
+					exposure_factor = "1000000";
+					min_gain_val = "16"; /* 1.00x */
+					max_gain_val = "170"; /* 10.66x */
+					step_gain_val = "1";
+					default_gain = "16"; /* 1.00x */
+					min_hdr_ratio = "1";
+					max_hdr_ratio = "1";
+					min_framerate = "2000000"; /* 2.0 fps */
+					max_framerate = "130000000"; /* 130 fps */
+					step_framerate = "1";
+					default_framerate = "130000000"; /* 130 fps */
+					min_exp_time = "13"; /* us */
+					max_exp_time = "7692"; /* us */
+					step_exp_time = "1";
+					default_exp_time = "2495"; /* us */
+
+					embedded_metadata_height = "0";
+				};
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							e3322_csimx307_out5: endpoint {
+								port-index = <5>;
+								bus-width = <2>;
+								remote-endpoint = <&e3322_csi_in5>;
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+
+
+/* camera control gpio definitions */
+/ {
+	tegra-camera-platform {
+		compatible = "nvidia, tegra-camera-platform";
+
+		/**
+		* Physical settings to calculate max ISO BW
+		*
+		* num_csi_lanes = <>;
+		* Total number of CSI lanes when all cameras are active
+		*
+		* max_lane_speed = <>;
+		* Max lane speed in Kbit/s
+		*
+		* min_bits_per_pixel = <>;
+		* Min bits per pixel
+		*
+		* vi_peak_byte_per_pixel = <>;
+		* Max byte per pixel for the VI ISO case
+		*
+		* vi_bw_margin_pct = <>;
+		* Vi bandwidth margin in percentage
+		*
+		* max_pixel_rate = <>;
+		* Max pixel rate in Kpixel/s for the ISP ISO case
+		*
+		* isp_peak_byte_per_pixel = <>;
+		* Max byte per pixel for the ISP ISO case
+		*
+		* isp_bw_margin_pct = <>;
+		* Isp bandwidth margin in percentage
+		*/
+		num_csi_lanes = <12>;
+		max_lane_speed = <1500000>;
+		min_bits_per_pixel = <8>;
+		vi_peak_byte_per_pixel = <2>;
+		vi_bw_margin_pct = <25>;
+		isp_peak_byte_per_pixel = <5>;
+		isp_bw_margin_pct = <25>;
+
+		/**
+		 * The general guideline for naming badge_info contains 3 parts, and is as follows,
+		 * The first part is the camera_board_id for the module; if the module is in a FFD
+		 * platform, then use the platform name for this part.
+		 * The second part contains the position of the module, ex. “rear” or “front”.
+		 * The third part contains the last 6 characters of a part number which is found
+		 * in the module's specsheet from the vender.
+		 */
+		modules {
+			module0 {
+				badge = "e3322_bottomleft_A815P2";
+				position = "bottomleft";
+				orientation = "1";
+				drivernode0 {
+					status = "okay";
+					pcl_id = "v4l2_sensor";
+					devname = "csx307 30-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@0/csimx307_a@3b";
+				};
+				/*drivernode1 {
+					pcl_id = "v4l2_lens";
+				};*/
+			};
+			module1 {
+				badge = "e3322_centerleft_A815P2";
+				position = "centerleft";
+				orientation = "1";
+				drivernode0 {
+					status = "okay";
+					pcl_id = "v4l2_sensor";
+					devname = "csx307 31-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@1/csimx307_b@3b";
+				};
+				/*drivernode1 {
+					pcl_id = "v4l2_lens";
+				};*/
+			};
+			module2 {
+				badge = "e3322_centerright_A815P2";
+				position = "centerright";
+				orientation = "1";
+				drivernode0 {
+					status = "okay";
+					pcl_id = "v4l2_sensor";
+					devname = "csx307 32-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@2/csimx307_c@3b";
+				};
+				/*drivernode1 {
+					pcl_id = "v4l2_lens";
+				};*/
+			};
+			module3 {
+				badge = "e3322_topleft_A815P2";
+				position = "topleft";
+				orientation = "1";
+				drivernode0 {
+					status = "okay";
+					pcl_id = "v4l2_sensor";
+					devname = "csx307 33-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@3/csimx307_d@3b";
+				};
+				/*drivernode1 {
+					pcl_id = "v4l2_lens";
+				};*/
+			};
+			module4 {
+				badge = "e3322_bottomright_A815P2";
+				position = "bottomright";
+				orientation = "1";
+				drivernode0 {
+					status = "okay";
+					pcl_id = "v4l2_sensor";
+					devname = "csx307 34-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@4/csimx307_e@3b";
+				};
+				/*drivernode1 {
+					pcl_id = "v4l2_lens";
+				};*/
+			};
+			module5 {
+				badge = "e3322_topright_A815P2";
+				position = "topright";
+				orientation = "1";
+				drivernode0 {
+					status = "okay";
+					pcl_id = "v4l2_sensor";
+					devname = "csimx307 35-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@5/csimx307_f@3b";
+				};
+			/*	drivernode1 {
+					pcl_id = "v4l2_lens";
+				};*/
+			};
+		};
+	};
+};

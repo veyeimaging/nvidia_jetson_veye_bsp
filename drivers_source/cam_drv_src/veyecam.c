@@ -900,7 +900,9 @@ static int veyecam_probe(struct i2c_client *client,
 		dev_err(dev, "board setup failed\n");
 		return err;
 	}
-
+    //make sure it is continues mode
+    veyecam_write_reg(priv->s_data, 0x0b, 0xFF);
+    
 	err = tegracam_v4l2subdev_register(tc_dev, true);
 	if (err) {
 		dev_err(dev, "tegra camera subdev registration failed\n");

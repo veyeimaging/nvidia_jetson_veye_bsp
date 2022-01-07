@@ -28,9 +28,6 @@
 
 ./veye5_mipi_i2c.sh -r -f sensor_reg -p1 [sensor reg addr]
 
-./veye5_mipi_i2c.sh -r -f isp_reg -p1 [isp reg addr]
-./veye5_mipi_i2c.sh -w -f isp_reg -p1 [isp reg addr] -p2 [val]
-
 VIDEO_2592x1944p_20 = 1,//5M@20fps
 VIDEO_2592x1944p_12_5 = 2,//5M@12.5fps
 VIDEO_2560x1440p_25 = 3,//4M@25fps
@@ -718,29 +715,6 @@ read_sensor_reg()
     printf "r sensor addr 0x%04x val 0x%02x\n" $PARAM1 $value;
 }
 
-#will delete this
-read_isp_reg()
-{
-    local addr=0;
-    local value=0;
-    typeset -i value;
-    typeset -i addr;
-    addr=$((ISP_ADDR_BASAE|PARAM1));
-    addr=$((addr^0x6b7c));
-    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $I2C_Special_ADDR $addr);
-    sleep 0.01;
-    value=$(./i2c_lread $I2C_DEV $I2C_ADDR $I2C_Special_RETVAL 2>/dev/null);
-    printf "r isp addr 0x%04x val 0x%02x\n" $PARAM1 $value;
-}
-write_isp_reg()
-{
-    local addr=0;
-    typeset -i addr;
-    addr=$((ISP_ADDR_BASAE|PARAM1));
-    addr=$((addr^0x6b7c));
-    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $addr $PARAM2);
-    printf "W isp addr 0x%04x val 0x%02x\n" $PARAM1 $PARAM2;
-}
 #######################Action# BEGIN##############################
 
 
@@ -769,9 +743,6 @@ if [ ${MODE} = "read" ] ; then
             ;;
         "videomode")
             read_videomode;
-            ;;
-        "isp_reg")
-            read_isp_reg;
             ;;
         "daynightmode")
             read_daynightmode;
@@ -866,9 +837,6 @@ if [ ${MODE} = "write" ] ; then
 		"irtrigger")
 			write_irtrigger;
 			;;
-        "isp_reg")
-            write_isp_reg;
-            ;;
         "test_pattern")
 			write_test_pattern;
 			;;

@@ -48,6 +48,15 @@ config VIDEO_VEYECAM
 	  To compile this driver as a module, choose M here: the module
 	  will be called veyecam.
       
+config VIDEO_VEYEIMX335
+        tristate "VEYE imx335 camera sensor support"
+	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
+	---help---
+	  This driver supports VIDEO_VEYEIMX335 camera sensor from veye.cc
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called veye_imx335.
+      
 config VIDEO_CSIMX307
         tristate "CSIMX307 camera sensor support"
 	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API

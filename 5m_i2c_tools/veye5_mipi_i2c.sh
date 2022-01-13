@@ -81,6 +81,11 @@ VIDEO_3840x2160p_15 = 6,//4K@15
 ./veye5_mipi_i2c.sh -w -f sharppen -p1 [0,0x0f]
 ./veye5_mipi_i2c.sh -r -f sharppen
 
+./veye5_mipi_i2c.sh -w -f saturation -p1 [0,0x0A]
+./veye5_mipi_i2c.sh -r -f Saturation
+
+./veye5_mipi_i2c.sh -w -f extra_color_gain -p1 [0,0xFF]
+./veye5_mipi_i2c.sh -r -f extra_color_gain
 COMMENT_SAMPLE
 
 
@@ -98,8 +103,7 @@ print_usage()
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
 	echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
-	echo "support functions: support functions:             manufacturer,model,sensor,serialnum,version,factoryparam,paramsave,reboot,timestamp,daynightmode,ircutdir,irtrigger
-          i2caddr,i2cport"
+	echo "Please open this srcipt and read the COMMENT on top for support functions and samples"
 }
 # base functions
 Manufacturer_Name=0x0000;
@@ -141,6 +145,10 @@ MIRROR_FLIP=0x1000E80A;
 DENOISE_2D=0x1000EAE1;
 DENOISE_3D=0x1000EF67;
 SHARP_MODE=0x1000E957; #bit0 is enable
+SATURATION_B=0x1000EA08;
+SATURATION_R=0x1000EA09;
+EXTRA_GAIN_B=0x1000EB3D;
+EXTRA_GAIN_R=0x1000EB3E;
 
 
 SENSOR_ADDR_BASAE=0x20000000;
@@ -702,6 +710,54 @@ write_sharppen()
     printf "w sharppen %x \n" $PARAM1;
 }
 
+read_saturation()
+{
+    local res=0;
+    local value_b=0;
+    local value_r=0;
+    typeset -i value_b;
+    typeset -i value_r;
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $I2C_Special_ADDR $SATURATION_B);
+    sleep 0.01;
+    value_b=$(./i2c_lread $I2C_DEV $I2C_ADDR $I2C_Special_RETVAL 2>/dev/null);
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $I2C_Special_ADDR $SATURATION_R);
+    sleep 0.01;
+    value_r=$(./i2c_lread $I2C_DEV $I2C_ADDR $I2C_Special_RETVAL 2>/dev/null);
+    printf "r saturation b %x r%x \n" $value_b $value_r;
+}
+
+write_saturation()
+{
+    local res=0;
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $SATURATION_B $PARAM1);
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $SATURATION_R $PARAM1);
+    printf "w saturation %x \n" $PARAM1;
+}
+
+read_extra_color_gain()
+{
+    local res=0;
+    local value_b=0;
+    local value_r=0;
+    typeset -i value_b;
+    typeset -i value_r;
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $I2C_Special_ADDR $EXTRA_GAIN_B);
+    sleep 0.01;
+    value_b=$(./i2c_lread $I2C_DEV $I2C_ADDR $I2C_Special_RETVAL 2>/dev/null);
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $I2C_Special_ADDR $EXTRA_GAIN_R);
+    sleep 0.01;
+    value_r=$(./i2c_lread $I2C_DEV $I2C_ADDR $I2C_Special_RETVAL 2>/dev/null);
+    printf "r extra color gain b %x r%x \n" $value_b $value_r;
+}
+
+write_extra_color_gain()
+{
+    local res=0;
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $EXTRA_GAIN_B $PARAM1);
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $EXTRA_GAIN_R $PARAM1);
+    printf "w saturation %x \n" $PARAM1;
+}
+
 read_sensor_reg()
 {
     local addr=0;
@@ -798,8 +854,14 @@ if [ ${MODE} = "read" ] ; then
         "sharppen")
 			read_sharppen;
 			;;
-        "errcode")
-            read_errcode;
+        "sharppen")
+			read_sharppen;
+			;;
+        "saturation")
+            read_saturation;
+            ;;
+        "extra_color_gain")
+            read_extra_color_gain;
             ;;
         *)
         echo "NOT SUPPORTED!";
@@ -873,6 +935,12 @@ if [ ${MODE} = "write" ] ; then
         "sharppen")
 			write_sharppen;
 			;;
+        "saturation")
+            write_saturation;
+            ;;
+        "extra_color_gain")
+            write_extra_color_gain;
+            ;;
         *)
         echo "NOT SUPPORTED!";
         ;;

@@ -82,7 +82,7 @@ VIDEO_3840x2160p_15 = 6,//4K@15
 ./veye5_mipi_i2c.sh -r -f sharppen
 
 ./veye5_mipi_i2c.sh -w -f saturation -p1 [0,0x0A]
-./veye5_mipi_i2c.sh -r -f Saturation
+./veye5_mipi_i2c.sh -r -f saturation
 
 ./veye5_mipi_i2c.sh -w -f extra_color_gain -p1 [0,0xFF]
 ./veye5_mipi_i2c.sh -r -f extra_color_gain

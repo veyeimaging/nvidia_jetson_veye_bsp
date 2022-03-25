@@ -149,6 +149,7 @@ SATURATION_B=0x1000EA08;
 SATURATION_R=0x1000EA09;
 EXTRA_GAIN_B=0x1000EB3D;
 EXTRA_GAIN_R=0x1000EB3E;
+ISP_PARAM_SAVE=0x1000EB78;
 
 
 SENSOR_ADDR_BASAE=0x20000000;
@@ -312,6 +313,7 @@ write_paramsave()
 {
     local res=0;
 	res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $Param_save_to_flash 0x01);
+    res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $ISP_PARAM_SAVE 0x01);
     printf "all param saved to flash\n";
 }
 
@@ -723,7 +725,7 @@ read_saturation()
     res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $I2C_Special_ADDR $SATURATION_R);
     sleep 0.01;
     value_r=$(./i2c_lread $I2C_DEV $I2C_ADDR $I2C_Special_RETVAL 2>/dev/null);
-    printf "r saturation b %x r%x \n" $value_b $value_r;
+    printf "r saturation b 0x%x r 0x%x \n" $value_b $value_r;
 }
 
 write_saturation()
@@ -747,7 +749,7 @@ read_extra_color_gain()
     res=$(./i2c_lwrite $I2C_DEV $I2C_ADDR $I2C_Special_ADDR $EXTRA_GAIN_R);
     sleep 0.01;
     value_r=$(./i2c_lread $I2C_DEV $I2C_ADDR $I2C_Special_RETVAL 2>/dev/null);
-    printf "r extra color gain b %x r%x \n" $value_b $value_r;
+    printf "r extra color gain b 0x%x r 0x%x \n" $value_b $value_r;
 }
 
 write_extra_color_gain()

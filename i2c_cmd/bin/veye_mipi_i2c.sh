@@ -919,6 +919,56 @@ write_mwbgain()
     
 	printf "w mwb Rgain is 0x%2x Bgain is 0x%2x \n" $PARAM1 $PARAM2;
 }
+read_antiflicker()
+{
+    local antiflicker=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1F);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	antiflicker=$(($?>>6));
+	printf "r antiflicker mode %x \n" $antiflicker ;
+}
+
+write_antiflicker()
+{
+    local res=0;
+    local antiflicker=0;
+    if [ $PARAM1 -eq 1 ] ; then
+		antiflicker=0x40;
+    else
+        antiflicker=0x0;
+	fi
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1F );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $antiflicker);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    printf "w antiflicker %x\n" $PARAM1;
+}
+read_defog()
+{
+    local defog=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD9);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x2F);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	defog=$?;
+	printf "r defog enable %x \n" $defog ;
+}
+
+write_defog()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xD9 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x2F );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    printf "w defog %x\n" $PARAM1;
+}
 
 #######################Action# BEGIN##############################
 
@@ -928,7 +978,7 @@ if [ `whoami` != "root" ];then
 fi
 
 echo 100000 > /sys/bus/i2c/devices/i2c-$I2C_DEV/bus_clk_rate
-./i2c_write $I2C_DEV $I2C_ADDR  0x07 0xFE&> /dev/null;
+./i2c_write $I2C_DEV $I2C_ADDR  0x07 0xFE>/dev/null 2>&1;
 
 if [ ${MODE} = "read" ] ; then
 	case $FUNCTION in
@@ -1030,6 +1080,12 @@ if [ ${MODE} = "read" ] ; then
 			;;
         "yuvseq")
             read_yuvseq;
+                ;;
+        "antiflicker")
+            read_antiflicker;
+                ;;
+        "defog")
+            read_defog;
                 ;;
 	esac
 fi
@@ -1134,7 +1190,14 @@ if [ ${MODE} = "write" ] ; then
         "yuvseq")
             write_yuvseq;
                 ;;
+        "antiflicker")
+            write_antiflicker;
+                ;;
+        "defog")
+            write_defog;
+                ;;
 	esac
+    sleep 0.1;
 fi
 
 

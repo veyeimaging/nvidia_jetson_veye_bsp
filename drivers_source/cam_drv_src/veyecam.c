@@ -901,7 +901,7 @@ static int veyecam_probe(struct i2c_client *client,
 		return err;
 	}
     //make sure it is continues mode
-    veyecam_write_reg(priv->i2c_client, 0x0b, 0xFF);
+    veyecam_write_reg(priv->s_data, 0x0b, 0xFF);
     
 	err = tegracam_v4l2subdev_register(tc_dev, true);
 	if (err) {

@@ -86,26 +86,33 @@ open with [vooya](https://www.offminor.de/) @ Color space: single channel, 3104*
 ./v4l2grab_mvcam_jetson -j xavier -d /dev/video0 -p 0 -m 1 -s 1 -o y8_3136x2064 -X 0 -Y 0 -W 3088 -H 2064 -c 
 ```
 - In another shell
+
 Every time the following command is executed, it will trigger once.
 ```
 v4l2-ctl -d /dev/video0 --set-ctrl soft_trgone=1
 ```
 or
+
 ```
 ./mv_mipi_i2c.sh -w -f trgone -b [i2c_bus]
 ```
 - Stop capturing
+
 In v4l2grab_mvcam_jetson shell,Ctrl-C will send a SIGINT to v4l2grab_mvcam_jetson process and make it quit.
 
 ## Hardware trigger mode 
 - In one shell
+
 ```
 ./v4l2grab_mvcam_jetson -j xavier -d /dev/video0 -p 0 -m 1 -s 0 -o y8_3136x2064 -X 0 -Y 0 -W 3088 -H 2064 -c 
 ```
+
 - In another shell
+
 This script use BOARD pin 40 as trigger source, will cause 5 rising edge.
 ```
 python gpio_trigger_jetson.py
 ```
 - Stop capturing
+
 In v4l2grab_mvcam_jetson shell,Ctrl-C will send a SIGINT to v4l2grab_mvcam_jetson process and make it quit.

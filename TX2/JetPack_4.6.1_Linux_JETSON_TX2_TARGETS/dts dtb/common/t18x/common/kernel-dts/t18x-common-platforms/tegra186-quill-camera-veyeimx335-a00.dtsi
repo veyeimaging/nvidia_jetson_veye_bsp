@@ -1,0 +1,165 @@
+/*
+ * Copyright (c) 2015-2016, NVIDIA CORPORATION.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+/*#include <t18x-common-modules/tegra186-camera-e3322-a00.dtsi>*/
+#include <t18x-common-modules/tegra186-camera-veyeimx335-a00.dtsi>
+#include "dt-bindings/clock/tegra186-clock.h"
+
+#define CAM0_RST_L     TEGRA_MAIN_GPIO(R, 5)
+#define CAMERA_I2C_MUX_BUS(x) (0x1E + x)
+
+/* camera control gpio definitions */
+/ {
+	gpio@2200000 {
+		camera-control-output-high {
+			gpio-hog;
+			output-high;
+			gpios = <CAM0_RST_L 0>;
+			label = "cam0-rst";
+		};
+
+		camera-control-output-low {
+			status = "disabled";
+		};
+
+		camera-control-input {
+			status = "disabled";
+		};
+	};
+
+	i2c@3180000 {
+		tca9548@70 {
+			compatible = "nxp,pca9548";
+			reg = <0x70>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			vcc-supply = <&en_vdd_cam>;
+			skip_mux_detect;
+			force_bus_start = <CAMERA_I2C_MUX_BUS(0)>;
+			i2c@0 {
+				reg = <0>;
+				i2c-mux,deselect-on-exit;
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+			i2c@1 {
+				reg = <1>;
+				i2c-mux,deselect-on-exit;
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+			i2c@2 {
+				reg = <2>;
+				i2c-mux,deselect-on-exit;
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+			i2c@3 {
+				reg = <3>;
+				i2c-mux,deselect-on-exit;
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+			i2c@4 {
+				reg = <4>;
+				i2c-mux,deselect-on-exit;
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+			i2c@5 {
+				reg = <5>;
+				i2c-mux,deselect-on-exit;
+				#address-cells = <1>;
+				#size-cells = <0>;
+			};
+		};
+    };
+};
+
+/* camera control gpio definitions */
+/ {
+	i2c@3180000 {
+		tca9548@70 {
+			i2c@0 {
+				veyeimx335_a@3b {
+					clocks = <&tegra_car TEGRA186_CLK_EXTPERIPH1>;
+					clock-names = "extperiph1";
+					mclk = "extperiph1";
+					//reset-gpios = <&tca6408_21 0 GPIO_ACTIVE_HIGH>;
+					vana-supply = <&en_vdd_cam_hv_2v8>;
+					vdig-supply = <&en_vdd_sys>;
+					dovdd-supply = <&en_vdd_cam>;
+				};
+			};
+			i2c@1 {
+				veyeimx335_b@3b {
+					clocks = <&tegra_car TEGRA186_CLK_EXTPERIPH1>;
+					clock-names = "extperiph1";
+					mclk = "extperiph1";
+					//reset-gpios = <&tca6408_21 1 GPIO_ACTIVE_HIGH>;
+					vana-supply = <&en_vdd_cam_hv_2v8>;
+					vdig-supply = <&en_vdd_sys>;
+					dovdd-supply = <&en_vdd_cam>;
+				};
+			};
+			i2c@2 {
+				veyeimx335_c@3b {
+					clocks = <&tegra_car TEGRA186_CLK_EXTPERIPH1>;
+					clock-names = "extperiph1";
+					mclk = "extperiph1";
+					//reset-gpios = <&tca6408_21 2 GPIO_ACTIVE_HIGH>;
+					vana-supply = <&en_vdd_cam_hv_2v8>;
+					vdig-supply = <&en_vdd_sys>;
+					dovdd-supply = <&en_vdd_cam>;
+				};
+			};
+			i2c@3 {
+				veyeimx335_d@3b{
+					clocks = <&tegra_car TEGRA186_CLK_EXTPERIPH2>;
+					clock-names = "extperiph2";
+					mclk = "extperiph2";
+					//reset-gpios = <&tca6408_21 3 GPIO_ACTIVE_HIGH>;
+					vana-supply = <&en_vdd_cam_hv_2v8>;
+					vdig-supply = <&en_vdd_sys>;
+					dovdd-supply = <&en_vdd_cam>;
+				};
+			};
+			i2c@4 {
+				veyeimx335_e@3b {
+					clocks = <&tegra_car TEGRA186_CLK_EXTPERIPH2>;
+					clock-names = "extperiph2";
+					mclk = "extperiph2";
+					//reset-gpios = <&tca6408_21 4 GPIO_ACTIVE_HIGH>;
+					vana-supply = <&en_vdd_cam_hv_2v8>;
+					vdig-supply = <&en_vdd_sys>;
+					dovdd-supply = <&en_vdd_cam>;
+				};
+			};
+			i2c@5 {
+				veyeimx335_f@3b {
+					clocks = <&tegra_car TEGRA186_CLK_EXTPERIPH2>;
+					clock-names = "extperiph2";
+					mclk = "extperiph2";
+					//reset-gpios = <&tca6408_21 5 GPIO_ACTIVE_HIGH>;
+					vana-supply = <&en_vdd_cam_hv_2v8>;
+					vdig-supply = <&en_vdd_sys>;
+					dovdd-supply = <&en_vdd_cam>;
+				};
+			};
+		};
+	};
+};
+

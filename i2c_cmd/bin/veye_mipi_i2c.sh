@@ -978,7 +978,7 @@ if [ `whoami` != "root" ];then
 fi
 
 echo 100000 > /sys/bus/i2c/devices/i2c-$I2C_DEV/bus_clk_rate
-./i2c_write $I2C_DEV $I2C_ADDR  0x07 0xFE>/dev/null 2>&1;
+./i2c_write $I2C_DEV $I2C_ADDR  0x07 0xFE>/dev/null 2>&1
 
 if [ ${MODE} = "read" ] ; then
 	case $FUNCTION in

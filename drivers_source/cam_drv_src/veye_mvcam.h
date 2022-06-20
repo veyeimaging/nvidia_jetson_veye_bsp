@@ -140,16 +140,16 @@ enum enum_TriggerSrc{
 #define VEYE_MIPI_IMX296M 0x0296
 #define VEYE_MIPI_SC130M  0x0130
 
-#define MV_IMX178M_PIXEL_RATE	750000000 //750M
-//should read from camera later
-//#define MV_IMX178M_MAX_WIDTH	3088U
-//#define MV_IMX178M_MAX_HEIGHT	2064U
-#define MV_IMX178M_DEF_FPS      22U
+#define MV_CAM_PIXEL_RATE	750000000 //750M
+
+#define MV_CAM_DEF_FPS      22U
 
 #define MV_IMX178M_ROI_W_MIN    376U
 #define MV_IMX178M_ROI_H_MIN    320U
-#define MV_IMX178M_ROI_W_ALIGN  8U
-#define MV_IMX178M_ROI_H_ALIGN  4U
+#define MV_SC130M_ROI_W_MIN    64U
+#define MV_SC130M_ROI_H_MIN    64U
+#define MV_CAM_ROI_W_ALIGN  8U
+#define MV_CAM_ROI_H_ALIGN  4U
 
 
 #define MV_MIPI_DATA_LANS 2

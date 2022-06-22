@@ -303,17 +303,17 @@ Trigger_Activation=0x1004;
 Trigger_Filter_Enable=0x1008;
 Trigger_Filter_Width=0x100C;
 Trigger_Exp_Delay=0x1010;
-GPIOIN_Status=0x1014;
+GPIOS_Status=0x1014;
 
 GPIO1_OutSelect=0x1020;
 GPIO1_Useroutput=0x1024;
 GPIO1_Reverse=0x1028;
-GPIO1_OutStatus=0x102C;
+
 
 GPIO2_OutSelect=0x1030;
 GPIO2_Useroutput=0x1034;
 GPIO2_Reverse=0x1038;
-GPIO2_OutStatus=0x103C;
+
 
 ######################parse arg###################################
 MODE=read;
@@ -437,9 +437,12 @@ read_model()
         #IMX296
         printf "model is MV-MIPI-IMX296\n";
     ;;
-    "178")
+    "376")
         #IMX178
-        printf "model is MV-MIPI-IMX178\n";
+        printf "model is MV-MIPI-IMX178M\n";
+    ;;
+    "304")
+        printf "model is MV-MIPI-SC130M\n";
     ;;
     *)
      printf " model %8x not recognized\n" $model;
@@ -846,16 +849,19 @@ write_trgexp_delay()
 
 read_gpios_status()
 {
+    local io_status=0;
     local in=0;
     local out1=0;
     local out2=0;
+    typeset -i io_status;
     typeset -i in;
     typeset -i out1;
     typeset -i out2;
-	in=$(./i2c_4read $I2C_DEV $I2C_ADDR $GPIOIN_Status 2>/dev/null);
-    out1=$(./i2c_4read $I2C_DEV $I2C_ADDR $GPIO1_OutStatus 2>/dev/null);
-    out2=$(./i2c_4read $I2C_DEV $I2C_ADDR $GPIO2_OutStatus 2>/dev/null);
-    printf "r TriggerIN_IO status is %x OUT_IO1 status is %x OUT_IO2 status is %x\n" $in $out1 $out2;
+	io_status=$(./i2c_4read $I2C_DEV $I2C_ADDR $GPIOS_Status 2>/dev/null);
+    in=$((io_status&0x01));
+    out1=$(((io_status>>1)&0x01));
+    out2=$(((io_status>>2)&0x01));
+    printf "r reg %x TriggerIN_IO status is %x OUT_IO1 status is %x OUT_IO2 status is %x\n" $io_status $in $out1 $out2;
 }
 
 read_outio1_mode()

@@ -31,6 +31,7 @@
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
 #include <linux/regmap.h>
+#include <linux/version.h>
 
 #include "ds90ub954.h"
 
@@ -1209,8 +1210,13 @@ static int ds90ub953_i2c_client(struct ds90ub954_priv *priv, int ser_nr,
 	struct i2c_board_info *ser_board_info;
 	ser_board_info = devm_kzalloc(dev, sizeof(struct i2c_board_info), GFP_KERNEL);
 	ser_board_info->addr = addr;
-
+//i2c_new_device ----> i2c_new_client_device 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)
 	new_client = i2c_new_device(priv->client->adapter, ser_board_info);
+#else
+	new_client = i2c_new_client_device(priv->client->adapter, ser_board_info);
+#endif
+	
 	if(!new_client) {
 		dev_warn(dev, "failed to add i2c client\n");
 		return -1;

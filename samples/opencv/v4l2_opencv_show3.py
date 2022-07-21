@@ -1,4 +1,3 @@
-#opencv appsink cannot read from NVMM memory. You would use nvvidconv for copying into standard CPU memory.
 import sys
 import cv2
 

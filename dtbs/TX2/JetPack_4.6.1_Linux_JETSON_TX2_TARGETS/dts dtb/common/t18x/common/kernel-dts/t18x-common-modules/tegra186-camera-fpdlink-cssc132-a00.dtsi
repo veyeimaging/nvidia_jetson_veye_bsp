@@ -18,8 +18,8 @@
 /* camera control gpio definitions */
 / {
 	host1x {
-		vi@15c10000 {
-			num-channels = <8>;
+		vi@15700000 {
+			num-channels = <6>;
 			ports {
 				#address-cells = <1>;
 				#size-cells = <0>;

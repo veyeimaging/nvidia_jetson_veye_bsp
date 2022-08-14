@@ -187,6 +187,8 @@
 ./mv_mipi_i2c.sh -r -f outio2_rvs
 ./mv_mipi_i2c.sh -w -f outio2_rvs -p1 []
 
+### Special function
+./mv_mipi_i2c.sh -r -f snsreg -p1 SensorAddr
 
 COMMENT_SAMPLE
 
@@ -252,6 +254,9 @@ User_define_zone0=0x43C;
 User_define_zone1=0x440;
 User_define_zone2=0x444;
 User_define_zone3=0x448;
+
+Sensor_Reg_Addr=0x0450;
+Sensor_Reg_Val=0x454;
 
 Test_Image_Selector=0x800;
 Pixel_Format=0x804;
@@ -1224,6 +1229,22 @@ write_aaroienable()
     printf "w aaroienable is %d \n" $PARAM1;
 }
 
+read_snsreg()
+{
+    local res=0;
+    local sensor_val=0;
+    typeset -i sensor_val;
+    res=$(./i2c_4write $I2C_DEV $I2C_ADDR $Sensor_Reg_Addr $PARAM1);
+    sleep 0.01;
+    sensor_val=$(./i2c_4read $I2C_DEV $I2C_ADDR $Sensor_Reg_Val 2>/dev/null);
+    #check if msb set to 1
+    if [ $((($sensor_val & 0x80000000) == 0x80000000)) -eq 1 ]; then
+        sensor_val=$((sensor_val&0xFF));
+        printf "read sensor register addr 0x%x value 0x%x \n" $PARAM1 $sensor_val;
+    else
+        printf "read sensor register failed\n";
+	fi  
+}
 
 <<'COMMENT_SAMPLE'
 read_fun()
@@ -1446,6 +1467,9 @@ if [ ${MODE} = "read" ] ; then
             ;;
         "aaroienable")
             read_aaroienable;
+            ;;
+        "snsreg")
+            read_snsreg;
             ;;
         *)
         echo "NOT SUPPORTED!";

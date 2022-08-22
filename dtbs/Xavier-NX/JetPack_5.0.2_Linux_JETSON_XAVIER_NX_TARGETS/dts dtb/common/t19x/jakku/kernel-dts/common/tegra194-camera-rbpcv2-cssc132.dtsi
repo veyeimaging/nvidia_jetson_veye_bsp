@@ -553,7 +553,7 @@
 				mode0 { /* SC132_MODE_1280X1080_45FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_a";
+					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -593,7 +593,7 @@
                 mode1 { /* SC132_MODE_1080X1280_45FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_a";
+					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -633,7 +633,7 @@
                 mode2 { /* SC132_MODE_1280X720_CROP_60FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_a";
+					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -673,7 +673,7 @@
                 mode3 { /* SC132_MODE_720X12800_CROP_60FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_a";
+					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -713,7 +713,7 @@
                 mode4 { /* SC132_MODE_640X480_CROP_120FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_a";
+					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -753,7 +753,7 @@
                 mode5 { /* SC132_MODE_480X640_CROP_120FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_a";
+					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";

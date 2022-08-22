@@ -106,10 +106,22 @@
 			remote-endpoint = <&rbpcv2_veyeimx335_out1>;
 		};
 	};
-	fragment@12 {
+	fragment@11 {
 		target = <&rbpcv2_veyeimx335_csi_out1>;
 		__overlay__ {
 			status = "okay";
+		};
+	};
+	fragment@12 {
+		target = <&imx219_cam0>;
+		__overlay__ {
+			status = "disabled";
+		};
+	};
+	fragment@13 {
+		target = <&imx219_cam1>;
+		__overlay__ {
+			status = "disabled";
 		};
 	};
 };

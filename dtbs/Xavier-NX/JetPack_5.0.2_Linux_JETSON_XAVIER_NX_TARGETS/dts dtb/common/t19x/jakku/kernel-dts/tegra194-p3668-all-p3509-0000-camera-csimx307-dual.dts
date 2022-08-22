@@ -11,13 +11,13 @@
 /plugin/;
 
 / {
-	overlay-name = "Camera VEYE CAM2M Dual";
+	overlay-name = "Camera CS-MIPI-IMX307 Dual";
 	jetson-header-name = "Jetson Nano CSI Connector";
 	compatible = "nvidia,p3449-0000+p3668-0000", "nvidia,p3449-0000+p3668-0001", "nvidia,p3509-0000+p3668-0000", "nvidia,p3509-0000+p3668-0001";
 
-	/* IMX219 dual sensor module */
+	
 	fragment@0 {
-		target = <&veyecam_cam0>;
+		target = <&csimx307_cam0>;
 		__overlay__ {
 			status = "okay";
 		};
@@ -26,7 +26,7 @@
 		target = <&cam_module0>;
 		__overlay__ {
 			status = "okay";
-			badge = "jakku_front_veyecam";
+			badge = "jakku_front_csimx307";
 			position = "front";
 			orientation = "1";
 		};
@@ -36,12 +36,12 @@
 		__overlay__ {
 			status = "okay";
 			pcl_id = "v4l2_sensor";
-			devname = "veyecam 9-003b";
-			proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@0/rbpcv2_veyecam_a@3b";
+			devname = "csimx307 9-003b";
+			proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@0/rbpcv2_csimx307_a@3b";
 		};
 	};
 	fragment@3 {
-		target = <&veyecam_cam1>;
+		target = <&csimx307_cam1>;
 		__overlay__ {
 			status = "okay";
 		};
@@ -50,7 +50,7 @@
 		target = <&cam_module1>;
 		__overlay__ {
 			status = "okay";
-			badge = "jakku_rear_veyecam";
+			badge = "jakku_rear_csimx307";
 			position = "rear";
 			orientation = "1";
 		};
@@ -60,56 +60,68 @@
 		__overlay__ {
 			status = "okay";
 			pcl_id = "v4l2_sensor";
-			devname = "veyecam 10-003b";
-			proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@1/rbpcv2_veyecam_c@3b";
+			devname = "csimx307 10-003b";
+			proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@1/rbpcv2_csimx307_c@3b";
 		};
 	};
 	fragment@6 {
-		target = <&rbpcv2_veyecam_vi_in0>;
+		target = <&rbpcv2_csimx307_vi_in0>;
 		__overlay__ {
 			status = "okay";
 			port-index = <0>;
 			bus-width = <2>;
-			remote-endpoint = <&rbpcv2_veyecam_csi_out0>;
+			remote-endpoint = <&rbpcv2_csimx307_csi_out0>;
 		};
 	};
 	fragment@7 {
-		target = <&rbpcv2_veyecam_vi_in1>;
+		target = <&rbpcv2_csimx307_vi_in1>;
 		__overlay__ {
 			status = "okay";
 			port-index = <2>;
 			bus-width = <2>;
-			remote-endpoint = <&rbpcv2_veyecam_csi_out1>;
+			remote-endpoint = <&rbpcv2_csimx307_csi_out1>;
 		};
 	};
 	fragment@8 {
-		target = <&rbpcv2_veyecam_csi_in0>;
+		target = <&rbpcv2_csimx307_csi_in0>;
 		__overlay__ {
 			status = "okay";
 			port-index = <0>;
 			bus-width = <2>;
-			remote-endpoint = <&rbpcv2_veyecam_out0>;
+			remote-endpoint = <&rbpcv2_csimx307_out0>;
 		};
 	};
 	fragment@9 {
-		target = <&rbpcv2_veyecam_csi_out0>;
+		target = <&rbpcv2_csimx307_csi_out0>;
 		__overlay__ {
 			status = "okay";
 		};
 	};
 	fragment@10 {
-		target = <&rbpcv2_veyecam_csi_in1>;
+		target = <&rbpcv2_csimx307_csi_in1>;
 		__overlay__ {
 			status = "okay";
 			port-index = <2>;
 			bus-width = <2>;
-			remote-endpoint = <&rbpcv2_veyecam_out1>;
+			remote-endpoint = <&rbpcv2_csimx307_out1>;
+		};
+	};
+	fragment@11 {
+		target = <&rbpcv2_csimx307_csi_out1>;
+		__overlay__ {
+			status = "okay";
 		};
 	};
 	fragment@12 {
-		target = <&rbpcv2_veyecam_csi_out1>;
+		target = <&imx219_cam0>;
 		__overlay__ {
-			status = "okay";
+			status = "disabled";
+		};
+	};
+	fragment@13 {
+		target = <&imx219_cam1>;
+		__overlay__ {
+			status = "disabled";
 		};
 	};
 };

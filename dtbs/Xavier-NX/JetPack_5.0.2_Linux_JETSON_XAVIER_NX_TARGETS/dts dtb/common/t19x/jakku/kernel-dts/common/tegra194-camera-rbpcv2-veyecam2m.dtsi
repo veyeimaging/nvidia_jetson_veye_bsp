@@ -15,8 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <dt-bindings/media/camera.h>
+/*
+    This dts is for all 2M VEYE series cameras :
+    VEYE-MIPI-327E
+    VEYE-MIPI-IMX327S
+    VEYE-MIPI-IMX462
+    VEYE-MIPI-IMX385
+*/
 
+#include <dt-bindings/media/camera.h>
 
 / {
 	tegra-capture-vi  {
@@ -27,18 +34,18 @@
 				#size-cells = <0>;
 				vi_port0: port@0 {
 					reg = <0>;
-					rbpcv2_csimx307_vi_in0: endpoint {
+					rbpcv2_veyecam_vi_in0: endpoint {
 						port-index = <0>;
 						bus-width = <2>;
-						remote-endpoint = <&rbpcv2_csimx307_csi_out0>;
+						remote-endpoint = <&rbpcv2_veyecam_csi_out0>;
 					};
 				};
 				vi_port1: port@1 {
 					reg = <1>;
-					rbpcv2_csimx307_vi_in1: endpoint {
+					rbpcv2_veyecam_vi_in1: endpoint {
 						port-index = <2>;
 						bus-width = <2>;
-						remote-endpoint = <&rbpcv2_csimx307_csi_out1>;
+						remote-endpoint = <&rbpcv2_veyecam_csi_out1>;
 					};
 				};
 			};
@@ -56,16 +63,16 @@
 					#size-cells = <0>;
 					csi_chan0_port0: port@0 {
 						reg = <0>;
-						rbpcv2_csimx307_csi_in0: endpoint@0 {
+						rbpcv2_veyecam_csi_in0: endpoint@0 {
 							port-index = <0>;
 							bus-width = <2>;
-							remote-endpoint = <&rbpcv2_csimx307_out0>;
+							remote-endpoint = <&rbpcv2_veyecam_out0>;
 						};
 					};
 					csi_chan0_port1: port@1 {
 						reg = <1>;
-						rbpcv2_csimx307_csi_out0: endpoint@1 {
-							remote-endpoint = <&rbpcv2_csimx307_vi_in0>;
+						rbpcv2_veyecam_csi_out0: endpoint@1 {
+							remote-endpoint = <&rbpcv2_veyecam_vi_in0>;
 						};
 					};
 				};
@@ -77,16 +84,16 @@
 					#size-cells = <0>;
 					csi_chan1_port0: port@0 {
 						reg = <0>;
-						rbpcv2_csimx307_csi_in1: endpoint@2 {
+						rbpcv2_veyecam_csi_in1: endpoint@2 {
 							port-index = <2>;
 							bus-width = <2>;
-							remote-endpoint = <&rbpcv2_csimx307_out1>;
+							remote-endpoint = <&rbpcv2_veyecam_out1>;
 						};
 					};
 					csi_chan1_port1: port@1 {
 						reg = <1>;
-						rbpcv2_csimx307_csi_out1: endpoint@3 {
-							remote-endpoint = <&rbpcv2_csimx307_vi_in1>;
+						rbpcv2_veyecam_csi_out1: endpoint@3 {
+							remote-endpoint = <&rbpcv2_veyecam_vi_in1>;
 						};
 					};
 				};
@@ -97,9 +104,9 @@
 	cam_i2cmux {
 		i2c_0: i2c@0 {
 
-			csimx307_cam0: rbpcv2_csimx307_a@3b {
+			veyecam_cam0: rbpcv2_veyecam_a@3b {
 
-				compatible = "nvidia,cs_imx307";
+				compatible = "nvidia,veyecam";
 				/* I2C device address */
 				reg = <0x3b>;
 
@@ -110,7 +117,7 @@
 				physical_w = "5.6";
 				physical_h = "3.1";
 
-				sensor_model = "csimx307";
+				sensor_model = "veyecam";
 
 				use_sensor_mode_id = "false";
 
@@ -195,12 +202,12 @@
 				* Sensor embedded metadata height in units of rows.
 				* If sensor does not support embedded metadata value should be 0.
 				*/
-				mode0 { /* CS307_MODE_1920X1080_30FPS */
+				mode0 { /* VEYECAM_MODE_1920X1080_30FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -235,106 +242,27 @@
 
 					embedded_metadata_height = "0";
 				};
-                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
-					mclk_khz = "24000";
-					num_lanes = "2";
-					tegra_sinterface = "serial_a";
-					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
-					dpcm_enable = "false";
-					cil_settletime = "0";
 
-					active_w = "1280";
-					active_h = "720";
-					mode_type = "yuv";
-						pixel_phase = "uyvy";
-						csi_pixel_bit_depth = "16";
-					readout_orientation = "0";
-					line_length = "1650";
-					inherent_gain = "1";
-					mclk_multiplier = "2";
-					pix_clk_hz = "74250000";
-
-					gain_factor = "16";
-					framerate_factor = "1000000";
-					exposure_factor = "1000000";
-					min_gain_val = "16"; /* 1.00x */
-					max_gain_val = "170"; /* 10.66x */
-					step_gain_val = "1";
-					default_gain = "16"; /* 1.00x */
-					min_hdr_ratio = "1";
-					max_hdr_ratio = "1";
-					min_framerate = "2000000"; /* 2.0 fps */
-					max_framerate = "60000000"; /* 60 fps */
-					step_framerate = "1";
-					default_framerate = "60000000"; /* 60 fps */
-					min_exp_time = "13"; /* us */
-					max_exp_time = "166666"; /* us */
-					step_exp_time = "1";
-					default_exp_time = "2495"; /* us */
-
-					embedded_metadata_height = "0";
-				};
-                mode2 { /* CS307_MODE_640X480_CROP_130FPS */
-					mclk_khz = "24000";
-					num_lanes = "2";
-					tegra_sinterface = "serial_a";
-					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
-					dpcm_enable = "false";
-					cil_settletime = "0";
-
-					active_w = "640";
-					active_h = "480";
-					mode_type = "yuv";
-						pixel_phase = "uyvy";
-						csi_pixel_bit_depth = "16";
-					readout_orientation = "0";
-					line_length = "1100";
-					inherent_gain = "1";
-					mclk_multiplier = "2";
-					pix_clk_hz = "74250000";
-
-					gain_factor = "16";
-					framerate_factor = "1000000";
-					exposure_factor = "1000000";
-					min_gain_val = "16"; /* 1.00x */
-					max_gain_val = "170"; /* 10.66x */
-					step_gain_val = "1";
-					default_gain = "16"; /* 1.00x */
-					min_hdr_ratio = "1";
-					max_hdr_ratio = "1";
-					min_framerate = "2000000"; /* 2.0 fps */
-					max_framerate = "130000000"; /* 130 fps */
-					step_framerate = "1";
-					default_framerate = "130000000"; /* 130 fps */
-					min_exp_time = "13"; /* us */
-					max_exp_time = "7692"; /* us */
-					step_exp_time = "1";
-					default_exp_time = "2495"; /* us */
-
-					embedded_metadata_height = "0";
-				};
 				ports {
 					#address-cells = <1>;
 					#size-cells = <0>;
 
 					port@0 {
 						reg = <0>;
-						rbpcv2_csimx307_out0: endpoint {
+						rbpcv2_veyecam_out0: endpoint {
 							port-index = <0>;
 							bus-width = <2>;
-							remote-endpoint = <&rbpcv2_csimx307_csi_in0>;
+							remote-endpoint = <&rbpcv2_veyecam_csi_in0>;
 						};
 					};
 				};
 			};
 		};
-    i2c_1: i2c@1 {
+        i2c_1: i2c@1 {
 
-			csimx307_cam1: rbpcv2_csimx307_c@3b {
+			veyecam_cam1: rbpcv2_veyecam_c@3b {
 
-				compatible = "nvidia,cs_imx307";
+				compatible = "nvidia,veyecam";
 				/* I2C device address */
 				reg = <0x3b>;
 
@@ -345,7 +273,7 @@
 				physical_w = "5.6";
 				physical_h = "3.1";
 
-				sensor_model = "csimx307";
+				sensor_model = "veyecam";
 
 				use_sensor_mode_id = "false";
 
@@ -430,12 +358,12 @@
 				* Sensor embedded metadata height in units of rows.
 				* If sensor does not support embedded metadata value should be 0.
 				*/
-				mode0 { /* CS307_MODE_1920X1080_30FPS */
+				mode0 { /* VEYECAM_MODE_1920X1080_30FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
 					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -470,97 +398,18 @@
 
 					embedded_metadata_height = "0";
 				};
-                mode1 { /* CS307_MODE_1280X720_CROP_60FPS */
-					mclk_khz = "24000";
-					num_lanes = "2";
-					tegra_sinterface = "serial_c";
-					phy_mode = "DPHY";
-					discontinuous_clk = "no";
-					dpcm_enable = "false";
-					cil_settletime = "0";
 
-					active_w = "1280";
-					active_h = "720";
-					mode_type = "yuv";
-						pixel_phase = "uyvy";
-						csi_pixel_bit_depth = "16";
-					readout_orientation = "0";
-					line_length = "1650";
-					inherent_gain = "1";
-					mclk_multiplier = "2";
-					pix_clk_hz = "74250000";
-
-					gain_factor = "16";
-					framerate_factor = "1000000";
-					exposure_factor = "1000000";
-					min_gain_val = "16"; /* 1.00x */
-					max_gain_val = "170"; /* 10.66x */
-					step_gain_val = "1";
-					default_gain = "16"; /* 1.00x */
-					min_hdr_ratio = "1";
-					max_hdr_ratio = "1";
-					min_framerate = "2000000"; /* 2.0 fps */
-					max_framerate = "60000000"; /* 60 fps */
-					step_framerate = "1";
-					default_framerate = "60000000"; /* 60 fps */
-					min_exp_time = "13"; /* us */
-					max_exp_time = "166666"; /* us */
-					step_exp_time = "1";
-					default_exp_time = "2495"; /* us */
-
-					embedded_metadata_height = "0";
-				};
-                mode2 { /* CS307_MODE_640X480_CROP_130FPS */
-					mclk_khz = "24000";
-					num_lanes = "2";
-					tegra_sinterface = "serial_c";
-					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
-					dpcm_enable = "false";
-					cil_settletime = "0";
-
-					active_w = "640";
-					active_h = "480";
-					mode_type = "yuv";
-						pixel_phase = "uyvy";
-						csi_pixel_bit_depth = "16";
-					readout_orientation = "0";
-					line_length = "1100";
-					inherent_gain = "1";
-					mclk_multiplier = "2";
-					pix_clk_hz = "74250000";
-
-					gain_factor = "16";
-					framerate_factor = "1000000";
-					exposure_factor = "1000000";
-					min_gain_val = "16"; /* 1.00x */
-					max_gain_val = "170"; /* 10.66x */
-					step_gain_val = "1";
-					default_gain = "16"; /* 1.00x */
-					min_hdr_ratio = "1";
-					max_hdr_ratio = "1";
-					min_framerate = "2000000"; /* 2.0 fps */
-					max_framerate = "130000000"; /* 130 fps */
-					step_framerate = "1";
-					default_framerate = "130000000"; /* 130 fps */
-					min_exp_time = "13"; /* us */
-					max_exp_time = "7692"; /* us */
-					step_exp_time = "1";
-					default_exp_time = "2495"; /* us */
-
-					embedded_metadata_height = "0";
-				};
 				ports {
 					#address-cells = <1>;
 					#size-cells = <0>;
 
 					port@0 {
 						reg = <0>;
-						rbpcv2_csimx307_out1: endpoint {
-							status = "okay";
+						rbpcv2_veyecam_out1: endpoint {
+                            status = "okay";
 							port-index = <2>;
 							bus-width = <2>;
-							remote-endpoint = <&rbpcv2_csimx307_csi_in1>;
+							remote-endpoint = <&rbpcv2_veyecam_csi_in1>;
 						};
 					};
 				};
@@ -568,7 +417,7 @@
 		};
     };
 
-	/*lens_csimx307@RBPCV2 {
+	/*lens_veyecam@RBPCV2 {
 		min_focus_distance = "0.0";
 		hyper_focal = "0.0";
 		focal_length = "3.04";
@@ -628,31 +477,31 @@
 		 */
 		modules {
 			cam_module0: module0 {
-				badge = "jakku_front_csx307";
+				badge = "jakku_front_veyecam";
 				position = "front";
 				orientation = "1";
 				cam_module0_drivernode0: drivernode0 {
 					pcl_id = "v4l2_sensor";
-					devname = "csx307 9-003b";
-					proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@0/rbpcv2_csimx307_a@3b";
+					devname = "veyecam 9-003b";
+					proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@0/rbpcv2_veyecam_a@3b";
 				};
 				/*cam_module0_drivernode1: drivernode1 {
 					pcl_id = "v4l2_lens";
-					proc-device-tree = "/proc/device-tree/lens_csimx307@RBPCV2/";
+					proc-device-tree = "/proc/device-tree/lens_veyecam@RBPCV2/";
 				};*/
 			};
 			cam_module1: module1 {
-				badge = "jakku_rear_csx307";
+				badge = "jakku_rear_veyecam";
 				position = "rear";
 				orientation = "1";
 				cam_module1_drivernode0: drivernode0 {
 					pcl_id = "v4l2_sensor";
-					devname = "csx307 10-003b";
-					proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@1/rbpcv2_csimx307_c@3b";
+					devname = "veyecam 10-003b";
+					proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@1/rbpcv2_veyecam_c@3b";
 				};
 				/*cam_module1_drivernode1: drivernode1 {
 					pcl_id = "v4l2_lens";
-					proc-device-tree = "/proc/device-tree/lens_csimx307@RBPCV2/";
+					proc-device-tree = "/proc/device-tree/lens_veyecam@RBPCV2/";
 				};*/
 			};
 		};

@@ -3,7 +3,6 @@
 //typedef unsigned long u32;
 
 #include <media/camera_common.h>
-
 /* mv series registers begin */
 #define BaseCommon 0x0000
 #define ImageAcqu 0x0400
@@ -24,6 +23,7 @@
 #define Time_stamp 0x0020
 #define Error_code 0x0024
 #define Format_cap 0x0028
+
 
 #define Image_Acquisition 0x400
 #define Trigger_Mode 0x404
@@ -115,6 +115,7 @@
 #define V4L2_CID_VEYE_MV_TRIGGER_MODE			(V4L2_CID_VEYE_MV_BASE + 1)
 #define V4L2_CID_VEYE_MV_TRIGGER_SRC			(V4L2_CID_VEYE_MV_BASE + 2)
 #define V4L2_CID_VEYE_MV_SOFT_TRGONE			(V4L2_CID_VEYE_MV_BASE + 3)
+
 #define V4L2_CID_VEYE_MV_FRAME_RATE				(V4L2_CID_VEYE_MV_BASE + 4)
 #define V4L2_CID_VEYE_MV_ROI_X		        	(V4L2_CID_VEYE_MV_BASE + 5)
 #define V4L2_CID_VEYE_MV_ROI_Y  				(V4L2_CID_VEYE_MV_BASE + 6)

@@ -46,6 +46,8 @@
 #define VEYECAM_MODEL_ID_ADDR		0x0001
 #define VEYECAM_DEVICE_ID 		0x06
 
+#define VEYECAM_HDVER_ADDR    0x00
+
 #define SENSOR_TYPR_ADDR_L    0x20
 #define SENSOR_TYPR_ADDR_H    0x21
 
@@ -773,6 +775,26 @@ static int veyecam_read_model(struct veyecam *priv)
     }
     return 0;
 }
+/*verify hdver*/
+static int veyecam_check_version(struct veyecam *priv)
+{
+    struct camera_common_data *s_data = priv->s_data;
+	struct device *dev = s_data->dev;
+    int ret;
+    u8 hdver;
+    ret = veyecam_read_reg(s_data, VEYECAM_HDVER_ADDR, &hdver);
+	if (ret) {
+		dev_err(dev, "check hdver error \n");
+		return -ENODEV;
+	}
+    dev_info(dev, "check hdver %d \n",hdver);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+    if(hdver <=0x4){
+        dev_err(dev, "Xavier and Orin have stricter mipi timing verification, please use a newer version(>=5) camera.\n");
+    }
+#endif
+    return 0;
+}
 /* Verify chip ID */
 static int veyecam_identify_module(struct veyecam *priv)
 {
@@ -800,6 +822,7 @@ static int veyecam_identify_module(struct veyecam *priv)
 			__func__, device_id);
     }
     veyecam_read_model(priv);
+    veyecam_check_version(priv);
 	return err;
 }
 

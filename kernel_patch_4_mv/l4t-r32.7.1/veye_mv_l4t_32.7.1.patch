@@ -1,5 +1,5 @@
 diff -Nuar kernel/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c kernel_new/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c
---- kernel/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c	2022-05-17 18:56:53.692695833 -0700
+--- kernel/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c	2022-05-17 18:56:53.000000000 -0700
 +++ kernel_new/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c	2022-05-17 19:20:32.029333962 -0700
 @@ -1256,6 +1256,12 @@
  	case V4L2_PIX_FMT_TM6000:	descr = "A/V + VBI Mux Packet"; break;
@@ -15,7 +15,7 @@ diff -Nuar kernel/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c kernel_new/ker
  	case V4L2_SDR_FMT_CU16LE:	descr = "Complex U16LE"; break;
  	case V4L2_SDR_FMT_CS8:		descr = "Complex S8"; break;
 diff -Nuar kernel/kernel-4.9/include/uapi/linux/videodev2.h kernel_new/kernel-4.9/include/uapi/linux/videodev2.h
---- kernel/kernel-4.9/include/uapi/linux/videodev2.h	2022-05-17 18:56:57.805392779 -0700
+--- kernel/kernel-4.9/include/uapi/linux/videodev2.h	2022-05-17 18:56:57.000000000 -0700
 +++ kernel_new/kernel-4.9/include/uapi/linux/videodev2.h	2022-05-17 19:18:06.443285910 -0700
 @@ -664,6 +664,15 @@
  /* Relative IR */
@@ -34,7 +34,7 @@ diff -Nuar kernel/kernel-4.9/include/uapi/linux/videodev2.h kernel_new/kernel-4.
  #define V4L2_SDR_FMT_CU8          v4l2_fourcc('C', 'U', '0', '8') /* IQ u8 */
  #define V4L2_SDR_FMT_CU16LE       v4l2_fourcc('C', 'U', '1', '6') /* IQ u16le */
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/camera_common.c kernel_new/nvidia/drivers/media/platform/tegra/camera/camera_common.c
---- kernel/nvidia/drivers/media/platform/tegra/camera/camera_common.c	2022-05-17 18:57:20.672894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/camera_common.c	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/camera_common.c	2022-05-17 19:24:00.337617248 -0700
 @@ -126,6 +126,26 @@
  		V4L2_COLORSPACE_SRGB,
@@ -64,7 +64,7 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/camera_common.c ker
  	 * The below two formats are not supported by VI4,
  	 * keep them at the last to ensure they get discarded
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/sensor_common.c kernel_new/nvidia/drivers/media/platform/tegra/camera/sensor_common.c
---- kernel/nvidia/drivers/media/platform/tegra/camera/sensor_common.c	2022-05-17 18:57:20.672894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/sensor_common.c	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/sensor_common.c	2022-05-17 19:23:41.838859787 -0700
 @@ -235,6 +235,14 @@
  		*format = V4L2_PIX_FMT_UYVY;
@@ -81,8 +81,44 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/sensor_common.c ker
  	else {
  		pr_err("%s: Need to extend format%s\n", __func__, pixel_t);
  		return -EINVAL;
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/channel.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/channel.c
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/channel.c	2022-05-17 18:57:20.000000000 -0700
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/channel.c	2022-08-29 20:15:50.815394092 -0700
+@@ -1244,6 +1244,13 @@
+ 	case TEGRA_CAMERA_CID_LOW_LATENCY:
+ 		chan->low_latency = ctrl->val;
+ 		break;
++//xumm add
++    case TEGRA_CAMERA_CID_VI_TIME_OUT_DISABLE:
++        chan->vi_timeout_disable = ctrl->val;
++        dev_info(&chan->video->dev, "%s: %u set vi timeout disable %d\n",
++			__func__, ctrl->id,ctrl->val);
++        break;
++//add end
+ 	case TEGRA_CAMERA_CID_VI_PREFERRED_STRIDE:
+ 		chan->preferred_stride = ctrl->val;
+ 		tegra_channel_update_format(chan, chan->format.width,
+@@ -1396,6 +1403,18 @@
+ 		.step = 1,
+ 		.def = 0,
+ 	},
++	//xumm add
++	{
++		.ops = &channel_ctrl_ops,
++		.id = TEGRA_CAMERA_CID_VI_TIME_OUT_DISABLE,
++		.name = "VI Time Out Disable",
++		.type = V4L2_CTRL_TYPE_BOOLEAN,
++		.def = 0,
++		.min = 0,
++		.max = 1,
++		.step = 1,
++	},
++	//add end
+ };
+ 
+ #define GET_TEGRA_CAMERA_CTRL(id, c)					\
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c
---- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c	2022-05-17 18:57:20.676894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c	2022-05-17 19:25:46.563006103 -0700
 @@ -474,6 +474,10 @@
  	return 0;
@@ -178,7 +214,7 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c kerne
  	buf->state = VB2_BUF_STATE_DONE;
  fail:
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h
---- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h	2022-05-17 18:57:20.676894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h	2022-05-17 19:25:58.598777705 -0700
 @@ -133,5 +133,13 @@
  				YUV422_8, YUYV, "YUV 4:2:2 YUYV"),
@@ -195,7 +231,7 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h ke
  };
  #endif
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c
---- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c	2022-05-17 18:57:20.676894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c	2022-05-17 19:26:34.005014115 -0700
 @@ -206,16 +206,25 @@
  	 *
@@ -288,7 +324,7 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c kerne
  		vi4_channel_write(chan, chan->vnc_id[i],
  			CHANNEL_COMMAND, LOAD);
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h
---- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h	2022-05-17 18:57:20.676894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h	2022-05-17 19:27:05.973876977 -0700
 @@ -141,6 +141,14 @@
  				YUV422_8, YUYV, "YUV 4:2:2 YUYV"),
@@ -306,7 +342,7 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h ke
  
  #endif
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c
---- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c	2022-05-17 18:57:20.676894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c	2022-05-17 19:27:26.024321577 -0700
 @@ -406,39 +406,52 @@
  			goto rel_buf;
@@ -405,7 +441,7 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c kerne
  	for(vi_port = 0; vi_port < chan->valid_ports; vi_port++) {
  		vi_channel_close_ex(chan->id, chan->tegra_vi_channel[vi_port]);
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h
---- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h	2022-05-17 18:57:20.676894675 -0700
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h	2022-05-17 18:57:20.000000000 -0700
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h	2022-05-17 19:27:36.267876248 -0700
 @@ -141,6 +141,14 @@
  				YUV422_8, YUYV, "YUV 4:2:2 YUYV"),
@@ -423,7 +459,7 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h ke
  
  #endif
 diff -Nuar kernel/nvidia/include/media/mc_common.h kernel_new/nvidia/include/media/mc_common.h
---- kernel/nvidia/include/media/mc_common.h	2022-05-17 18:57:21.192894691 -0700
+--- kernel/nvidia/include/media/mc_common.h	2022-05-17 18:57:21.000000000 -0700
 +++ kernel_new/nvidia/include/media/mc_common.h	2022-05-17 19:21:40.920214869 -0700
 @@ -263,6 +263,10 @@
  
@@ -437,7 +473,7 @@ diff -Nuar kernel/nvidia/include/media/mc_common.h kernel_new/nvidia/include/med
  
  #define to_tegra_channel(vdev) \
 diff -Nuar kernel/nvidia/include/media/tegra-v4l2-camera.h kernel_new/nvidia/include/media/tegra-v4l2-camera.h
---- kernel/nvidia/include/media/tegra-v4l2-camera.h	2022-05-17 18:57:21.192894691 -0700
+--- kernel/nvidia/include/media/tegra-v4l2-camera.h	2022-05-17 18:57:21.000000000 -0700
 +++ kernel_new/nvidia/include/media/tegra-v4l2-camera.h	2022-05-17 19:22:52.983929785 -0700
 @@ -56,6 +56,11 @@
  #define TEGRA_CAMERA_CID_LOW_LATENCY         (TEGRA_CAMERA_CID_BASE+109)

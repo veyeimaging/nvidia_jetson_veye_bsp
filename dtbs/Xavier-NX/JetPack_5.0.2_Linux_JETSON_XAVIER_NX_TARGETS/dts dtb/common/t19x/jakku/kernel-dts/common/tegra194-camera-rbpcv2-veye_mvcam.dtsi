@@ -217,8 +217,9 @@
 					line_length = "3088";
 					inherent_gain = "1";
 					mclk_multiplier = "2";
-					pix_clk_hz = "750000000";
-
+					/*pix_clk_hz = "750000000";*/
+                    pix_clk_hz = "375000000";
+                    /*serdes_pix_clk_hz = "375000000";*/
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -373,7 +374,9 @@
 					line_length = "3088";
 					inherent_gain = "1";
 					mclk_multiplier = "2";
-					pix_clk_hz = "750000000";
+					/*pix_clk_hz = "750000000";*/
+                    pix_clk_hz = "375000000";
+                    /*serdes_pix_clk_hz = "375000000";*/
 
 					gain_factor = "16";
 					framerate_factor = "1000000";

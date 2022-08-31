@@ -3,16 +3,26 @@
  * Copyright (C) 2022, www.veye.cc
  *
  */
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/i2c.h>
 #include <linux/lcm.h>
 #include <linux/crc32.h>
+#include <linux/version.h>
+//#include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
+//#include <media/v4l2-fwnode.h>
+//#include <media/v4l2-mediabus.h>
 #include <media/v4l2-event.h>
+#include <linux/of_graph.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
+#include <media/v4l2-fwnode.h>
+#else
 #include <media/v4l2-of.h>
+#endif
+
 #include <media/tegra-v4l2-camera.h>
 #include <media/camera_common.h>
 #include <media/mc_common.h>
@@ -43,7 +53,7 @@ static const struct of_device_id veye_mvcam_of_match[] = {
 };
 MODULE_DEVICE_TABLE(of, veye_mvcam_of_match);
 
-#define DEBUG_PRINTK
+//#define DEBUG_PRINTK
 #ifndef DEBUG_PRINTK
 static int debug = 0;
 #define debug_printk(s , ... )
@@ -74,7 +84,6 @@ struct mvcam_format {
 	u32 mbus_code;//mbus format
 	u32 data_type;//mv data format
 };
-
 struct mvcam_roi
 {
     uint32_t x;
@@ -134,7 +143,6 @@ static struct mvcam *to_mvcam(struct v4l2_subdev *sd)
 
 	return (struct mvcam *)s_data->priv;
 }
-
 
 static int mvcam_readl_reg(struct i2c_client *client,
 								   u16 addr, u32 *val)
@@ -280,18 +288,13 @@ static int mvcam_power_off(struct mvcam *priv)
 int mvcam_s_power(struct v4l2_subdev *sd, int on)
 {
     struct mvcam *priv = to_mvcam(sd);
-	struct camera_common_data *s_data = priv->s_data;
-
+	//struct camera_common_data *s_data = priv->s_data;
+    //may be could delete this. 
+    camera_common_s_power(sd,on);
 	if (on) {
-		if (1/*tegra_platform_is_silicon()*/) {
-			camera_common_dpd_disable(s_data);
-		}
         mvcam_power_on(priv);
 	} else {
 		mvcam_power_off(priv);
-		if (1/*tegra_platform_is_silicon()*/) {
-			camera_common_dpd_enable(s_data);
-		}
 	}
 	return 0;
 }
@@ -333,9 +336,8 @@ static int mvcam_setroi(struct mvcam *priv)
   //  int ret;
     u32 fps_reg;
     struct i2c_client *client = priv->client;
-    v4l2_dbg(1, debug, priv->client, "%s:set roi(%d,%d,%d,%d), will not write it\n",
+    v4l2_dbg(1, debug, priv->client, "%s:set roi(%d,%d,%d,%d)\n",
 			 __func__, priv->roi.left,priv->roi.top,priv->roi.width,priv->roi.height);
-    
     mvcam_write(client, ROI_Offset_X,priv->roi.left);
     msleep(1);
     mvcam_write(client, ROI_Offset_Y,priv->roi.top);
@@ -580,18 +582,29 @@ static void mvcam_v4l2_grab(struct mvcam *mvcam,bool grabbed)
 	}
 }
 
-static int mvcam_csi2_g_mbus_config(struct v4l2_subdev *sd,
-		struct v4l2_mbus_config *cfg)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
+int mvcam_g_mbus_config(struct v4l2_subdev *sd,
+				struct v4l2_mbus_config *cfg)
+#else
+int mvcam_get_mbus_config(struct v4l2_subdev *sd,
+				unsigned int pad,
+				struct v4l2_mbus_config *cfg)
+#endif
 {
-    VEYE_TRACE
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)
 	cfg->type = V4L2_MBUS_CSI2;
-
+#else
+	/*
+	 * TODO Bug 200664694: If the sensor type is CPHY
+	 *  then return an error
+	 */
+	cfg->type = V4L2_MBUS_CSI2_DPHY;
+#endif
 	cfg->flags = V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK;
 	cfg->flags |= V4L2_MBUS_CSI2_2_LANE; /* XXX wierd */
 
 	return 0;
 }
-
 
 static int mvcam_csi2_enum_mbus_code(
 			struct v4l2_subdev *sd,
@@ -697,26 +710,6 @@ static int mvcam_csi2_get_fmt_idx_by_code(struct mvcam *priv,
 	return -EINVAL;
 }
 
-/*static int mvcam_cropcap(struct v4l2_subdev *sd, struct v4l2_cropcap *cc)
-{
-    struct mvcam *priv = to_mvcam(sd);
-	if (cc->pixelaspect.numerator != 1 ||
-			cc->type != V4L2_BUF_TYPE_VIDEO_CAPTURE) {
-		return -EINVAL;
-	}
-
-	cc->bounds.top = cc->bounds.left = 0;
-	cc->defrect.top = cc->defrect.left = 0;
-
-	cc->bounds.width = cc->defrect.width = priv->max_width;
-	cc->bounds.height = cc->defrect.height = priv->max_height;
-
-	// align defrect if alignment is enabled
-    v4l2_info(sd, "Default crop rect width %d\n", cc->defrect.width);
-
-	return 0;
-}*/
-
 static int mvcam_get_selection(struct v4l2_subdev *sd,
 				struct v4l2_subdev_pad_config *cfg,
 				struct v4l2_subdev_selection *sel)
@@ -746,27 +739,13 @@ static int mvcam_get_selection(struct v4l2_subdev *sd,
     v4l2_dbg(1, debug, sd, "%s: target %d\n", __func__,V4L2_SEL_TGT_CROP);
     return 0;
 }
-
-/*static int mvcam_g_crop(struct v4l2_subdev *sd, struct v4l2_crop *crop)
-{
-	struct v4l2_subdev_selection sel;
-
-	sel.target = V4L2_SEL_TGT_CROP;
-
-	mvcam_get_selection(sd, NULL, &sel);
-
-	memcpy(&crop->c, &sel.r, sizeof(struct v4l2_rect));
-
-	return 0;
-}*/
-
 static int mvcam_set_selection(struct v4l2_subdev *sd,
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_selection *sel)
 {
    //     struct i2c_client *client = v4l2_get_subdevdata(sd);
         struct mvcam *priv = to_mvcam(sd);
-    VEYE_TRACE
+    
         switch (sel->target) {
         case V4L2_SEL_TGT_CROP:
             priv->roi.left  = clamp(rounddown(sel->r.left, MV_CAM_ROI_W_ALIGN), 0U, (priv->max_width-priv->min_width));
@@ -782,18 +761,6 @@ static int mvcam_set_selection(struct v4l2_subdev *sd,
         v4l2_dbg(1, debug, sd, "%s: target %d\n", __func__,V4L2_SEL_TGT_CROP);
         return 0;
 }
-
-/*static int mvcam_s_crop(struct v4l2_subdev *sd, const struct v4l2_crop *crop)
-{
-	struct v4l2_subdev_selection sel;
-
-	sel.target = V4L2_SEL_TGT_CROP;
-
-	memcpy(&sel.r, &crop->c, sizeof(struct v4l2_rect));
-
-	return mvcam_set_selection(sd, NULL, &sel);
-}*/
-
 static int mvcam_frm_supported(int roi_x,int wmin, int wmax, int ws,
 				int roi_y,int hmin, int hmax, int hs,
 				int w, int h)
@@ -829,7 +796,6 @@ static int mvcam_csi2_try_fmt(struct v4l2_subdev *sd,
 	return 0;
 }
 
-//will call roi setting here, please set roi_x roi_y first
 static int mvcam_csi2_set_fmt(struct v4l2_subdev *sd,
 								struct v4l2_subdev_pad_config *cfg,
 								struct v4l2_subdev_format *format)
@@ -922,6 +888,7 @@ static int mvcam_stop_streaming(struct mvcam *mvcam)
 	return 0;
 }
 
+
 static int mvcam_set_stream(struct v4l2_subdev *sd, int enable)
 {
 	struct mvcam *mvcam = to_mvcam(sd);
@@ -998,11 +965,10 @@ static const struct v4l2_subdev_core_ops mvcam_core_ops = {
 
 static const struct v4l2_subdev_video_ops mvcam_video_ops = {
 	.s_stream = mvcam_set_stream,
-    .g_mbus_config = mvcam_csi2_g_mbus_config,
+    #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
+	.g_mbus_config	= mvcam_g_mbus_config,
+    #endif
     .g_input_status = mvcam_g_input_status,
-   // .cropcap = mvcam_cropcap,
-	//.s_crop = mvcam_s_crop,
-	//.g_crop = mvcam_g_crop,
 };
 
 static const struct v4l2_subdev_pad_ops mvcam_pad_ops = {
@@ -1014,6 +980,9 @@ static const struct v4l2_subdev_pad_ops mvcam_pad_ops = {
     //v4.9 kernel can not support selection correctly
 	.get_selection = mvcam_get_selection,
 	.set_selection = mvcam_set_selection,
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
+	.get_mbus_config	= mvcam_get_mbus_config,
+    #endif
 };
 
 static const struct v4l2_subdev_ops mvcam_subdev_ops = {
@@ -1029,14 +998,12 @@ static const struct v4l2_subdev_internal_ops mvcam_internal_ops = {
 static const struct media_entity_operations mvcam_csi2_media_ops = {
 	.link_validate = v4l2_subdev_link_validate,
 };
-
 const struct of_device_id mvcam_csi2_of_match[] = {
 	{ .compatible = "nvidia,veye_mvcam",},
 	{ },
 };
 
 MODULE_DEVICE_TABLE(of, mvcam_csi2_of_match);
-
 static void mvcam_free_controls(struct mvcam *mvcam)
 {
 	v4l2_ctrl_handler_free(mvcam->subdev->ctrl_handler);
@@ -1046,20 +1013,15 @@ static int mvdatatype_to_mbus_code(int data_type)
 {
    // debug_printk("%s: data type %d\n",
 	//				__func__, data_type);
-	//just for test
     switch(data_type) {
 	case MV_DT_Mono8:
-        return MEDIA_BUS_FMT_Y8_1X8;//0x2001
-       // return V4L2_PIX_FMT_SRGGB8 ;
+        return MEDIA_BUS_FMT_Y8_1X8;
 	case MV_DT_Mono10:
-		return MEDIA_BUS_FMT_Y10_1X10;//0x200a
-//        return V4L2_PIX_FMT_SRGGB10;
+		return MEDIA_BUS_FMT_Y10_1X10;
 	case MV_DT_Mono12:
-		return MEDIA_BUS_FMT_Y12_1X12;//0x2013
-		//return V4L2_PIX_FMT_SRGGB12;
+		return MEDIA_BUS_FMT_Y12_1X12;
   //  case MV_DT_Mono14:
 	//	return MEDIA_BUS_FMT_Y14_1X14;
-	
 	case MV_DT_UYVY:
 		//return MEDIA_BUS_FMT_UYVY8_2X8;//0x2006
 		return MEDIA_BUS_FMT_UYVY8_1X16;//0x200f
@@ -1090,13 +1052,10 @@ static int mvcam_enum_pixformat(struct mvcam *priv)
     u32 fmtcap = 0;
     u32 cur_fmt;
 	struct i2c_client *client = priv->client;
-    //set to 1 pixel
+    
     ret = mvcam_read(client, Format_cap, &fmtcap);
     if (ret < 0)
 		goto err;
-    //delete UYVY support now
-    //fmtcap &= 0xF;
-    //end
 	num_pixformat = bit_count(fmtcap);
 	if (num_pixformat < 0)
 		goto err;
@@ -1108,6 +1067,7 @@ static int mvcam_enum_pixformat(struct mvcam *priv)
 		sizeof(struct mvcam_format) * (num_pixformat+1), GFP_KERNEL);
 	while(fmtcap){
         if(fmtcap&1){
+            //which bit is set?
             pixformat_type = bitindex;
             fmtcap >>= 1;
             bitindex++;
@@ -1235,7 +1195,7 @@ static int mvcam_identify_module(struct mvcam * priv)
     dev_info(&client->dev, "firmware version: 0x%04X\n", firmware_version);
 	return 0;
 }
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
 static int mvcam_check_hwcfg(struct device *dev,struct mvcam * priv)
 {
 	struct v4l2_of_endpoint *endpoint;
@@ -1254,6 +1214,7 @@ static int mvcam_check_hwcfg(struct device *dev,struct mvcam * priv)
 		return PTR_ERR(endpoint);
 	}
     
+    
     gpio = of_get_named_gpio(dev->of_node, "reset-gpios", 0);
 	if (gpio < 0) {
 		dev_err(dev, "reset-gpios not found \n");
@@ -1264,6 +1225,43 @@ static int mvcam_check_hwcfg(struct device *dev,struct mvcam * priv)
     
 	return 0;
 }
+#else
+static int mvcam_check_hwcfg(struct device *dev,struct mvcam * priv)
+{
+	struct fwnode_handle *endpoint;
+	struct v4l2_fwnode_endpoint ep_cfg = {
+		.bus_type = V4L2_MBUS_CSI2_DPHY
+	};
+	int ret = -EINVAL;
+    int gpio;
+	endpoint = fwnode_graph_get_next_endpoint(dev_fwnode(dev), NULL);
+	if (!endpoint) {
+		dev_err(dev, "endpoint node not found\n");
+		return -EINVAL;
+	}
+
+	if (v4l2_fwnode_endpoint_alloc_parse(endpoint, &ep_cfg)) {
+		dev_err(dev, "could not parse endpoint\n");
+		goto error_out;
+	}
+
+	gpio = of_get_named_gpio(dev->of_node, "reset-gpios", 0);
+	if (gpio < 0) {
+		dev_err(dev, "reset-gpios not found \n");
+        priv->reset_gpio = 0;
+	}else{
+        priv->reset_gpio = (unsigned int)gpio;
+    }
+	
+	ret = 0;
+
+error_out:
+	v4l2_fwnode_endpoint_free(&ep_cfg);
+	fwnode_handle_put(endpoint);
+
+	return ret;
+}
+#endif
 
 static int mvcam_init_mode(struct v4l2_subdev *sd)
 {
@@ -1285,7 +1283,6 @@ static int mvcam_init_mode(struct v4l2_subdev *sd)
     mvcam_set_selection(sd, NULL, &sel);
     return 0;
 }
-
 static int mvcam_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
@@ -1393,7 +1390,6 @@ static int mvcam_probe(struct i2c_client *client,
 
 error_media_entity:
 	media_entity_cleanup(&priv->subdev->entity);
-
 
 error_handler_free:
 	mvcam_free_controls(priv);

@@ -1,12 +1,11 @@
 /*
  * Copyright (c) 2015-2022, www.veye.cc.  All rights reserved.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
+ * This program is distributed in the hope it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
@@ -15,69 +14,69 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 / {
 	tegra-capture-vi {
-			num-channels = <6>;
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				port@0 {
-					reg = <0>;
-					mvcam_vi_in0: endpoint {
-						port-index = <0>;
-						bus-width = <2>;
-						remote-endpoint = <&mvcam_csi_out0>;
-					};
+		num-channels = <6>;
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			port@0 {
+				reg = <0>;
+				mvcam_vi_in0: endpoint {
+					port-index = <0>;
+					bus-width = <2>;
+					remote-endpoint = <&mvcam_csi_out0>;
 				};
-				port@1 {
-					reg = <1>;
-					mvcam_vi_in1: endpoint {
-						port-index = <1>;
-						bus-width = <2>;
-						remote-endpoint = <&mvcam_csi_out1>;
-					};
+			};
+			port@1 {
+				reg = <1>;
+				mvcam_vi_in1: endpoint {
+					port-index = <1>;
+					bus-width = <2>;
+					remote-endpoint = <&mvcam_csi_out1>;
 				};
-				port@2 {
-					reg = <2>;
-					mvcam_vi_in2: endpoint {
-						port-index = <2>;
-						bus-width = <2>;
-						remote-endpoint = <&mvcam_csi_out2>;
-					};
+			};
+			port@2 {
+				reg = <2>;
+				mvcam_vi_in2: endpoint {
+					port-index = <2>;
+					bus-width = <2>;
+					remote-endpoint = <&mvcam_csi_out2>;
 				};
-				port@3 {
-					reg = <3>;
-					mvcam_vi_in3: endpoint {
-						port-index = <3>;
-						bus-width = <2>;
-						remote-endpoint = <&mvcam_csi_out3>;
-					};
+			};
+			port@3 {
+				reg = <3>;
+				mvcam_vi_in3: endpoint {
+					port-index = <3>;
+					bus-width = <2>;
+					remote-endpoint = <&mvcam_csi_out3>;
 				};
-				port@4 {
-					reg = <4>;
-					mvcam_vi_in4: endpoint {
-						port-index = <4>;
-						bus-width = <2>;
-						remote-endpoint = <&mvcam_csi_out4>;
-					};
+			};
+			port@4 {
+				reg = <4>;
+				mvcam_vi_in4: endpoint {
+					port-index = <4>;
+					bus-width = <2>;
+					remote-endpoint = <&mvcam_csi_out4>;
 				};
-				port@5 {
-					reg = <5>;
-					mvcam_vi_in5: endpoint {
-						port-index = <5>;
-						bus-width = <2>;
-						remote-endpoint = <&mvcam_csi_out5>;
-					};
+			};
+			port@5 {
+				reg = <5>;
+				mvcam_vi_in5: endpoint {
+					port-index = <5>;
+					bus-width = <2>;
+					remote-endpoint = <&mvcam_csi_out5>;
 				};
 			};
 		};
-    host1x@13e00000 {
+	};
+
+	host1x@13e00000 {
 		nvcsi@15a00000 {
 			num-channels = <6>;
-			#address-cells = <0x1>;
-			#size-cells = <0x0>;
-
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
 			channel@0 {
 				reg = <0>;
 				ports {
@@ -211,20 +210,22 @@
 		tca9548@70 {
 			i2c@0 {
 				mvcam_a@3b {
-					devnode = "video0";
+
 					compatible = "nvidia,veye_mvcam";
 					reg = <0x3b>;
+					devnode = "video0";
 
 					/* Physical dimensions of sensor */
                     physical_w = "5.6";
                     physical_h = "3.1";
 
-					sensor_model = "mvcam";
-					use_sensor_mode_id = "false";
-					dovdd-supply = <&en_vdd_cam>;
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
 					avdd-reg = "vana";
-					dvdd-reg = "vdig";
-					iovdd-reg = "dovdd";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
 
 					mode0 {
 					mclk_khz = "24000";
@@ -245,7 +246,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "375000000";
-
+                    serdes_pix_clk_hz = "375000000";
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -281,12 +282,14 @@
 						};
 					};
 				};
-            };
-            i2c@1 {
+			};
+
+			i2c@1 {
 				mvcam_b@3b {
-					devnode = "video1";
+
 					compatible = "nvidia,veye_mvcam";
 					reg = <0x3b>;
+					devnode = "video1";
                     sensor_model = "mvcam";
 					/* Physical dimensions of sensor */
                     physical_w = "5.6";
@@ -294,8 +297,10 @@
                     use_sensor_mode_id = "false";
 
 					avdd-reg = "vana";
-					dvdd-reg = "vdig";
-					iovdd-reg = "dovdd";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
                     mode0 {
 					mclk_khz = "24000";
 					num_lanes = "2";
@@ -315,7 +320,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "375000000";
-
+                    serdes_pix_clk_hz = "375000000";
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -336,6 +341,7 @@
 
 					embedded_metadata_height = "0";
 				};
+
 					ports {
 						#address-cells = <1>;
 						#size-cells = <0>;
@@ -351,21 +357,26 @@
 					};
 				};
 			};
+
 			i2c@2 {
 				mvcam_c@3b {
-					devnode = "video2";
+
 					compatible = "nvidia,veye_mvcam";
 					reg = <0x3b>;
-
+					devnode = "video2";
                     sensor_model = "mvcam";
 					/* Physical dimensions of sensor */
                     physical_w = "5.6";
                     physical_h = "3.1";
                     use_sensor_mode_id = "false";
-
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
 					avdd-reg = "vana";
-					dvdd-reg = "vdig";
-					iovdd-reg = "dovdd";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
                     mode0 {
 					mclk_khz = "24000";
 					num_lanes = "2";
@@ -385,7 +396,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "375000000";
-
+                    serdes_pix_clk_hz = "375000000";
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -406,7 +417,6 @@
 
 					embedded_metadata_height = "0";
 				};
-              
 
 					ports {
 						#address-cells = <1>;
@@ -422,21 +432,27 @@
 						};
 					};
 				};
-            };
-        i2c@3 {
+			};
+
+			i2c@3 {
 				mvcam_d@3b {
-					devnode = "video3";
+
 					compatible = "nvidia,veye_mvcam";
 					reg = <0x3b>;
+					devnode = "video3";
                     sensor_model = "mvcam";
 					/* Physical dimensions of sensor */
                     physical_w = "5.6";
                     physical_h = "3.1";
                     use_sensor_mode_id = "false";
-
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
 					avdd-reg = "vana";
-					dvdd-reg = "vdig";
-					iovdd-reg = "dovdd";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
                 mode0 {
 					mclk_khz = "24000";
 					num_lanes = "2";
@@ -456,7 +472,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "375000000";
-
+                    serdes_pix_clk_hz = "375000000";
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -477,7 +493,7 @@
 
 					embedded_metadata_height = "0";
 				};
-               
+
 					ports {
 						#address-cells = <1>;
 						#size-cells = <0>;
@@ -493,20 +509,26 @@
 					};
 				};
 			};
+
 			i2c@4 {
 				mvcam_e@3b {
-					devnode = "video4";
+
 					compatible = "nvidia,veye_mvcam";
 					reg = <0x3b>;
+					devnode = "video4";
                     sensor_model = "mvcam";
 					/* Physical dimensions of sensor */
                     physical_w = "5.6";
                     physical_h = "3.1";
-                    use_sensor_mode_id = "false";
 
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
 					avdd-reg = "vana";
-					dvdd-reg = "vdig";
-					iovdd-reg = "dovdd";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
                 mode0 {
 					mclk_khz = "24000";
 					num_lanes = "2";
@@ -519,14 +541,14 @@
 					active_w = "3088";
 					active_h = "2064";
 					mode_type = "raw";
-                    csi_pixel_bit_depth = "8";
-                    pixel_phase = "y8";
+		                    csi_pixel_bit_depth = "8";
+		                    pixel_phase = "y8";
 					readout_orientation = "0";
 					line_length = "3088";
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "375000000";
-
+                    serdes_pix_clk_hz = "375000000";
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -547,7 +569,6 @@
 
 					embedded_metadata_height = "0";
 				};
-               
 
 					ports {
 						#address-cells = <1>;
@@ -563,21 +584,27 @@
 						};
 					};
 				};
-            };
-            i2c@5 {
-				mvcam_g@3b {
-					devnode = "video5";
+			};
+
+			i2c@5 {
+				mvcam_g@3b  {
+
 					compatible = "nvidia,veye_mvcam";
 					reg = <0x3b>;
+					devnode = "video5";
                     sensor_model = "mvcam";
 					/* Physical dimensions of sensor */
                     physical_w = "5.6";
                     physical_h = "3.1";
                     use_sensor_mode_id = "false";
-
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
 					avdd-reg = "vana";
-					dvdd-reg = "vdig";
-					iovdd-reg = "dovdd";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
                 mode0 {
 					mclk_khz = "24000";
 					num_lanes = "2";
@@ -590,14 +617,14 @@
 					active_w = "3088";
 					active_h = "2064";
 					mode_type = "raw";
-                    csi_pixel_bit_depth = "8";
-                    pixel_phase = "y8";
+		                    csi_pixel_bit_depth = "8";
+		                    pixel_phase = "y8";
 					readout_orientation = "0";
 					line_length = "3088";
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "375000000";
-
+                    serdes_pix_clk_hz = "375000000";
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -618,7 +645,7 @@
 
 					embedded_metadata_height = "0";
 				};
-               
+
 					ports {
 						#address-cells = <1>;
 						#size-cells = <0>;
@@ -636,14 +663,10 @@
 			};
 		};
 	};
-};
 
 
-/* camera control gpio definitions */
-/ {
 	tegra-camera-platform {
 		compatible = "nvidia, tegra-camera-platform";
-
 		/**
 		* Physical settings to calculate max ISO BW
 		*
@@ -664,6 +687,7 @@
 		*
 		* max_pixel_rate = <>;
 		* Max pixel rate in Kpixel/s for the ISP ISO case
+		* Set this to the highest pix_clk_hz out of all available modes.
 		*
 		* isp_peak_byte_per_pixel = <>;
 		* Max byte per pixel for the ISP ISO case
@@ -680,16 +704,16 @@
 		isp_bw_margin_pct = <25>;
 
 		/**
-		 * The general guideline for naming badge_info contains 3 parts, and is as follows,
-		 * The first part is the camera_board_id for the module; if the module is in a FFD
-		 * platform, then use the platform name for this part.
-		 * The second part contains the position of the module, ex. “rear” or “front”.
-		 * The third part contains the last 6 characters of a part number which is found
-		 * in the module's specsheet from the vender.
-		 */
+		* The general guideline for naming badge_info contains 3 parts, and is as follows,
+		* The first part is the camera_board_id for the module; if the module is in a FFD
+		* platform, then use the platform name for this part.
+		* The second part contains the position of the module, ex. “rear” or “front”.
+		* The third part contains the last 6 characters of a part number which is found
+		* in the module's specsheet from the vender.
+		*/
 		modules {
 			module0 {
-				badge = "mvcam_bottomleft_A815P2";
+				badge = "mvcam_bottomleft_P5V27C";
 				position = "bottomleft";
 				orientation = "1";
 				drivernode0 {
@@ -697,9 +721,10 @@
 					devname = "mvcam 30-003b";
 					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@0/mvcam_a@3b";
 				};
+
 			};
 			module1 {
-				badge = "mvcam_centerleft_A815P2";
+				badge = "mvcam_centerleft_P5V27C";
 				position = "centerleft";
 				orientation = "1";
 				drivernode0 {
@@ -707,9 +732,10 @@
 					devname = "mvcam 31-003b";
 					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@1/mvcam_b@3b";
 				};
+
 			};
 			module2 {
-				badge = "mvcam_centerright_A815P2";
+				badge = "mvcam_centerright_P5V27C";
 				position = "centerright";
 				orientation = "1";
 				drivernode0 {
@@ -717,9 +743,10 @@
 					devname = "mvcam 32-003b";
 					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@2/mvcam_c@3b";
 				};
+
 			};
 			module3 {
-				badge = "mvcam_topleft_A815P2";
+				badge = "mvcam_topleft_P5V27C";
 				position = "topleft";
 				orientation = "1";
 				drivernode0 {
@@ -727,9 +754,10 @@
 					devname = "mvcam 33-003b";
 					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@3/mvcam_d@3b";
 				};
+
 			};
 			module4 {
-				badge = "mvcam_bottomright_A815P2";
+				badge = "mvcam_bottomright_P5V27C";
 				position = "bottomright";
 				orientation = "1";
 				drivernode0 {
@@ -737,9 +765,10 @@
 					devname = "mvcam 34-003b";
 					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@4/mvcam_e@3b";
 				};
+
 			};
 			module5 {
-				badge = "mvcam_topright_A815P2";
+				badge = "mvcam_topright_P5V27C";
 				position = "topright";
 				orientation = "1";
 				drivernode0 {

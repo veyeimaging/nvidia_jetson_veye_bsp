@@ -789,8 +789,8 @@ static int veyecam_check_version(struct veyecam *priv)
 	}
     dev_info(dev, "check hdver %d \n",hdver);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
-    if(hdver <=0x4){
-        dev_err(dev, "Xavier and Orin have stricter mipi timing verification, please use a newer version(>=5) camera.\n");
+    if(hdver <=0x6){
+        dev_err(dev, "Xavier and Orin have stricter mipi timing verification, please use a newer version(>=7) camera.\n");
     }
 #endif
     return 0;

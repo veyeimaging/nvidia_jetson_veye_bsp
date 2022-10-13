@@ -440,7 +440,7 @@ read_model()
     case $model in
     "662")
         #IMX296
-        printf "model is MV-MIPI-IMX296\n";
+        printf "model is MV-MIPI-IMX296M\n";
     ;;
     "376")
         #IMX178
@@ -448,6 +448,15 @@ read_model()
     ;;
     "304")
         printf "model is MV-MIPI-SC130M\n";
+    ;;
+    "613")
+        printf "model is MV-MIPI-IMX265M\n";
+    ;;
+    "612")
+        printf "model is MV-MIPI-IMX264M\n";
+    ;;
+    "33074")
+        printf "model is MV-RAW-SC132M\n";
     ;;
     *)
      printf " model %8x not recognized\n" $model;
@@ -874,13 +883,13 @@ read_outio1_mode()
     local value=0;
     typeset -i value;
 	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $GPIO1_OutSelect 2>/dev/null);
-    printf "r outIO1 mode enable is %d \n" $value;
+    printf "r outIO1 mode is %d \n" $value;
 }
 write_outio1_mode()
 {
     local res=0;
 	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $GPIO1_OutSelect $PARAM1);
-    printf "w outIO1 mode enable is %d\n" $PARAM1;
+    printf "w outIO1 mode is %d\n" $PARAM1;
 }
 
 read_outio1_usr()
@@ -919,13 +928,13 @@ read_outio2_mode()
     local value=0;
     typeset -i value;
 	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $GPIO2_OutSelect 2>/dev/null);
-    printf "r outIO2 mode enable is %d \n" $value;
+    printf "r outIO2 mode is %d \n" $value;
 }
 write_outio2_mode()
 {
     local res=0;
 	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $GPIO2_OutSelect $PARAM1);
-    printf "w outIO2 mode enable is %d\n" $PARAM1;
+    printf "w outIO2 mode is %d\n" $PARAM1;
 }
 
 read_outio2_usr()

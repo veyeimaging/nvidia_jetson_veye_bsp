@@ -1171,17 +1171,25 @@ static int mvcam_identify_module(struct mvcam * priv)
     }
     switch (device_id)
     {
-        case VEYE_MIPI_IMX178M:
+        case MV_MIPI_IMX178M:
             priv->model_id = device_id;
             dev_info(&client->dev, "camera is: MV-MIPI-IMX178M\n");
             break; 
-        case VEYE_MIPI_IMX296M:
+        case MV_MIPI_IMX296M:
             priv->model_id = device_id;
             dev_info(&client->dev, "camera is：MV-MIPI-IMX296M\n");
             break; 
-        case VEYE_MIPI_SC130M:
+        case MV_MIPI_SC130M:
             priv->model_id = device_id;
             dev_info(&client->dev, "camera is: MV-MIPI-SC130M\n");
+            break; 
+        case MV_MIPI_IMX265M:
+            priv->model_id = device_id;
+            dev_info(&client->dev, "camera is: MV-MIPI-IMX265M\n");
+            break; 
+        case MV_MIPI_IMX264M:
+            priv->model_id = device_id;
+            dev_info(&client->dev, "camera is: MV-MIPI-IMX264M\n");
             break; 
         default:
             dev_err(&client->dev, "camera id do not support: %x \n",device_id);
@@ -1341,12 +1349,21 @@ static int mvcam_probe(struct i2c_client *client,
 
     mvcam_read(client, Sensor_Width, &priv->max_width);
     mvcam_read(client, Sensor_Height, &priv->max_height);
-    if(priv->model_id == VEYE_MIPI_IMX178M){
+    if(priv->model_id == MV_MIPI_IMX178M){
         priv->min_width = MV_IMX178M_ROI_W_MIN;
         priv->min_height = MV_IMX178M_ROI_H_MIN;
-    }else if(priv->model_id == VEYE_MIPI_SC130M){
+    }else if(priv->model_id == MV_MIPI_SC130M){
         priv->min_width = MV_SC130M_ROI_W_MIN;
         priv->min_height = MV_SC130M_ROI_H_MIN;
+    }else if(priv->model_id == MV_MIPI_IMX296M){
+        priv->min_width = MV_IMX296M_ROI_W_MIN;
+        priv->min_height = MV_IMX296M_ROI_H_MIN;
+    }else if(priv->model_id == MV_MIPI_IMX265M){
+        priv->min_width = MV_IMX265M_ROI_W_MIN;
+        priv->min_height = MV_IMX265M_ROI_H_MIN;
+    }else if(priv->model_id == MV_MIPI_IMX264M){
+        priv->min_width = MV_IMX264M_ROI_W_MIN;
+        priv->min_height = MV_IMX264M_ROI_H_MIN;
     }
     v4l2_dbg(1, debug, priv->client, "%s: max width %d; max height %d\n",
 					__func__, priv->max_width,priv->max_height);

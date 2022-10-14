@@ -137,9 +137,12 @@ enum enum_TriggerSrc{
 #define I2C_WRITE_RETRY_COUNT 1
 
 /* device id list of mv series */
-#define VEYE_MIPI_IMX178M 0x0178
-#define VEYE_MIPI_IMX296M 0x0296
-#define VEYE_MIPI_SC130M  0x0130
+#define MV_MIPI_IMX178M 0x0178
+#define MV_MIPI_IMX296M 0x0296
+#define MV_MIPI_SC130M  0x0130
+#define MV_MIPI_IMX265M 0x0265
+#define MV_MIPI_IMX264M 0x0264
+
 
 #define MV_CAM_PIXEL_RATE	750000000 //750M
 
@@ -149,6 +152,12 @@ enum enum_TriggerSrc{
 #define MV_IMX178M_ROI_H_MIN    320U
 #define MV_SC130M_ROI_W_MIN    64U
 #define MV_SC130M_ROI_H_MIN    64U
+#define MV_IMX296M_ROI_W_MIN    80U
+#define MV_IMX296M_ROI_H_MIN    64U
+#define MV_IMX265M_ROI_W_MIN    258U
+#define MV_IMX265M_ROI_H_MIN    64U
+#define MV_IMX264M_ROI_W_MIN    258U
+#define MV_IMX264M_ROI_H_MIN    64U
 #define MV_CAM_ROI_W_ALIGN  8U
 #define MV_CAM_ROI_H_ALIGN  4U
 

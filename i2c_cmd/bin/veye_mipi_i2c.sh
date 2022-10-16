@@ -19,8 +19,8 @@ print_usage()
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
 	echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
-	echo "support functions: devid,hdver,sensorid,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger£¬mshutter"
-    echo "cameramode, nodf, capture, csienable,saturation,wdrbtargetbr,wdrtargetbr, brightness ,contrast , sharppen, aespeed,lsc,boardmodel,yuvseq,i2cauxenable,i2cwen,awbgain,wbmode,mwbgain"
+	echo "support functions: devid,hdver,sensorid,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger£¬mshutter,curshutter"
+    echo "cameramode, nodf, capture, csienable,saturation,wdrbtargetbr,wdrtargetbr, brightness ,contrast , sharppen, aespeed,lsc,boardmodel,yuvseq,i2cauxenable,i2cwen,awbgain,wbmode,mwbgain,antiflicker,awb_boffset,blcstrength,blcpos,paramsave"
 }
 ######################parse arg###################################
 MODE=read;
@@ -28,9 +28,11 @@ FUNCTION=version;
 PARAM1=0;
 PARAM2=0;
 PARAM3=0;
+PARAM4=0;
 b_arg_param1=0;
 b_arg_param2=0;
 b_arg_param3=0;
+b_arg_param4=0;
 b_arg_functin=0;
 b_arg_bus=0;
 b_arg_addr=0;
@@ -58,6 +60,10 @@ do
 		b_arg_param3=0;
 		PARAM3=$arg;
 	fi
+    if [ $b_arg_param4 -eq 1 ] ; then
+		b_arg_param4=0;
+		PARAM4=$arg;
+	fi
 	if [ $b_arg_bus -eq 1 ] ; then
 		b_arg_bus=0;
 		I2C_DEV=$arg;
@@ -84,6 +90,9 @@ do
 			;;
         "-p3")
 			b_arg_param3=1;
+			;;
+        "-p4")
+			b_arg_param4=1;
 			;;
 		"-b")
 			b_arg_bus=1;
@@ -970,6 +979,89 @@ write_defog()
     printf "w defog %x\n" $PARAM1;
 }
 
+read_blcstrength()
+{
+    local regval=0;
+    local blcstrength=0;
+    local blcgrad=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x33);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	regval=$?;
+    blcstrength=$(($regval&0xF));
+    blcgrad=$((($regval>>4)&0xF));
+	printf "r blcstrength %d grad enable %d \n" $blcstrength $blcgrad;
+}
+
+write_blcstrength()
+{
+    local res=0;
+    local blcstrength=$PARAM1;
+    local blcgrad=$PARAM2;
+    local regval=$((($blcgrad<<4)+$blcstrength));
+    
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x33 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $regval);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    printf "w blcstrength %d grad enable %d regval %x\n" $blcstrength $blcgrad $regval;
+}
+
+read_blcpos()
+{
+    local start_xy=0;
+    local size_xy=0;
+    local start_x=0;
+    local start_y=0;
+    local size_x=0;
+    local size_y=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x30);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	start_xy=$?;
+    start_x=$(($start_xy&0xF));
+    start_y=$((($start_xy>>4)&0xF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x31);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	size_xy=$?;
+    size_x=$(($size_xy&0xF));
+    size_y=$((($size_xy>>4)&0xF));
+	printf "read BLC start x %d y %d sizex %d size y %d\n" $start_x $start_y $size_x $size_y ;
+}
+
+write_blcpos()
+{
+    local start_xy=0;
+    local size_xy=0;
+    local start_x=$PARAM1;
+    local start_y=$PARAM2;
+    local size_x=$PARAM3;
+    local size_y=$PARAM4;
+	local res=0;
+    start_xy=$((($start_y<<4)+$start_x));
+    size_xy=$((($size_y<<4)+$size_x));
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x30 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $start_xy);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDB );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x31 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $size_xy);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    printf "write BLC start x %d y %d sizex %d size y %d\n" $start_x $start_y $size_x $size_y ;
+}
+
 #######################Action# BEGIN##############################
 
 if [ `whoami` != "root" ];then
@@ -1087,6 +1179,12 @@ if [ ${MODE} = "read" ] ; then
         "defog")
             read_defog;
                 ;;
+        "blcstrength")
+            read_blcstrength;
+                ;;
+        "blcpos")
+            read_blcpos;
+                ;;
 	esac
 fi
 
@@ -1195,6 +1293,12 @@ if [ ${MODE} = "write" ] ; then
                 ;;
         "defog")
             write_defog;
+                ;;
+        "blcstrength")
+            write_blcstrength;
+                ;;
+        "blcpos")
+            write_blcpos;
                 ;;
 	esac
     sleep 0.1;

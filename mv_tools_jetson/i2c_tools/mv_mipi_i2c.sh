@@ -16,6 +16,9 @@
 ./mv_mipi_i2c.sh -w -f i2caddr -p1 0x3c
 ./mv_mipi_i2c.sh -r -f i2caddr 
 
+# for raw camera only
+./mv_mipi_i2c.sh -w -f mcubypass -p1 []
+./mv_mipi_i2c.sh -r -f mcubypass 
 
 ## =======================================
 ## image properties
@@ -55,6 +58,8 @@
 
 ./mv_mipi_i2c.sh -w -f fps -p1 []
 ./mv_mipi_i2c.sh -r -f fps
+
+./mv_mipi_i2c.sh -r -f clkmode
 
 ## ======================================================
 ## ISP properties
@@ -244,7 +249,7 @@ Trigger_Software=0x414;
 Trigger_Count=0x418;
 I2C_Addr=0x41C;
 I2C_Port_Sel=0x420;
-Reserved2=0x424;
+MCU_Bypass=0x424;
 User_overlay_enable=0x428;
 User_overlay_zone0=0x42C;
 User_overlay_zone1=0x430;
@@ -254,7 +259,7 @@ User_define_zone0=0x43C;
 User_define_zone1=0x440;
 User_define_zone2=0x444;
 User_define_zone3=0x448;
-
+Nondiscontinues_mode=0x44C;
 Sensor_Reg_Addr=0x0450;
 Sensor_Reg_Val=0x454;
 
@@ -538,6 +543,20 @@ write_i2caddr()
     local res=0;
 	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $I2C_Addr $PARAM1);
     printf "w i2c addr is 0x%02x \n" $PARAM1;
+}
+
+read_mcubypass()
+{
+    local value=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $MCU_Bypass 2>/dev/null);
+    printf "r MCU bypass mode 0x%02x \n" $value;
+}
+write_mcubypass()
+{
+    local res=0;
+	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $MCU_Bypass $PARAM1);
+    printf "w MCU bypass mode 0x%02x,camera will reboot \n" $PARAM1;
 }
 
 read_i2cport()
@@ -1255,6 +1274,13 @@ read_snsreg()
 	fi  
 }
 
+read_clkmode()
+{
+    local value=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Nondiscontinues_mode 2>/dev/null);
+    printf "r non discontinues mode is %d \n" $value;
+}
 <<'COMMENT_SAMPLE'
 read_fun()
 {
@@ -1348,6 +1374,9 @@ if [ ${MODE} = "read" ] ; then
             ;;
         "i2caddr")
             read_i2caddr;
+            ;;
+        "mcubypass")
+            read_mcubypass;
             ;;
         "i2cport")
             read_i2cport;
@@ -1480,6 +1509,9 @@ if [ ${MODE} = "read" ] ; then
         "snsreg")
             read_snsreg;
             ;;
+        "clkmode")
+            read_clkmode;
+            ;;
         *)
         echo "NOT SUPPORTED!";
         ;;
@@ -1499,6 +1531,9 @@ if [ ${MODE} = "write" ] ; then
 			;;
         "i2caddr")
             write_i2caddr;
+            ;;
+        "mcubypass")
+            write_mcubypass;
             ;;
         "i2cport")
             write_i2cport;

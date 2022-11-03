@@ -1190,7 +1190,11 @@ static int mvcam_identify_module(struct mvcam * priv)
         case MV_MIPI_IMX264M:
             priv->model_id = device_id;
             dev_info(&client->dev, "camera is: MV-MIPI-IMX264M\n");
-            break; 
+            break;
+        case RAW_MIPI_SC132M:
+            priv->model_id = device_id;
+            dev_info(&client->dev, "camera is: RAW-MIPI-SC132M\n");
+            break;
         default:
             dev_err(&client->dev, "camera id do not support: %x \n",device_id);
 		return -EIO;
@@ -1364,6 +1368,9 @@ static int mvcam_probe(struct i2c_client *client,
     }else if(priv->model_id == MV_MIPI_IMX264M){
         priv->min_width = MV_IMX264M_ROI_W_MIN;
         priv->min_height = MV_IMX264M_ROI_H_MIN;
+    }else if(priv->model_id == RAW_MIPI_SC132M){
+        priv->min_width = RAW_SC132M_ROI_W_MIN;
+        priv->min_height = RAW_SC132M_ROI_W_MIN;
     }
     v4l2_dbg(1, debug, priv->client, "%s: max width %d; max height %d\n",
 					__func__, priv->max_width,priv->max_height);

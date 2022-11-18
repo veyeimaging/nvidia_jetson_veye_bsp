@@ -461,7 +461,7 @@ read_model()
         printf "model is MV-MIPI-IMX264M\n";
     ;;
     "33074")
-        printf "model is MV-RAW-SC132M\n";
+        printf "model is RAW-MIPI-SC132M\n";
     ;;
     *)
      printf " model %8x not recognized\n" $model;

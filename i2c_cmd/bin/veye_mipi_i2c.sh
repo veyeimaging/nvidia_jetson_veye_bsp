@@ -21,10 +21,13 @@ print_usage()
 	echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
 	echo "support functions: devid,hdver,sensorid,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger£¬mshutter,curshutter"
     echo "cameramode, nodf, capture, csienable,saturation,wdrbtargetbr,wdrtargetbr, brightness ,contrast , sharppen, aespeed,lsc,boardmodel,yuvseq,i2cauxenable,i2cwen,awbgain,wbmode,mwbgain,antiflicker,awb_boffset,blcstrength,blcpos,paramsave"
+    echo "new_expmode,new_mshutter,new_mgain"
 }
 ######################parse arg###################################
 MODE=read;
 FUNCTION=version;
+SENSOR_ID=0;
+VIDEO_FORMAT=1;# 1 ntsc,0 pal
 PARAM1=0;
 PARAM2=0;
 PARAM3=0;
@@ -122,6 +125,33 @@ read_devid()
 	printf "device id is 0x%2x\n" $verid;
 }
 
+read_releasedate()
+{
+    local yy=0;
+    local mm=0;
+    local dd=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5C );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	yy=$?;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5D );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	mm=$?;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x52 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	dd=$?;
+	printf "release date is 20%2x-%2x-%2x\n" $yy $mm $dd;
+}
+
 read_hardver()
 {
 	local hardver=0;
@@ -129,23 +159,32 @@ read_hardver()
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x00 );
 	hardver=$?;
 	printf "hardware version is 0x%2x\n" $hardver;
+    	read_releasedate;
 }
 #define SENSOR_TYPR_ADDR_L    0x20
 #define SENSOR_TYPR_ADDR_H    0x21
 #define BOARD_TYPR_ADDR    0x25
-read_sensorid()
+__read_sensorid()
 {
     local sensorid_l=0;
     local sensorid_h=0;
-    local board_type=0;
-	local res=0;
+    local res=0;
     res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x20);
-	sensorid_l=$?;
-    res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x21);
 	sensorid_h=$?;
+    res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x21);
+	sensorid_l=$?;
+    SENSOR_ID=$((($sensorid_h<<8)+$sensorid_l));
+    #printf "read sensor id %x" $SENSOR_ID;
+}
+read_sensorid()
+{
+    local board_type=0;
+    local res=0;
+    __read_sensorid;
+    printf "r sensor id is IMX%x;" $SENSOR_ID;
+    
     res=$(./i2c_read $I2C_DEV $I2C_ADDR 0x25);
 	board_type=$?;
-    printf "r sensor id is IMX%2x%2x;" $sensorid_l $sensorid_h;
     if [ $board_type -eq 76 ] ; then
 		printf " ONE board\n";
 	else
@@ -176,21 +215,25 @@ write_wdrmode()
 	printf "w wdrmode is 0x%2x\n" $PARAM1;
 }
 
-read_videoformat()
+__read_videoformat()
 {
-	local videoformat=0;
 	local res=0;
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
     sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
-	videoformat=$?;
-	echo "frame rate reg "$videoformat;
-	if [ $videoformat -eq 1 ] ; then
+	VIDEO_FORMAT=$?;
+    #printf "r Video Format is %d\n" $VIDEO_FORMAT;
+}
+
+read_videoformat()
+{
+	local res=0;
+    __read_videoformat;
+	if [ $VIDEO_FORMAT -eq 1 ] ; then
 		printf "r Video Format is NTSC(60Hz)\n";
-	fi
-	if [ $videoformat -eq 0 ] ; then
+	elif [ $VIDEO_FORMAT -eq 0 ] ; then
 		printf "r Video Format is PAL(50Hz)\n";
 	fi
 }
@@ -203,8 +246,7 @@ write_videoformat()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
 	if [ $PARAM1 = "PAL" ] ; then
 		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 0x0);
-	fi
-	if [ $PARAM1 = "NTSC" ] ; then
+	elif [ $PARAM1 = "NTSC" ] ; then
 		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 0x1);
 	fi
 	
@@ -584,19 +626,13 @@ read_brightness()
     local videoformat=0;
     local brightness=0;
 	local res=0;
-    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
-	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
-    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.01;
-	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
-	videoformat=$?;
-    sleep 0.01;
-    if [ $videoformat -eq 1 ] ; then
+    __read_videoformat;
+    if [ $VIDEO_FORMAT -eq 1 ] ; then
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x65 );
 		printf "Video Format is NTSC(60Hz) \n";
 	fi
-	if [ $videoformat -eq 0 ] ; then
+	if [ $VIDEO_FORMAT -eq 0 ] ; then
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1A );
 		printf "Video Format is PAL(50Hz)\n";
@@ -611,19 +647,13 @@ write_brightness()
 {
     local videoformat=0;
 	local res=0;
-    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDE );
-	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xC2 );
-    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
-    sleep 0.01;
-	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
-	videoformat=$?;
-    sleep 0.01;
-    if [ $videoformat -eq 1 ] ; then
+    __read_videoformat;
+    if [ $VIDEO_FORMAT -eq 1 ] ; then
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x65 );
 		printf "Video Format is NTSC(60Hz) \n";
 	fi
-	if [ $videoformat -eq 0 ] ; then
+	if [ $VIDEO_FORMAT -eq 0 ] ; then
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
         res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1A );
 		printf "Video Format is PAL(50Hz)\n";
@@ -1062,6 +1092,206 @@ write_blcpos()
     printf "write BLC start x %d y %d sizex %d size y %d\n" $start_x $start_y $size_x $size_y ;
 }
 
+write_ispparamsave()
+{
+    local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x53 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 0x01);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    printf "w isp param save\n";
+}
+
+read_new_expmode()
+{
+    local regval=0;
+    local expmode=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x67);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	regval=$?;
+    expmode=$(($regval>>7));
+    if [ $expmode -eq 1 ] ; then
+		printf "r new expmode is manual, use new_mshutter and new_mgain\n";
+    else
+        printf "r new expmode is auto, use old mshutter and auto gain\n";
+	fi
+}
+
+write_new_expmode()
+{
+    local regval=0;
+    local expmode=$PARAM1;
+    local res=0;
+    if [ $expmode -eq 0 ] ; then
+        regval=0x0C;
+		printf "w new expmode is auto,  will use old mshutter and auto gain\n";
+    else
+        regval=0x8C;
+        printf "w new expmode is manual, will use new_mshutter and new_mgain\n";
+	fi
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x67 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $regval);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+}
+
+read_new_mshutter()
+{
+    local regval=0;
+    local time_1h=0;
+    local mshutter=0;
+    local res=0;
+    local reg_l=0;
+    local reg_h=0;
+    local reg_val=0;
+    local res=0;
+    __read_videoformat;
+    
+    if [ $VIDEO_FORMAT -eq 1 ] ; then
+		printf "r Video Format is NTSC(60Hz)\n";
+        time_1h=14.815;#us
+	elif [ $VIDEO_FORMAT -eq 0 ] ; then
+		printf "r Video Format is PAL(50Hz)\n";
+        time_1h=17.778;#us
+	fi
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1C);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	reg_h=$?;
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1D);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	reg_l=$?;
+    
+    reg_val=$((($reg_h<<8)+$reg_l));
+    mshutter=`echo $reg_val $time_1h | awk '{printf "%d\n",$1*$2}'`
+    printf "r new mshutter is %d\n" $mshutter;
+}
+
+write_new_mshutter()
+{
+    local regval=0;
+    local time_1h=0;
+    local mshutter=0;
+    local res=0;
+    local reg_l=0;
+    local reg_h=0;
+    local reg_val=0;
+    local res=0;
+    __read_videoformat;
+    
+    if [ $VIDEO_FORMAT -eq 1 ] ; then
+		printf "r Video Format is NTSC(60Hz)\n";
+        time_1h=14.815;#us
+	elif [ $VIDEO_FORMAT -eq 0 ] ; then
+		printf "r Video Format is PAL(50Hz)\n";
+        time_1h=17.778;#us
+	fi
+    
+    mshutter=$PARAM1;
+    #reg_val=$(($mshutter/$time_1h));
+    reg_val=`echo $mshutter $time_1h | awk '{printf "%d\n",$1/$2}'`
+    if [ $reg_val -gt 65535 ] ; then
+        reg_val=65535;
+        printf "mshutter time too long,will cut it!\n";
+    fi
+    reg_h=$(($reg_val>>8));
+    reg_l=$(($reg_val&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1C );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $reg_h);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1D );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $reg_l);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    printf "w new_mshutter %d us\n" $mshutter;
+}
+
+read_new_mgain()
+{
+    local gainstep=0;
+    local res=0;
+    local reg_l=0;
+    local reg_h=0;
+    local reg_val=0;
+    local mgain=0;
+    
+    __read_sensorid;
+    if [ $SENSOR_ID -eq 901 ] ; then
+        gainstep=0.1;
+		printf "IMX385,gain step 0.1dB\n";
+    else
+        gainstep=0.3;
+        printf "gain step 0.3dB\n";
+	fi
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x06);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	reg_h=$?;
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1E);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	reg_l=$?;
+    
+    reg_val=$((($reg_h<<8)+$reg_l));
+    #mgain=$(($reg_val*$gainstep));
+    mgain=`echo $reg_val $gainstep | awk '{printf "%.1f\n",$1*$2}'`
+    printf "r new mgain %.1f dB\n" $mgain;
+}
+
+write_new_mgain()
+{
+    local gainstep=0;
+    local res=0;
+    local reg_l=0;
+    local reg_h=0;
+    local reg_val=0;
+    local mgain=0;
+    
+    __read_sensorid;
+    if [ $SENSOR_ID -eq 901 ] ; then
+        gainstep=0.1;
+		printf "IMX385,gain step 0.1dB\n";
+    else
+        gainstep=0.3;
+        printf "gain step 0.3dB\n";
+	fi
+    mgain=$PARAM1;
+    #reg_val=$(($mgain/$gainstep));
+    reg_val=`echo $mgain $gainstep | awk '{printf "%d\n",$1/$2}'`
+    reg_h=$(($reg_val>>8));
+    reg_l=$(($reg_val&0xFF));
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x06 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $reg_h);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x1E );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $reg_l);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    
+    printf "w new mgain %.1f dB\n" $mgain;
+}
+
 #######################Action# BEGIN##############################
 
 if [ `whoami` != "root" ];then
@@ -1185,6 +1415,15 @@ if [ ${MODE} = "read" ] ; then
         "blcpos")
             read_blcpos;
                 ;;
+        "new_expmode")
+            read_new_expmode;
+                ;;
+        "new_mshutter")
+            read_new_mshutter;
+                ;;
+        "new_mgain")
+            read_new_mgain;
+                ;;
 	esac
 fi
 
@@ -1299,6 +1538,18 @@ if [ ${MODE} = "write" ] ; then
                 ;;
         "blcpos")
             write_blcpos;
+                ;;
+        "paramsave")
+            write_ispparamsave;
+                ;;
+        "new_expmode")
+            write_new_expmode;
+                ;;
+        "new_mshutter")
+            write_new_mshutter;
+                ;;
+        "new_mgain")
+            write_new_mgain;
                 ;;
 	esac
     sleep 0.1;

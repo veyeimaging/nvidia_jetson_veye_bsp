@@ -1451,7 +1451,11 @@ write_yuvseq()
 
 #######################Action# BEGIN##############################
 
-pinmux;
+if [ `whoami` != "root" ];then
+	echo "should be root!";
+    exit 0;
+fi
+
 
 if [ ${MODE} = "read" ] ; then
 	case $FUNCTION in

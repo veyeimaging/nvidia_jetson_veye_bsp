@@ -404,8 +404,8 @@ read_videofmtcap()
     res=$(./i2c_read $I2C_DEV $I2C_ADDR  $VIDEOFMT_NUM);
 	fmtnum=$?;
 	printf "camera support videofmt num %d\n" $fmtnum;
-    local i=0
-    while(( $i<$fmtnum ))
+    local i=0;
+    while [ $i -lt $fmtnum ]
     do
         res=$(./i2c_read $I2C_DEV $I2C_ADDR $(($FMTCAP_WIDTH_L+$i*6)));
         data_l=$?;
@@ -425,7 +425,7 @@ read_videofmtcap()
         data_h=$?;
         framerate=$((data_h*256+data_l));
         printf "r videofmtcap num %d width %d height %d framerate %d\n" $(($i+1)) $width $height $framerate;
-        let "i++"
+        i=`expr $i + 1`
     done
     
 }

@@ -1292,6 +1292,85 @@ write_new_mgain()
     printf "w new mgain %.1f dB\n" $mgain;
 }
 
+read_auto_shutter_max()
+{
+    local regval=0;
+    local time_1h=0;
+    local max_shutter=0;
+    local res=0;
+    local reg_l=0;
+    local reg_h=0;
+    local reg_val=0;
+    local res=0;
+    __read_videoformat;
+    
+    if [ $VIDEO_FORMAT -eq 1 ] ; then
+		printf "r Video Format is NTSC(60Hz)\n";
+        time_1h=14.815;#us
+	elif [ $VIDEO_FORMAT -eq 0 ] ; then
+		printf "r Video Format is PAL(50Hz)\n";
+        time_1h=17.778;#us
+	fi
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x04);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	reg_h=$?;
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x07);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	reg_l=$?;
+    
+    reg_val=$((($reg_h<<8)+$reg_l));
+    max_shutter=`echo $reg_val $time_1h | awk '{printf "%d\n",$1*$2}'`
+    printf "r max_shutter is %d us\n" $max_shutter;
+}
+
+write_auto_shutter_max()
+{
+    local regval=0;
+    local time_1h=0;
+    local max_shutter=0;
+    local res=0;
+    local reg_l=0;
+    local reg_h=0;
+    local reg_val=0;
+    local res=0;
+    __read_videoformat;
+    
+    if [ $VIDEO_FORMAT -eq 1 ] ; then
+		printf "r Video Format is NTSC(60Hz)\n";
+        time_1h=14.815;#us
+	elif [ $VIDEO_FORMAT -eq 0 ] ; then
+		printf "r Video Format is PAL(50Hz)\n";
+        time_1h=17.778;#us
+	fi
+    
+    max_shutter=$PARAM1;
+    reg_val=`echo $max_shutter $time_1h | awk '{printf "%d\n",$1/$2}'`
+    if [ $reg_val -gt 2250 ] ; then
+        reg_val=2250;
+        printf "max_shutter time too long,will cut it!\n";
+    fi
+    reg_h=$(($reg_val>>8));
+    reg_l=$(($reg_val&0xFF));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x04 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $reg_h);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x07 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $reg_l);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    printf "w max_shutter %d us\n" $max_shutter;
+}
+
+
 #######################Action# BEGIN##############################
 
 if [ `whoami` != "root" ];then
@@ -1424,6 +1503,9 @@ if [ ${MODE} = "read" ] ; then
         "new_mgain")
             read_new_mgain;
                 ;;
+        "auto_shutter_max")
+            read_auto_shutter_max;
+                ;;
 	esac
 fi
 
@@ -1550,6 +1632,9 @@ if [ ${MODE} = "write" ] ; then
                 ;;
         "new_mgain")
             write_new_mgain;
+                ;;
+        "auto_shutter_max")
+            write_auto_shutter_max;
                 ;;
 	esac
     sleep 0.1;

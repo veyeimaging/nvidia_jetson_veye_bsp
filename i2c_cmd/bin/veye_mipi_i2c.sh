@@ -309,18 +309,26 @@ read_agc()
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
     sleep 0.01;
 	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
-	agc=$?;
-	printf "r agc is 0x%2x\n" $agc;
+    agc=$(($?&0x0F));
+	printf "r agc is 0x%02x\n" $agc;
 }
 write_agc()
 {
 	local agc=0;
 	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x67 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+    agc=$(($?&0xF0));
+    printf "w agc is 0x%2x\n" $PARAM1;
+    PARAM1=$(($agc|$PARAM1));
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x67 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
-	printf "w agc is 0x%2x\n" $PARAM1;
+	
 }
 
 read_lowlight()

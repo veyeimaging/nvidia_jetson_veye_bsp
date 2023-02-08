@@ -215,6 +215,7 @@ DME_AGAIN_DEC=0x0244;
 DME_AGAIN_INTER=0x0245;
 DME_DGAIN_DEC=0x0246;
 DME_DGAIN_INTER=0x0247;
+DENOISE_FACTOR=0x0248;
 
 SNSOR_REG_FLG=0x700;
 SNSOR_REG_ADDR_L=0x701;
@@ -1449,6 +1450,22 @@ write_yuvseq()
 	printf "w YUVseq is %s\n" $PARAM1;
 }
 
+read_denoise()
+{
+	local yuvseq=0;
+	local res=0;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR $DENOISE_FACTOR );
+	printf "r denoise factor is %s\n" $?;
+}
+
+write_denoise()
+{
+	local csienable=0;
+	local res=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR $DENOISE_FACTOR $PARAM1);
+	printf "w denoise factor is %s\n" $PARAM1;
+}
+
 #######################Action# BEGIN##############################
 
 if [ `whoami` != "root" ];then
@@ -1585,6 +1602,9 @@ if [ ${MODE} = "read" ] ; then
         "yuvseq")
             read_yuvseq;
                 ;;
+         "denoise")
+            read_denoise;
+                ;;
         *)
 			echo "NOT SUPPORTED!";
 			;;
@@ -1703,6 +1723,9 @@ if [ ${MODE} = "write" ] ; then
 			;;
         "yuvseq")
             write_yuvseq;
+                ;;
+        "denoise")
+            write_denoise;
                 ;;
         *)
 			echo "NOT SUPPORTED!";

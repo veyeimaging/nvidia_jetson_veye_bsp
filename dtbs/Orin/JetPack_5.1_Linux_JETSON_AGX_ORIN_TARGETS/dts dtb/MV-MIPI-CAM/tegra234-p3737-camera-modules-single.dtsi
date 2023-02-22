@@ -1,0 +1,120 @@
+/*
+ * Copyright (c) 2022, NVIDIA CORPORATION.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/* These headers don't exist yet.
+ * TODO: add below headers for corresponding sensor modules.
+ * #include "tegra234-p3737-0000-camera-e3377-a00.dtsi"
+ * #include "tegra234-p3737-0000-camera-e3326-a00.dtsi"
+ * #include "tegra234-p3737-0000-camera-vivid.dtsi"
+ * #include "tegra234-p3737-0000-camera-imx274-a00.dtsi"
+ */
+//xumm :enable veye camera, so we do not use overlay mechanism now
+/*
+#include "tegra234-p3737-0000-camera-e3331-a00.dtsi"
+#include "tegra234-p3737-0000-camera-e3333-a00.dtsi"
+#include "tegra234-p3737-0000-camera-imx185-a00.dtsi"
+#include "tegra234-p3737-0000-camera-imx390-a00.dtsi"
+#include "tegra234-p3737-0000-camera-imx274-dual.dtsi"
+*/
+
+#include "tegra234-p3737-0000-camera-veye_mvcam-a00-single.dtsi"
+
+#define CAM0_RST_L	TEGRA234_MAIN_GPIO(H, 3)
+#define CAM0_PWDN	TEGRA234_MAIN_GPIO(H, 6)
+#define CAM1_RST_L	TEGRA234_MAIN_GPIO(AC, 1)
+#define CAM1_PWDN	TEGRA234_MAIN_GPIO(AC, 0)
+
+/ {
+	tegra-camera-platform {
+		/**
+		* tpg_max_iso = <>;
+		* Max iso bw for 6 streams of tpg
+		* streams * nvcsi_freq * PG_bitrate / RG10 * BPP
+		* 6 * 102Mhz * 32 bits/ 10 bits * 2 Bps
+		* = 3916.8 MBps
+		*/
+		tpg_max_iso = <3916800>;
+	};
+
+	/* set camera gpio direction to output */
+	gpio@2200000 {
+		camera-control-output-low {
+			gpio-hog;
+			output-low;
+			gpios = <CAM0_RST_L 0 CAM0_PWDN 0
+				 CAM1_RST_L 0 CAM1_PWDN 0>;
+			label = "cam0-rst", "cam0-pwdn",
+				"cam1-rst", "cam1-pwdn";
+		};
+	};
+
+	/* all cameras are enabled by default */
+	capture_vi_base: tegra-capture-vi {
+		ports {
+			vi_port0: port@0 {
+				status = "okay";
+				vi_in0: endpoint {
+					vc-id = <0>;
+					status = "okay";
+				};
+			};
+		};
+	};
+
+	host1x@13e00000 {
+		csi_base: nvcsi@15a00000 {
+			num-tpg-channels = <36>;
+			csi_chan0: channel@0 {
+				status = "okay";
+				ports {
+					csi_chan0_port0: port@0 {
+						status = "okay";
+						csi_in0: endpoint@0 {
+							status = "okay";
+						};
+					};
+					csi_chan0_port1: port@1 {
+						status = "okay";
+						csi_out0: endpoint@1 {
+							status = "okay";
+						};
+					};
+				};
+			};
+			
+		};
+	};
+
+	i2c@3180000 {
+        status = "okay";
+            mvcam_cam0: mvcam_a@3b {
+					status = "okay";
+				};
+	};
+
+	tcp: tegra-camera-platform {
+		compatible = "nvidia, tegra-camera-platform";
+		modules {
+			cam_module0: module0 {
+				status = "okay";
+				cam_module0_drivernode0: drivernode0 {
+					status = "okay";
+				};
+				
+			};
+		};
+	};
+};

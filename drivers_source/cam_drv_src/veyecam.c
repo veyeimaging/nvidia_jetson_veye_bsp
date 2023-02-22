@@ -975,5 +975,5 @@ static struct i2c_driver veyecam_i2c_driver = {
 module_i2c_driver(veyecam_i2c_driver);
 
 MODULE_DESCRIPTION("Media Controller driver for CSONEPLUS VEYECAM");
-MODULE_AUTHOR("NVIDIA Corporation");
+MODULE_AUTHOR("xumm@csoneplus.com  Tianjin Zhonganyijia Tech Co.,Ltd.");
 MODULE_LICENSE("GPL v2");

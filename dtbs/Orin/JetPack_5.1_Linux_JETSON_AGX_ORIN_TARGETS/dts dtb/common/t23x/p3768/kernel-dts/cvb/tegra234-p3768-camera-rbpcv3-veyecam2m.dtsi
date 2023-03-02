@@ -33,6 +33,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			rbpcv3_veyecam_a@3b {
+				status = "okay";
 				reset-gpios = <&tegra_main_gpio CAM0_PWDN GPIO_ACTIVE_HIGH>;
 			};
 		};
@@ -41,6 +42,7 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			rbpcv3_veyecam_c@3b {
+				status = "okay";
 				reset-gpios = <&tegra_main_gpio CAM1_PWDN GPIO_ACTIVE_HIGH>;
 			};
 		};

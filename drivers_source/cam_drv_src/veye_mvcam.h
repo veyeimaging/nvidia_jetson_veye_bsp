@@ -143,6 +143,7 @@ enum enum_TriggerSrc{
 #define MV_MIPI_IMX265M 0x0265
 #define MV_MIPI_IMX264M 0x0264
 #define RAW_MIPI_SC132M 0x8132
+#define MV_MIPI_IMX287M 0x0287
 
 #define MV_CAM_PIXEL_RATE	750000000 //750M
 
@@ -160,6 +161,8 @@ enum enum_TriggerSrc{
 #define MV_IMX264M_ROI_H_MIN    64U
 #define RAW_SC132M_ROI_W_MIN    64U
 #define RAW_SC132M_ROI_H_MIN    64U
+#define MV_IMX287M_ROI_W_MIN    64U
+#define MV_IMX287M_ROI_H_MIN    64U
 
 #define MV_CAM_ROI_W_ALIGN  8U
 #define MV_CAM_ROI_H_ALIGN  4U

@@ -1195,6 +1195,10 @@ static int mvcam_identify_module(struct mvcam * priv)
             priv->model_id = device_id;
             dev_info(&client->dev, "camera is: RAW-MIPI-SC132M\n");
             break;
+        case MV_MIPI_IMX287M:
+            priv->model_id = device_id;
+            dev_info(&client->dev, "camera is: MV_MIPI_IMX287M\n");
+            break;
         default:
             dev_err(&client->dev, "camera id do not support: %x \n",device_id);
 		return -EIO;

@@ -460,6 +460,9 @@ read_model()
     "612")
         printf "model is MV-MIPI-IMX264M\n";
     ;;
+    "647")
+        printf "model is MV-MIPI-IMX287M\n";
+    ;;
     "33074")
         printf "model is RAW-MIPI-SC132M\n";
     ;;

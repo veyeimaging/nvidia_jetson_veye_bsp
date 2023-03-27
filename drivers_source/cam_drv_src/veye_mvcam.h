@@ -155,13 +155,13 @@ enum enum_TriggerSrc{
 #define MV_SC130M_ROI_H_MIN    64U
 #define MV_IMX296M_ROI_W_MIN    80U
 #define MV_IMX296M_ROI_H_MIN    64U
-#define MV_IMX265M_ROI_W_MIN    258U
+#define MV_IMX265M_ROI_W_MIN    264U
 #define MV_IMX265M_ROI_H_MIN    64U
-#define MV_IMX264M_ROI_W_MIN    258U
+#define MV_IMX264M_ROI_W_MIN    264U
 #define MV_IMX264M_ROI_H_MIN    64U
 #define RAW_SC132M_ROI_W_MIN    64U
 #define RAW_SC132M_ROI_H_MIN    64U
-#define MV_IMX287M_ROI_W_MIN    64U
+#define MV_IMX287M_ROI_W_MIN    264U
 #define MV_IMX287M_ROI_H_MIN    64U
 
 #define MV_CAM_ROI_W_ALIGN  8U

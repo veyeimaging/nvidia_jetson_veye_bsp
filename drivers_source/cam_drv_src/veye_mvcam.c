@@ -1374,7 +1374,10 @@ static int mvcam_probe(struct i2c_client *client,
         priv->min_height = MV_IMX264M_ROI_H_MIN;
     }else if(priv->model_id == RAW_MIPI_SC132M){
         priv->min_width = RAW_SC132M_ROI_W_MIN;
-        priv->min_height = RAW_SC132M_ROI_W_MIN;
+        priv->min_height = RAW_SC132M_ROI_H_MIN;
+    }else if(priv->model_id == MV_MIPI_IMX287M){
+        priv->min_width = MV_IMX287M_ROI_W_MIN;
+        priv->min_height = MV_IMX287M_ROI_H_MIN;
     }
     v4l2_dbg(1, debug, priv->client, "%s: max width %d; max height %d\n",
 					__func__, priv->max_width,priv->max_height);

@@ -146,6 +146,10 @@ enum enum_TriggerSrc{
 #define MV_MIPI_IMX287M 0x0287
 
 #define MV_CAM_PIXEL_RATE	750000000 //750M
+/* MV mipi clk is 742.5Mhz */
+#define MVCAM_DEFAULT_LINK_FREQ     742500000
+/*RAW mipi clk is 559Mhz */
+#define RAWCAM_DEFAULT_LINK_FREQ	559000000
 
 #define MV_CAM_DEF_FPS      22U
 

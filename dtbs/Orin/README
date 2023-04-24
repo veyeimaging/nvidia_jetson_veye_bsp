@@ -1,0 +1,3 @@
+
+1. JetPack_5.1.1_Linux_JETSON_ORIN_TARGETS
+This directory contains the DTS source code and DTB for all Orin series, including AGX Orin, Orin NX, and Orin Nano.

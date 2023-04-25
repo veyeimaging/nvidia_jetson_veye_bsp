@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2018-2020, TIANJIN DATA IMAGING TECHNOLOGY CO.,LTD.  All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -214,6 +214,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
+					serdes_pix_clk_hz = "800000000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -254,7 +255,8 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -294,6 +296,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
+					serdes_pix_clk_hz = "800000000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -323,7 +326,8 @@
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
 					cil_settletime = "0";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					active_w = "720";
 					active_h = "1280";
 					mode_type = "yuv";
@@ -374,6 +378,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
+					serdes_pix_clk_hz = "800000000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -414,7 +419,8 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -553,7 +559,7 @@
 				mode0 { /* SC132_MODE_1280X1080_45FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_c";
+					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -569,6 +575,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
+					serdes_pix_clk_hz = "800000000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -593,7 +600,7 @@
                 mode1 { /* SC132_MODE_1080X1280_45FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_c";
+					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -609,7 +616,8 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -633,7 +641,7 @@
                 mode2 { /* SC132_MODE_1280X720_CROP_60FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_c";
+					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -649,7 +657,8 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -673,7 +682,7 @@
                 mode3 { /* SC132_MODE_720X12800_CROP_60FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_c";
+					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -689,7 +698,8 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -713,7 +723,7 @@
                 mode4 { /* SC132_MODE_640X480_CROP_120FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_c";
+					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -729,7 +739,8 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -753,7 +764,7 @@
                 mode5 { /* SC132_MODE_480X640_CROP_120FPS */
 					mclk_khz = "24000";
 					num_lanes = "2";
-					tegra_sinterface = "serial_c";
+					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
 					dpcm_enable = "false";
@@ -769,7 +780,8 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "74250000";
-
+					serdes_pix_clk_hz = "800000000";
+					
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -797,7 +809,7 @@
 					port@0 {
 						reg = <0>;
 						rbpcv2_cssc132_out1: endpoint {
-							
+							status = "okay";
 							port-index = <2>;
 							bus-width = <2>;
 							remote-endpoint = <&rbpcv2_cssc132_csi_in1>;

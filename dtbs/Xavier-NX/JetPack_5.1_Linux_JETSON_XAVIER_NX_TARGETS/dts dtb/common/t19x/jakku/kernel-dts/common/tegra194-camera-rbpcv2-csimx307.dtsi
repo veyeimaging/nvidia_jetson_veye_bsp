@@ -557,7 +557,7 @@
 					port@0 {
 						reg = <0>;
 						rbpcv2_csimx307_out1: endpoint {
-							status = "okay";
+							
 							port-index = <2>;
 							bus-width = <2>;
 							remote-endpoint = <&rbpcv2_csimx307_csi_in1>;

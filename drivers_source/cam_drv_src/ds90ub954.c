@@ -953,7 +953,7 @@ static int ds90ub953_write(const struct ds90ub953_priv *priv, unsigned int reg,
 	int err;
 	err = regmap_write(priv->regmap, reg, val);
 	if(err) {
-		dev_err(&priv->parent->client->dev,
+		dev_err(&priv->client->dev,
 			"Cannot write subdev 0x%02x register 0x%02x (%d)!\n",
 			priv->client->addr, reg, err);
 	}

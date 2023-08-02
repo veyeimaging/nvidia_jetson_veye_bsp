@@ -40,6 +40,15 @@ config VIDEO_VEYECAM
 	  To compile this driver as a module, choose M here: the module
 	  will be called veyecam.
       
+config VIDEO_VEYE_VBYONE
+        tristate "VEYE vbyone camera sensor support"
+	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API
+	---help---
+	  This driver supports vbyone toollkit from veye.cc
+
+	  To compile this driver as a module, choose M here: the module
+	  will be called veye_vbyone.
+      
 config VIDEO_VEYEMVCAM
         tristate "veye mv series camera sensor support"
 	depends on I2C && VIDEO_V4L2 && VIDEO_V4L2_SUBDEV_API

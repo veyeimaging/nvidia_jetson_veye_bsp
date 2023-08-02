@@ -865,6 +865,9 @@ if [ ${MODE} = "read" ] ; then
         "extra_color_gain")
             read_extra_color_gain;
             ;;
+        "errcode")
+            read_errcode;
+            ;;
         *)
         echo "NOT SUPPORTED!";
         ;;

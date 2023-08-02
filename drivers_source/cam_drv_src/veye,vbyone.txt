@@ -1,0 +1,78 @@
+Device tree configuration for the V-by-ONE deserializer THCV242A and
+serializer THCV241A from Thine
+
+The deserializer THCV242A can have up to one serializers (THCV241A) connected.
+In the device tree, the serializer nodes are subnodes of the deserializer.
+
+/*------------------------------------------------------------------------------
+* ------------------------------------------------------------------------------
+*
+* Options for DESERIALIZER (THCV242A):
+*
+* ------------------------------------------------------------------------------
+*-----------------------------------------------------------------------------*/
+
+Integer values:
+- reg:                  I2C address of deserializer
+- csi-lane-count        Number of CSI lanes(2,4)             default value: 2
+- csi-lane-speed        CSI lane speed in Mbps (900, 1118 or 1500)
+                                                        default vaule: 1500
+- coax-num              Number of Coax cable
+- cam-i2c-pt-setting    Pass through setting i2c
+
+String values:
+- pdb-gpio              Power-down gpio(no use or polling)        
+- trgin-gpio            Trigger gpio(no use or polling)
+- out1-gpio             out1 gpio(no use or polling)
+- out2-gpio             out2 gpio(no use or polling)
+
+
+
+/*------------------------------------------------------------------------------
+* ------------------------------------------------------------------------------
+*
+* Options for SERIALIZER (THCV241A):
+*
+* ------------------------------------------------------------------------------
+*-----------------------------------------------------------------------------*/
+
+Integer values:
+- i2c-address           I2C address of serializer(0x36)  
+- csi-lane-count        Number of CSI lanes   default value: 2
+- csi-lane-speed        CSI lane speed in Mbps (900, 1118 or 1500)
+- camera-i2c-address   I2C address of camera(0x3b)
+
+/*------------------------------------------------------------------------------
+* ------------------------------------------------------------------------------
+*
+* Device Tree Examples
+*
+* ------------------------------------------------------------------------------
+*-----------------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------------
+* Example 1 (SIMPLE)
+*-----------------------------------------------------------------------------*/
+
+veye_vbyone: vbyone@65 {
+    compatible = "veye,vbyone";
+    priority = <(-1)>;
+    reg = <0x65>;
+    status = "okay";
+    csi-lane-count = <2>;
+    csi-lane-speed = <1500>;
+    coax-num = <1>;
+    cam-i2c-pt-setting = <0x13>;
+
+    pdb-gpio-mode = <0>;
+    trgin-gpio-mode = <1>;
+    out1-gpio-mode = <1>;
+    out2-gpio-mode = <1>;
+    
+    serializer {
+        i2c-address=<0x34>;
+        csi-lane-count = <2>;
+        csi-lane-speed = <1500>;
+        camera-i2c-address=<0x3b>;
+    };
+};

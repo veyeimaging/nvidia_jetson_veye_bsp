@@ -117,6 +117,9 @@ struct mvcam {
     u32 h_flip;
     u32 v_flip;
     
+    u32 lane_num;
+    u32 mipi_datarate;
+    
 	struct v4l2_ctrl_handler ctrl_handler;
     struct v4l2_ctrl *ctrls[MVCAM_MAX_CTRLS];
 	/* V4L2 Controls */
@@ -541,6 +544,7 @@ int mvcam_get_mbus_config(struct v4l2_subdev *sd,
 				struct v4l2_mbus_config *cfg)
 #endif
 {
+    struct mvcam *mvcam = to_mvcam(sd);
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)
 	cfg->type = V4L2_MBUS_CSI2;
 #else
@@ -551,7 +555,11 @@ int mvcam_get_mbus_config(struct v4l2_subdev *sd,
 	cfg->type = V4L2_MBUS_CSI2_DPHY;
 #endif
 	cfg->flags = V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK;
-	cfg->flags |= V4L2_MBUS_CSI2_2_LANE; /* XXX wierd */
+    if(mvcam->lane_num == 4){
+        cfg->flags |= V4L2_MBUS_CSI2_4_LANE; /* XXX wierd */
+    }else{
+        cfg->flags |= V4L2_MBUS_CSI2_2_LANE; /* XXX wierd */
+    }
 
 	return 0;
 }
@@ -869,6 +877,30 @@ err:
 	return -ENODEV;
 }
 
+static void mvcam_get_mipifeature(struct mvcam *mvcam)
+{
+    u32 lane_num;
+    u32 mipi_datarate;
+    struct i2c_client *client = mvcam->client;
+    mvcam_read(client, Lane_Num, &lane_num);
+    if(lane_num == 4){
+        mvcam->lane_num = 4;
+    }else{
+        mvcam->lane_num = 2;
+    }
+    
+    mvcam_read(client, MIPI_DataRate, &mipi_datarate);
+    if(mipi_datarate == 0xFFFFFFFF)
+        mipi_datarate = MVCAM_DEFAULT_LINK_FREQ;
+    else
+        mipi_datarate *=1000;//register value is kbps
+    
+    mvcam->mipi_datarate = mipi_datarate;
+    
+    v4l2_dbg(1, debug, mvcam->client, "%s: lane num %d, datarate %d bps\n",
+					__func__, mvcam->lane_num,mvcam->mipi_datarate);
+    return;
+}
 
 /* Start streaming */
 static int mvcam_start_streaming(struct mvcam *mvcam)
@@ -1184,6 +1216,14 @@ static int mvcam_identify_module(struct mvcam * mvcam)
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: MV_MIPI_IMX287M\n");
             break;
+        case RAW_MIPI_IMX462M:
+            mvcam->model_id = device_id;
+            dev_info(&client->dev, "camera is: RAW_MIPI_IMX462M\n");
+            break;
+        case RAW_MIPI_AR0234M:
+            mvcam->model_id = device_id;
+            dev_info(&client->dev, "camera is: RAW_MIPI_AR0234M\n");
+            break;
         default:
             dev_err(&client->dev, "camera id do not support: %x \n",device_id);
 		return -EIO;
@@ -1343,7 +1383,7 @@ static int mvcam_probe(struct i2c_client *client,
 		ret = -ENODEV;
 		goto error_power_off;
 	}
-
+	mvcam_get_mipifeature(mvcam);
     mvcam_read(client, Sensor_Width, &mvcam->max_width);
     mvcam_read(client, Sensor_Height, &mvcam->max_height);
     if(mvcam->model_id == MV_MIPI_IMX178M){
@@ -1367,6 +1407,12 @@ static int mvcam_probe(struct i2c_client *client,
     }else if(mvcam->model_id == MV_MIPI_IMX287M){
         mvcam->min_width = MV_IMX287M_ROI_W_MIN;
         mvcam->min_height = MV_IMX287M_ROI_H_MIN;
+    }else if(mvcam->model_id == RAW_MIPI_IMX462M){
+        mvcam->min_width = RAW_IMX462M_ROI_W_MIN;
+        mvcam->min_height = RAW_IMX462M_ROI_H_MIN;
+    }else if(mvcam->model_id == RAW_MIPI_AR0234M){
+        mvcam->min_width = RAW_AR0234M_ROI_W_MIN;
+        mvcam->min_height = RAW_AR0234M_ROI_H_MIN;
     }
     v4l2_dbg(1, debug, mvcam->client, "%s: max width %d; max height %d\n",
 					__func__, mvcam->max_width,mvcam->max_height);

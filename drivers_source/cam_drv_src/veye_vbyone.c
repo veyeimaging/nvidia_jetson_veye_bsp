@@ -30,7 +30,7 @@
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
 #include <linux/regmap.h>
-
+#include <linux/version.h>
 #include "veye_vbyone.h"
 
 const struct regmap_config thcv242a_regmap_config = {

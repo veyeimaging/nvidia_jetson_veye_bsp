@@ -195,6 +195,9 @@
 ### Special function
 ./mv_mipi_i2c.sh -r -f snsreg -p1 SensorAddr
 
+./mv_mipi_i2c.sh -r -f lanenum
+./mv_mipi_i2c.sh -w -f lanenum -p1 [2/4]
+
 COMMENT_SAMPLE
 
 #
@@ -259,9 +262,10 @@ User_define_zone0=0x43C;
 User_define_zone1=0x440;
 User_define_zone2=0x444;
 User_define_zone3=0x448;
-Nondiscontinues_mode=0x44C;
+Nondiscontinuous_mode=0x44C;
 Sensor_Reg_Addr=0x0450;
 Sensor_Reg_Val=0x454;
+Slave_mode=0x460;
 
 Test_Image_Selector=0x800;
 Pixel_Format=0x804;
@@ -276,7 +280,10 @@ ROI_Offset_Y=0x824;
 Image_Direction=0x828;
 Data_shift=0x82C;
 Black_Level=0x830;
-ReadOut_Mode=0x834;
+BLC_Mode=0x834;
+ReadOut_Mode=0x838;
+Lane_Num=0x83C;
+MIPI_DataRate=0x840;
 
 ISP_module_ctrl=0xC00;
 Exposure_Mode=0xC04;
@@ -465,6 +472,12 @@ read_model()
     ;;
     "33074")
         printf "model is RAW-MIPI-SC132M\n";
+    ;;
+    "33332")
+        printf "model is RAW-MIPI-AR0234M\n";
+    ;;
+    "33890")
+        printf "model is RAW-MIPI-IMX462M\n";
     ;;
     *)
      printf " model %8x not recognized\n" $model;
@@ -666,6 +679,21 @@ write_blacklevel()
     printf "w black level is %d \n" $PARAM1;
 }
 
+read_blcmode()
+{
+    local value=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $BLC_Mode 2>/dev/null);
+    printf "r BLC_Mode is %d \n" $value;
+}
+
+write_blcmode()
+{
+    local res=0;
+	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $BLC_Mode $PARAM1);
+    printf "w BLC_Mode is %d \n" $PARAM1;
+}
+
 read_roi()
 {
     local x=0;
@@ -789,7 +817,7 @@ write_trgone()
 {
     local res=0;
 	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $Trigger_Software 1);
-    printf "w trigger one  %d \n" $PARAM1;
+    printf "w trigger one \n" ;
 }
 
 read_trgcount()
@@ -1270,7 +1298,7 @@ read_snsreg()
     sensor_val=$(./i2c_4read $I2C_DEV $I2C_ADDR $Sensor_Reg_Val 2>/dev/null);
     #check if msb set to 1
     if [ $((($sensor_val & 0x80000000) == 0x80000000)) -eq 1 ]; then
-        sensor_val=$((sensor_val&0xFF));
+        sensor_val=$((sensor_val&0xFFFF));
         printf "read sensor register addr 0x%x value 0x%x \n" $PARAM1 $sensor_val;
     else
         printf "read sensor register failed\n";
@@ -1281,9 +1309,47 @@ read_clkmode()
 {
     local value=0;
     typeset -i value;
-	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Nondiscontinues_mode 2>/dev/null);
-    printf "r non discontinues mode is %d \n" $value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Nondiscontinuous_mode 2>/dev/null);
+    printf "r non discontinuous_mode mode is %d \n" $value;
 }
+
+read_mipidatarate()
+{
+    local value=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $MIPI_DataRate 2>/dev/null);
+    printf "r MIPI datarate is %d Kbps/lane\n" $value;
+}
+read_lanenum()
+{
+    local value=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Lane_Num 2>/dev/null);
+    printf "r lane number is %d \n" $value;
+}
+
+write_lanenum()
+{
+    local res=0;
+	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $Lane_Num $PARAM1);
+    printf "w lane number is %d \n" $PARAM1;
+}
+
+read_slavemode()
+{
+    local value=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Slave_mode 2>/dev/null);
+    printf "r slave mode is %d \n" $value;
+}
+
+write_slavemode()
+{
+    local res=0;
+	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $Slave_mode $PARAM1);
+    printf "w slave mode is %d \n" $PARAM1;
+}
+
 <<'COMMENT_SAMPLE'
 read_fun()
 {
@@ -1515,6 +1581,18 @@ if [ ${MODE} = "read" ] ; then
         "clkmode")
             read_clkmode;
             ;;
+        "mipidatarate")
+            read_mipidatarate;
+            ;;
+        "lanenum")
+            read_lanenum;
+            ;;
+        "blcmode")
+            read_blcmode;
+            ;;
+        "slavemode")
+            read_slavemode;
+            ;;
         *)
         echo "NOT SUPPORTED!";
         ;;
@@ -1663,6 +1741,15 @@ if [ ${MODE} = "write" ] ; then
             ;;
         "aeag_run_once_save")
             write_aeag_run_once_save;
+            ;;
+        "lanenum")
+            write_lanenum;
+            ;;
+        "blcmode")
+            write_blcmode;
+            ;;
+        "slavemode")
+            write_slavemode;
             ;;
         *)
         echo "NOT SUPPORTED!";

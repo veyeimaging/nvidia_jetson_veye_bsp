@@ -560,7 +560,7 @@ int mvcam_get_mbus_config(struct v4l2_subdev *sd,
     }else{
         cfg->flags |= V4L2_MBUS_CSI2_2_LANE; /* XXX wierd */
     }
-
+    debug_printk("mvcam_get_mbus_config lane num %d\n",mvcam->lane_num);
 	return 0;
 }
 
@@ -896,8 +896,8 @@ static void mvcam_get_mipifeature(struct mvcam *mvcam)
         mipi_datarate *=1000;//register value is kbps
     
     mvcam->mipi_datarate = mipi_datarate;
-    
-    v4l2_dbg(1, debug, mvcam->client, "%s: lane num %d, datarate %d bps\n",
+
+    debug_printk("%s: lane num %d, datarate %d bps\n",
 					__func__, mvcam->lane_num,mvcam->mipi_datarate);
     return;
 }

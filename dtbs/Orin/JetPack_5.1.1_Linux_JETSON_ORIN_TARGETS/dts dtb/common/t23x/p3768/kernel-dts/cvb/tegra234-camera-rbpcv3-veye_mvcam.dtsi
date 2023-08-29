@@ -96,7 +96,7 @@
 	};
 
 	cam_i2cmux {
-		 i2c@0 {
+            i2c@0 {
 
 			mvcam_cam0: rbpcv3_mvcam_a@3b {
 

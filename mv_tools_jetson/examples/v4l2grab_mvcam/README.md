@@ -27,7 +27,7 @@ Options:
 -p | --pixelformat   Set pixel format,0:raw8,1:raw10,2:raw12
 -m | --trgmode       Set camera mode,0:Video streaming mode,1:Normal trigger mode,2:High-speed continuous trigger mode.
 -s | --trgsrc        Set camera trigger source,0:Software trigger,1:Hardware trigger.
--j | --jetson        Set jetson board, tx2 or xavier.
+-j | --jetson        Set jetson board, nano,tx2,xavier or orin.
 -X | --start_x        Set image start x
 -Y | --start_y        Set image start y
 -W | --width         Set image width
@@ -41,7 +41,7 @@ Options:
 
 After setting the ROI, it will prompt the actual ROI in effect and the width and height needed to open the image.
 
-For raw10 and raw12 formats, you need to use [pixel_layer_convert](https://github.com/veyeimaging/pixel_layer_convert) to convert the images first.
+For  raw10 and raw12 formats on Jetson TX2, Xavier and Orin platform, you need to use [pixel_layer_convert](https://github.com/veyeimaging/pixel_layer_convert) to convert the images first.
 
 Recommend using [vooya](https://www.offminor.de/) to open images.
 
@@ -49,17 +49,23 @@ Recommend using [vooya](https://www.offminor.de/) to open images.
 
 ### save one raw8 frame @(0,0,3088,2064)
 ```
-./v4l2grab_mvcam_jetson -j xavier -d /dev/video0 -o y8_3136x2064.raw -X 0 -Y 0 -W 3088 -H 2064 
+./v4l2grab_mvcam_jetson -d /dev/video0 -o y8_3136x2064.raw -X 0 -Y 0 -W 3088 -H 2064 
 ```
 open with [vooya](https://www.offminor.de/) @ Color space: single channel, 3136*2064, bitdepth8
 
 ### save one raw8 frame @(500,500,500,500)
 ```
-./v4l2grab_mvcam_jetson -j xavier -d /dev/video0 -o y8_500x500.raw -X 500 -Y 500 -W 500 -H 500 
+./v4l2grab_mvcam_jetson  -d /dev/video0 -o y8_500x500.raw -X 500 -Y 500 -W 500 -H 500 
 ```
 open with [vooya](https://www.offminor.de/) @ Color space: single channel, 512*504,bitdepth8
 
-### save one raw10 frame @(0,0,3088,2064)
+### save one raw10 frame on nano @(0,0,1920,1088)
+```
+./v4l2grab_mvcam_jetson -j nano -d /dev/video0 -p 1 -o y10_1920x1088.raw -X 0 -Y 0 -W 1920 -H 1088 
+```
+open with [vooya](https://www.offminor.de/) @ Color space: single channel, 1920*1088, bitdepth10
+
+### save one raw10 frame on xavier or orin @(0,0,3088,2064)
 ```
 ./v4l2grab_mvcam_jetson -j xavier -d /dev/video0 -p 1 -o y10_3104x2064.raw -X 0 -Y 0 -W 3088 -H 2064 
 ```
@@ -69,7 +75,13 @@ convert
 ```
 open with [vooya](https://www.offminor.de/) @ Color space: single channel, 3104*2064, bitdepth10
 
-### save one raw12 frame @(0,0,3088,2064)
+### save one raw12 frame on nano @(0,0,1920,1088)
+```
+./v4l2grab_mvcam_jetson -j nano -d /dev/video0 -p 2 -o y12_1920x1088.raw -X 0 -Y 0 -W 1920 -H 1088 
+```
+open with [vooya](https://www.offminor.de/) @ Color space: single channel, 1920*1088, bitdepth12
+
+### save one raw12 frame on xavier or orin @(0,0,3088,2064)
 
 ```
 ./v4l2grab_mvcam_jetson -j xavier -d /dev/video0 -p 2 -o y12_3104x2064.raw -X 0 -Y 0 -W 3088 -H 2064 
@@ -80,7 +92,7 @@ convert
 ```
 open with [vooya](https://www.offminor.de/) @ Color space: single channel, 3104*2064, bitdepth12
 
-## Soft trigger mode 
+## Soft trigger mode on xavier or orin 
 - In one shell
 ```
 ./v4l2grab_mvcam_jetson -j xavier -d /dev/video0 -p 0 -m 1 -s 1 -o y8_3136x2064 -X 0 -Y 0 -W 3088 -H 2064 -c 
@@ -100,7 +112,7 @@ or
 
 In v4l2grab_mvcam_jetson shell,Ctrl-C will send a SIGINT to v4l2grab_mvcam_jetson process and make it quit.
 
-## Hardware trigger mode 
+## Hardware trigger mode on xavier or orin 
 - In one shell
 
 ```

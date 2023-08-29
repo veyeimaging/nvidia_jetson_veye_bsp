@@ -39,12 +39,13 @@
 #define V4L2_CID_VEYE_MV_FRAME_RATE				(V4L2_CID_VEYE_MV_BASE + 4)
 #define V4L2_CID_VEYE_MV_ROI_X		        	(V4L2_CID_VEYE_MV_BASE + 5)
 #define V4L2_CID_VEYE_MV_ROI_Y  				(V4L2_CID_VEYE_MV_BASE + 6)
+/*Nano*/
 
 /* TX2 */
 #define V4L2_PIX_FMT_TX2_Y10     v4l2_fourcc('T', 'Y', '1', '0') /* 10  Greyscale     */
 #define V4L2_PIX_FMT_TX2_Y12     v4l2_fourcc('T', 'Y', '1', '2') /* 12  Greyscale     */
 
-/* Xavier */
+/* Xavier , Orin*/
 #define V4L2_PIX_FMT_XAVIER_Y10     v4l2_fourcc('X', 'Y', '1', '0') /* 10  Greyscale     */
 #define V4L2_PIX_FMT_XAVIER_Y12     v4l2_fourcc('X', 'Y', '1', '2') /* 12  Greyscale     */
 //end
@@ -629,12 +630,30 @@ static int CheckParam(void)
         fprintf(stderr,"trgmode wrong %d\n",pixelformat);
         return -1;
     }
-    if(JetsonBoard == NULL)
+    if((JetsonBoard == NULL) && (pixelformat != 0))
     {
-        fprintf(stderr,"must specify jetson platform\n");
+        fprintf(stderr,"must specify jetson platform if not using raw8\n");
         return -1;
     }
-    if(strcasecmp(JetsonBoard,"tx2") == 0)
+    if(strcasecmp(JetsonBoard,"nano") == 0)
+    {
+        if(pixelformat == 0)
+        {
+            fourCC = V4L2_PIX_FMT_GREY;
+            bytes_per_pixel = 1;
+        }
+        else if(pixelformat == 1)
+        {
+            fourCC = V4L2_PIX_FMT_Y10;
+            bytes_per_pixel = 2;
+        }
+        else if(pixelformat == 2)
+        {
+            fourCC = V4L2_PIX_FMT_Y12;
+            bytes_per_pixel = 2;
+        }
+    }
+    else if(strcasecmp(JetsonBoard,"tx2") == 0)
     {
         if(pixelformat == 0)
         {
@@ -652,7 +671,7 @@ static int CheckParam(void)
             bytes_per_pixel = 2;
         }
     }
-    else if(strcasecmp(JetsonBoard,"xavier") == 0)
+    else if(strcasecmp(JetsonBoard,"xavier") == 0 || strcasecmp(JetsonBoard,"orin") == 0)
     {
         if(pixelformat == 0)
         {
@@ -705,7 +724,7 @@ static void usage(FILE* fp, int argc, char** argv)
         "-p | --pixelformat   Set pixel format,0:raw8,1:raw10,2:raw12\n"
         "-m | --trgmode       Set camera mode,0:Video streaming mode,1:Normal trigger mode,2:High-speed continuous trigger mode.\n"
         "-s | --trgsrc        Set camera trigger source,0:Software trigger,1:Hardware trigger.\n"
-        "-j | --jetson        Set jetson board, tx2 or xavier.\n"
+        "-j | --jetson        Set jetson board, nano,tx2,xavier or orin.\n"
         "-X | --start_x        Set image start x\n"
 		"-Y | --start_y        Set image start y\n"
 		"-W | --width         Set image width\n"

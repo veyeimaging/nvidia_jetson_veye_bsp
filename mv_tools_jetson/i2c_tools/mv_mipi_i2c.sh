@@ -204,7 +204,7 @@ COMMENT_SAMPLE
 #set camera i2c pin mux
 #
 
-I2C_DEV=10;
+I2C_DEV=7;
 I2C_ADDR=0x3b;
 
 print_usage()

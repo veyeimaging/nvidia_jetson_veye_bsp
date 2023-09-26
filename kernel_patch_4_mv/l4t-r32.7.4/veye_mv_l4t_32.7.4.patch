@@ -1,0 +1,410 @@
+diff -Nuar kernel/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c kernel_new/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c
+--- kernel/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c	2023-03-06 18:52:57.021329861 -0800
++++ kernel_new/kernel-4.9/drivers/media/v4l2-core/v4l2-ioctl.c	2023-03-06 18:55:28.134383176 -0800
+@@ -1256,6 +1256,12 @@
+ 	case V4L2_PIX_FMT_TM6000:	descr = "A/V + VBI Mux Packet"; break;
+ 	case V4L2_PIX_FMT_CIT_YYVYUY:	descr = "GSPCA CIT YYVYUY"; break;
+ 	case V4L2_PIX_FMT_KONICA420:	descr = "GSPCA KONICA420"; break;
++    //xumm add
++    case V4L2_PIX_FMT_TX2_Y10:	descr = "TX2 10-bit/16-bit Greyscale"; break;
++	case V4L2_PIX_FMT_TX2_Y12:	descr = "TX2 12-bit/16-bit Greyscale"; break;
++	case V4L2_PIX_FMT_XAVIER_Y10:	descr = "XAVIER 10-bit/16-bit Greyscale"; break;
++	case V4L2_PIX_FMT_XAVIER_Y12:	descr = "XAVIER 12-bit/16-bit Greyscale"; break;
++    //end
+ 	case V4L2_SDR_FMT_CU8:		descr = "Complex U8"; break;
+ 	case V4L2_SDR_FMT_CU16LE:	descr = "Complex U16LE"; break;
+ 	case V4L2_SDR_FMT_CS8:		descr = "Complex S8"; break;
+diff -Nuar kernel/kernel-4.9/include/uapi/linux/videodev2.h kernel_new/kernel-4.9/include/uapi/linux/videodev2.h
+--- kernel/kernel-4.9/include/uapi/linux/videodev2.h	2023-03-06 18:52:58.417329839 -0800
++++ kernel_new/kernel-4.9/include/uapi/linux/videodev2.h	2023-03-06 18:58:13.328902061 -0800
+@@ -664,6 +664,15 @@
+ /* Relative IR */
+ #define V4L2_PIX_FMT_PAIR	v4l2_fourcc('P', 'A', 'I', 'R')
+ 
++//xumm add
++/* TX2 */
++#define V4L2_PIX_FMT_TX2_Y10     v4l2_fourcc('T', 'Y', '1', '0') /* 10  Greyscale     */
++#define V4L2_PIX_FMT_TX2_Y12     v4l2_fourcc('T', 'Y', '1', '2') /* 12  Greyscale     */
++
++/* Xavier */
++#define V4L2_PIX_FMT_XAVIER_Y10     v4l2_fourcc('X', 'Y', '1', '0') /* 10  Greyscale     */
++#define V4L2_PIX_FMT_XAVIER_Y12     v4l2_fourcc('X', 'Y', '1', '2') /* 12  Greyscale     */
++//end
+ /* SDR formats - used only for Software Defined Radio devices */
+ #define V4L2_SDR_FMT_CU8          v4l2_fourcc('C', 'U', '0', '8') /* IQ u8 */
+ #define V4L2_SDR_FMT_CU16LE       v4l2_fourcc('C', 'U', '1', '6') /* IQ u16le */
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/camera_common.c kernel_new/nvidia/drivers/media/platform/tegra/camera/camera_common.c
+--- kernel/nvidia/drivers/media/platform/tegra/camera/camera_common.c	2023-03-06 18:53:00.681329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/camera_common.c	2023-03-06 18:59:52.330664718 -0800
+@@ -126,6 +126,26 @@
+ 		V4L2_COLORSPACE_SRGB,
+ 		V4L2_PIX_FMT_VYUY,
+ 	},
++	//xumm add
++	// Grayscale 8bit support
++	{
++		MEDIA_BUS_FMT_Y8_1X8,
++		V4L2_COLORSPACE_RAW,
++		V4L2_PIX_FMT_GREY,
++	},
++	// Grayscale 10bit support
++	{
++		MEDIA_BUS_FMT_Y10_1X10,
++		V4L2_COLORSPACE_RAW,
++		V4L2_PIX_FMT_Y10,
++	},
++	// Grayscale 12bit support
++	{
++		MEDIA_BUS_FMT_Y12_1X12,
++		V4L2_COLORSPACE_RAW,
++		V4L2_PIX_FMT_Y12,
++	},
++	//xumm add end
+ 	/*
+ 	 * The below two formats are not supported by VI4,
+ 	 * keep them at the last to ensure they get discarded
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/sensor_common.c kernel_new/nvidia/drivers/media/platform/tegra/camera/sensor_common.c
+--- kernel/nvidia/drivers/media/platform/tegra/camera/sensor_common.c	2023-03-06 18:53:00.689329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/sensor_common.c	2023-03-06 19:00:07.317328298 -0800
+@@ -235,6 +235,14 @@
+ 		*format = V4L2_PIX_FMT_UYVY;
+ 	else if (strncmp(pixel_t, "yuv_vyuy16", size) == 0)
+ 		*format = V4L2_PIX_FMT_VYUY;
++    //xumm add
++    else if (strncmp(pixel_t, "raw_y88", size) == 0)
++         *format = V4L2_PIX_FMT_GREY; //Grayscale
++    else if (strncmp(pixel_t, "raw_y1010", size) == 0)
++         *format = V4L2_PIX_FMT_Y10; //
++    else if (strncmp(pixel_t, "raw_y1212", size) == 0)
++         *format = V4L2_PIX_FMT_Y12; //
++    //xum add end
+ 	else {
+ 		pr_err("%s: Need to extend format%s\n", __func__, pixel_t);
+ 		return -EINVAL;
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/channel.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/channel.c
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/channel.c	2023-03-06 18:53:00.697329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/channel.c	2023-03-06 19:00:45.445735078 -0800
+@@ -1278,6 +1278,13 @@
+ 	case TEGRA_CAMERA_CID_LOW_LATENCY:
+ 		chan->low_latency = ctrl->val;
+ 		break;
++//xumm add
++    case TEGRA_CAMERA_CID_VI_TIME_OUT_DISABLE:
++        chan->vi_timeout_disable = ctrl->val;
++        dev_info(&chan->video->dev, "%s: %u set vi timeout disable %d\n",
++			__func__, ctrl->id,ctrl->val);
++        break;
++//add end
+ 	case TEGRA_CAMERA_CID_VI_PREFERRED_STRIDE:
+ 		chan->preferred_stride = ctrl->val;
+ 		tegra_channel_update_format(chan, chan->format.width,
+@@ -1430,6 +1437,18 @@
+ 		.step = 1,
+ 		.def = 0,
+ 	},
++	//xumm add
++	{
++		.ops = &channel_ctrl_ops,
++		.id = TEGRA_CAMERA_CID_VI_TIME_OUT_DISABLE,
++		.name = "VI Time Out Disable",
++		.type = V4L2_CTRL_TYPE_BOOLEAN,
++		.def = 0,
++		.min = 0,
++		.max = 1,
++		.step = 1,
++	},
++	//add end
+ };
+ 
+ #define GET_TEGRA_CAMERA_CTRL(id, c)					\
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c	2023-03-06 18:53:00.705329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c	2023-03-06 19:01:46.860161740 -0800
+@@ -620,26 +620,34 @@
+ 		buf->state = VB2_BUF_STATE_REQUEUEING;
+ 		goto fail;
+ 	}
+-
+-	for (index = 0; index < chan->valid_ports; index++) {
+-		err = nvhost_syncpt_wait_timeout_ext(chan->vi->ndev,
+-			chan->syncpt[index][1], buf->thresh[index],
+-			chan->timeout, NULL, &ts);
+-		if (err) {
+-			dev_err(&chan->video->dev,
+-				"%s: MW_ACK_DONE syncpoint time out!%d\n",
+-				__func__, index);
+-			buf->state = VB2_BUF_STATE_REQUEUEING;
+-			/* perform error recovery for timeout */
+-			tegra_channel_ec_recover(chan);
+-			chan->capture_state = CAPTURE_TIMEOUT;
+-			goto fail;
+-		} else
+-			dev_dbg(&chan->video->dev,
+-				"%s: vi2 got EOF syncpt buf[%p]\n",
+-				__func__, buf);
+-	}
+-
++    //xumm 
++    	for (index = 0; index < chan->valid_ports; index++) {
++            do{
++        		err = nvhost_syncpt_wait_timeout_ext(chan->vi->ndev,
++        			chan->syncpt[index][1], buf->thresh[index],
++        			chan->timeout, NULL, &ts);
++                if (err && (chan->vi_timeout_disable==1)){
++                    
++                    continue;
++                }
++                else if (err){
++        			dev_err(&chan->video->dev,
++        				"%s: MW_ACK_DONE syncpoint time out!%d\n",
++        				__func__, index);
++        			buf->state = VB2_BUF_STATE_REQUEUEING;
++        			/* perform error recovery for timeout */
++        			tegra_channel_ec_recover(chan);
++        			chan->capture_state = CAPTURE_TIMEOUT;
++        			goto fail;
++        		} else{
++        			dev_dbg(&chan->video->dev,
++        				"%s: vi2 got EOF syncpt buf[%p]\n",
++        				__func__, buf);
++                    break;
++        		}
++            }while(chan->vi_timeout_disable);
++    	}
++    //end
+ 	atomic_dec(&chan->syncpt_depth);
+ 	buf->state = VB2_BUF_STATE_DONE;
+ fail:
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h	2023-03-06 18:53:00.705329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h	2023-03-06 19:01:58.027828529 -0800
+@@ -133,5 +133,13 @@
+ 				YUV422_8, YUYV, "YUV 4:2:2 YUYV"),
+ 	TEGRA_VIDEO_FORMAT(YUV422, 16, YVYU8_2X8, 2, 1, T_Y8_V8__Y8_U8,
+ 				YUV422_8, YVYU, "YUV 4:2:2 YVYU"),
++    //xumm add
++    TEGRA_VIDEO_FORMAT(RAW8, 8, Y8_1X8, 1, 1, T_L8,
++				RAW8, GREY, "GREY8"),
++    TEGRA_VIDEO_FORMAT(RAW10, 10, Y10_1X10, 2, 1, T_R16_I,
++				RAW10, Y10, "GREY10"),
++	TEGRA_VIDEO_FORMAT(RAW12, 12, Y12_1X12, 2, 1, T_R16_I,
++				RAW12, Y12, "GREY12"),
++	//xumm add end
+ };
+ #endif
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c	2023-03-06 18:53:00.705329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_fops.c	2023-03-06 19:02:33.109762455 -0800
+@@ -206,16 +206,25 @@
+ 	 *
+ 	 * Use the syncpt max value we just set as threshold
+ 	 */
+-	for (i = 0; i < chan->valid_ports; i++) {
+-		err = nvhost_syncpt_wait_timeout_ext(chan->vi->ndev,
+-				chan->syncpt[i][SOF_SYNCPT_IDX], thresh[i],
+-				chan->timeout, NULL, NULL);
+-		if (unlikely(err)) {
+-			dev_err(chan->vi->dev,
+-				"PXL_SOF syncpt timeout! err = %d\n", err);
+-			return false;
+-		} else {
+-			struct vi_capture_status status;
++	 //xumm
++	 
++    for (i = 0; i < chan->valid_ports; i++){
++        do{
++    		err = nvhost_syncpt_wait_timeout_ext(chan->vi->ndev,
++    				chan->syncpt[i][SOF_SYNCPT_IDX], thresh[i],
++    				chan->timeout, NULL, NULL);
++            //xumm add
++            if (unlikely(err) && chan->vi_timeout_disable) {
++                //timeout will continue wait
++                continue;
++            }
++            //end
++    		else if (unlikely(err)) {
++    			dev_err(chan->vi->dev,
++    				"PXL_SOF syncpt timeout! err = %d\n", err);
++    			return false;
++    		} else {
++    			struct vi_capture_status status;
+ 
+ 			err = vi_notify_get_capture_status(chan->vnc[i],
+ 					chan->vnc_id[i],
+@@ -230,13 +239,15 @@
+ 			else {
+ 				*ts = ns_to_timespec((s64)status.sof_ts);
+ 
+-				dev_dbg(&chan->video->dev,
+-					"%s: vi4 got SOF syncpt buf[%p]\n",
+-					__func__, buf);
+-			}
+-		}
+-	}
+-
++    				dev_dbg(&chan->video->dev,
++    					"%s: vi4 got SOF syncpt buf[%p]\n",
++    					__func__, buf);
++    			}
++                break;
++    		}
++        }while(chan->vi_timeout_disable);
++    }
++	
+ 	return true;
+ }
+ 
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h	2023-03-06 18:53:00.705329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi4_formats.h	2023-03-06 19:02:47.756620709 -0800
+@@ -141,6 +141,14 @@
+ 				YUV422_8, YUYV, "YUV 4:2:2 YUYV"),
+ 	TEGRA_VIDEO_FORMAT(YUV422, 16, YVYU8_2X8, 2, 1, T_Y8_V8__Y8_U8,
+ 				YUV422_8, YVYU, "YUV 4:2:2 YVYU"),
++	//xumm add
++    TEGRA_VIDEO_FORMAT(RAW8, 8, Y8_1X8, 1, 1, T_L8,
++				RAW8, GREY, "GREY8"),
++    TEGRA_VIDEO_FORMAT(RAW10, 10, Y10_1X10, 2, 1, T_R16_I,
++				RAW10, TX2_Y10, "GREY10"),
++	TEGRA_VIDEO_FORMAT(RAW12, 12, Y12_1X12, 2, 1, T_R16_I,
++				RAW12, TX2_Y12, "GREY12"),
++	//xumm add end
+ };
+ 
+ #endif
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c	2023-03-06 18:53:00.705329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_fops.c	2023-03-06 19:04:13.376695365 -0800
+@@ -479,39 +479,52 @@
+ 			goto rel_buf;
+ 
+ 		/* Dequeue a frame and check its capture status */
+-		err = vi_capture_status(chan->tegra_vi_channel[vi_port], CAPTURE_TIMEOUT_MS);
+-		if (err) {
+-			if (err == -ETIMEDOUT) {
+-				dev_err(vi->dev,
+-					"uncorr_err: request timed out after %d ms\n",
+-					CAPTURE_TIMEOUT_MS);
+-			} else {
+-				dev_err(vi->dev, "uncorr_err: request err %d\n", err);
+-			}
+-			goto uncorr_err;
+-		} else if (descr->status.status != CAPTURE_STATUS_SUCCESS) {
+-			if ((descr->status.flags
+-					& CAPTURE_STATUS_FLAG_CHANNEL_IN_ERROR) != 0) {
+-				chan->queue_error = true;
+-				dev_err(vi->dev, "uncorr_err: flags %d, err_data %d\n",
+-					descr->status.flags, descr->status.err_data);
+-			} else {
+-				dev_warn(vi->dev,
+-					"corr_err: discarding frame %d, flags: %d, "
+-					"err_data %d\n",
+-					descr->status.frame_id, descr->status.flags,
+-					descr->status.err_data);
+-				buf->vb2_state = VB2_BUF_STATE_REQUEUEING;
+-				goto done;
+-			}
+-		} else if (!vi_port) {
+-			gang_prev_frame_id = descr->status.frame_id;
+-		} else if (descr->status.frame_id != gang_prev_frame_id) {
+-			dev_err(vi->dev, "frame_id out of sync: ch2 %d vs ch1 %d\n",
+-					gang_prev_frame_id, descr->status.frame_id);
+-			goto uncorr_err;
+-		}
+-
++		//xumm add
++		//err = vi_capture_status(chan->tegra_vi_channel[vi_port], CAPTURE_TIMEOUT_MS);
++		do{
++    		err = vi_capture_status(chan->tegra_vi_channel[vi_port], CAPTURE_TIMEOUT_MS);
++    		if (err) {
++                //xumm 
++                if (err == -ETIMEDOUT && chan->vi_timeout_disable) {
++                    dev_err(vi->dev,
++    					"xavier capture time out , will wait\n");
++                    continue;
++                }
++                //end
++    			else if (err == -ETIMEDOUT) {
++    				dev_err(vi->dev,
++    					"uncorr_err: request timed out after %d ms\n",
++    					CAPTURE_TIMEOUT_MS);
++    			} else {
++    				dev_err(vi->dev, "uncorr_err: request err %d\n", err);
++    			}
++    			goto uncorr_err;
++    		} else if (descr->status.status != CAPTURE_STATUS_SUCCESS) {
++    			if ((descr->status.flags
++    					& CAPTURE_STATUS_FLAG_CHANNEL_IN_ERROR) != 0) {
++    				chan->queue_error = true;
++    				dev_err(vi->dev, "uncorr_err: flags %d, err_data %d\n",
++    					descr->status.flags, descr->status.err_data);
++    			} else {
++    				dev_warn(vi->dev,
++    					"corr_err: discarding frame %d, flags: %d, "
++    					"err_data %d\n",
++    					descr->status.frame_id, descr->status.flags,
++    					descr->status.err_data);
++    				buf->vb2_state = VB2_BUF_STATE_REQUEUEING;
++    				goto done;
++    			}
++    		} else if (!vi_port) {
++    			gang_prev_frame_id = descr->status.frame_id;
++    		} else if (descr->status.frame_id != gang_prev_frame_id) {
++    			dev_err(vi->dev, "frame_id out of sync: ch2 %d vs ch1 %d\n",
++    					gang_prev_frame_id, descr->status.frame_id);
++    			goto uncorr_err;
++    		}
++            //xumm add ,this means get a frame 
++            break;
++	    }while(chan->vi_timeout_disable);
++        
+ 		spin_lock_irqsave(&chan->capture_state_lock, flags);
+ 		if (chan->capture_state != CAPTURE_ERROR) {
+ 			chan->capture_reqs_enqueued -= 1;
+diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h
+--- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h	2023-03-06 18:53:00.709329804 -0800
++++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi5_formats.h	2023-03-06 19:04:19.655983098 -0800
+@@ -141,6 +141,14 @@
+ 				YUV422_8, YUYV, "YUV 4:2:2 YUYV"),
+ 	TEGRA_VIDEO_FORMAT(YUV422, 16, YVYU8_2X8, 2, 1, T_Y8_V8__Y8_U8,
+ 				YUV422_8, YVYU, "YUV 4:2:2 YVYU"),
++    //xumm add
++    TEGRA_VIDEO_FORMAT(RAW8, 8, Y8_1X8, 1, 1, T_R8,
++				RAW8, GREY, "GREY8"),
++    TEGRA_VIDEO_FORMAT(RAW10, 10, Y10_1X10, 2, 1, T_R16,
++				RAW10, XAVIER_Y10, "GREY10"),
++	TEGRA_VIDEO_FORMAT(RAW12, 12, Y12_1X12, 2, 1, T_R16,
++				RAW12, XAVIER_Y12, "GREY12"),
++	//xumm add end
+ };
+ 
+ #endif
+diff -Nuar kernel/nvidia/include/media/mc_common.h kernel_new/nvidia/include/media/mc_common.h
+--- kernel/nvidia/include/media/mc_common.h	2023-03-06 18:53:02.341329778 -0800
++++ kernel_new/nvidia/include/media/mc_common.h	2023-03-06 19:05:43.580542024 -0800
+@@ -264,6 +264,10 @@
+ 
+ 	atomic_t syncpt_depth;
+ 	struct rw_semaphore reset_lock;
++
++    //xumm add
++    bool vi_timeout_disable;
++    //end
+ };
+ 
+ #define to_tegra_channel(vdev) \
+diff -Nuar kernel/nvidia/include/media/tegra-v4l2-camera.h kernel_new/nvidia/include/media/tegra-v4l2-camera.h
+--- kernel/nvidia/include/media/tegra-v4l2-camera.h	2023-03-06 18:53:02.341329778 -0800
++++ kernel_new/nvidia/include/media/tegra-v4l2-camera.h	2023-03-06 19:05:50.104887853 -0800
+@@ -56,6 +56,11 @@
+ #define TEGRA_CAMERA_CID_LOW_LATENCY         (TEGRA_CAMERA_CID_BASE+109)
+ #define TEGRA_CAMERA_CID_VI_PREFERRED_STRIDE (TEGRA_CAMERA_CID_BASE+110)
+ 
++
++
++//xumm add
++#define TEGRA_CAMERA_CID_VI_TIME_OUT_DISABLE (TEGRA_CAMERA_CID_BASE+120)
++
+ /**
+  * This is temporary with the current v4l2 infrastructure
+  * currently discussing with upstream maintainers our proposals and

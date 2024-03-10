@@ -175,6 +175,30 @@ diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_fops.c kerne
  	atomic_dec(&chan->syncpt_depth);
  	buf->state = VB2_BUF_STATE_DONE;
  fail:
+@@ -811,7 +811,7 @@
+ 			continue;
+ 
+ 		/* Check the depth of FIFO before dequeuing a buffer */
+-		if (chan->low_latency) {
++		/*if (chan->low_latency) {
+ 			if (atomic_read(&chan->syncpt_depth) <
+ 			    SYNCPT_FIFO_DEPTH) {
+ 				buf = dequeue_buffer(chan, !chan->low_latency);
+@@ -826,8 +826,14 @@
+ 			if (!buf)
+ 				continue;
+ 			err = tegra_channel_capture_frame(chan, buf);
+-		}
++		}*/
++		buf = dequeue_buffer(chan, !chan->low_latency);
++		if (!buf)
++			continue;
++
++		err = tegra_channel_capture_frame(chan, buf);
+ 	}
++
+ 	return 0;
+ }
 diff -Nuar kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h
 --- kernel/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h	2023-03-06 18:53:00.705329804 -0800
 +++ kernel_new/nvidia/drivers/media/platform/tegra/camera/vi/vi2_formats.h	2023-03-06 19:01:58.027828529 -0800

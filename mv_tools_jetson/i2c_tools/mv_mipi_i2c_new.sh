@@ -1,126 +1,127 @@
 #!/bin/bash
-
+#
+#This script is a simplified version of mv_mipi_i2c.sh, in which -f -p1 -p2 -p3 -p4 is no longer needed.
 <<'COMMENT_SAMPLE'
-./mv_mipi_i2c.sh -r -f manufacturer
-./mv_mipi_i2c.sh -r -f model
-./mv_mipi_i2c.sh -r -f version
-./mv_mipi_i2c.sh -r -f serialno
-./mv_mipi_i2c.sh -r -f timestamp
-./mv_mipi_i2c.sh -r -f errcode
-./mv_mipi_i2c.sh -r -f fmtcap
+./mv_mipi_i2c.sh -r  manufacturer
+./mv_mipi_i2c.sh -r  model
+./mv_mipi_i2c.sh -r  version
+./mv_mipi_i2c.sh -r  serialno
+./mv_mipi_i2c.sh -r  timestamp
+./mv_mipi_i2c.sh -r  errcode
+./mv_mipi_i2c.sh -r  fmtcap
 
-./mv_mipi_i2c.sh -w -f factoryparam
-./mv_mipi_i2c.sh -w -f paramsave
-./mv_mipi_i2c.sh -w -f reboot
+./mv_mipi_i2c.sh -w  factoryparam
+./mv_mipi_i2c.sh -w  paramsave
+./mv_mipi_i2c.sh -w  reboot
 
-./mv_mipi_i2c.sh -w -f i2caddr -p1 0x3c
-./mv_mipi_i2c.sh -r -f i2caddr 
+./mv_mipi_i2c.sh -w  i2caddr  0x3c
+./mv_mipi_i2c.sh -r  i2caddr 
 
 # for raw camera only
-./mv_mipi_i2c.sh -w -f mcubypass -p1 []
-./mv_mipi_i2c.sh -r -f mcubypass 
+./mv_mipi_i2c.sh -w  mcubypass [param1]
+./mv_mipi_i2c.sh -r  mcubypass 
 
-./mv_mipi_i2c.sh -w -f slavemode -p1 []
-./mv_mipi_i2c.sh -r -f slavemode 
+./mv_mipi_i2c.sh -w  slavemode [param1]
+./mv_mipi_i2c.sh -r  slavemode 
 
 ## =======================================
 ## image properties
 
 #start/stop image acq
-./mv_mipi_i2c.sh -w -f imgacq -p1 []
+./mv_mipi_i2c.sh -w  imgacq [param1]
 
-./mv_mipi_i2c.sh -r -f maxwh
+./mv_mipi_i2c.sh -r  maxwh
 
-./mv_mipi_i2c.sh -r -f maxfps
+./mv_mipi_i2c.sh -r  maxfps
 
 0 normal，
 1 mirror，
 2 flip，
 3 flip&mirror
-./mv_mipi_i2c.sh -w -f imgdir -p1 [0,3]
-./mv_mipi_i2c.sh -r -f imgdir
+./mv_mipi_i2c.sh -w  imgdir  [0,3]
+./mv_mipi_i2c.sh -r  imgdir
 
 0 raw8
 1 raw10
 2 raw12
 3 raw14
 4 UYVY
-./mv_mipi_i2c.sh -w -f pixelformat -p1 [0,2]
-./mv_mipi_i2c.sh -r -f pixelformat
+./mv_mipi_i2c.sh -w  pixelformat  [0,2]
+./mv_mipi_i2c.sh -r  pixelformat
 
-./mv_mipi_i2c.sh -w -f blacklevel -p1 []
-./mv_mipi_i2c.sh -r -f blacklevel
+./mv_mipi_i2c.sh -w  blacklevel [param1]
+./mv_mipi_i2c.sh -r  blacklevel
 
-./mv_mipi_i2c.sh -w -f roi -p1 [x] -p2 [y] -p3 [width] -p4 [height]
-./mv_mipi_i2c.sh -r -f roi
+./mv_mipi_i2c.sh -w  roi  [x]  [y]  [width]  [height]
+./mv_mipi_i2c.sh -r  roi
 
 1 宽竖条纹
 2 细密竖条纹
-./mv_mipi_i2c.sh -w -f testimg -p1 []
-./mv_mipi_i2c.sh -r -f testimg
+./mv_mipi_i2c.sh -w  testimg [param1]
+./mv_mipi_i2c.sh -r  testimg
 
-./mv_mipi_i2c.sh -w -f fps -p1 []
-./mv_mipi_i2c.sh -r -f fps
+./mv_mipi_i2c.sh -w  fps [param1]
+./mv_mipi_i2c.sh -r  fps
 
-./mv_mipi_i2c.sh -r -f clkmode
+./mv_mipi_i2c.sh -r  clkmode
 
 ## ======================================================
 ## ISP properties
-./mv_mipi_i2c.sh -r -f gamma
-./mv_mipi_i2c.sh -w -f gamma -p1 []
+./mv_mipi_i2c.sh -r  gamma
+./mv_mipi_i2c.sh -w  gamma [param1]
 
-./mv_mipi_i2c.sh -r -f gammaenable
-./mv_mipi_i2c.sh -w -f gammaenable -p1 []
+./mv_mipi_i2c.sh -r  gammaenable
+./mv_mipi_i2c.sh -w  gammaenable [param1]
 
-./mv_mipi_i2c.sh -r -f dpcenable
-./mv_mipi_i2c.sh -w -f dpcenable -p1 []
+./mv_mipi_i2c.sh -r  dpcenable
+./mv_mipi_i2c.sh -w  dpcenable [param1]
 
-./mv_mipi_i2c.sh -r -f lutenable
-./mv_mipi_i2c.sh -w -f lutenable -p1 []
+./mv_mipi_i2c.sh -r  lutenable
+./mv_mipi_i2c.sh -w  lutenable [param1]
 
-./mv_mipi_i2c.sh -r -f lut -p1 lut.txt
-./mv_mipi_i2c.sh -w -f lut -p1 lut.txt
+./mv_mipi_i2c.sh -r  lut  lut.txt
+./mv_mipi_i2c.sh -w  lut  lut.txt
 
 0 manual exposure
 1 auto exp once
 2 auto exp continuous
-./mv_mipi_i2c.sh -r -f expmode
-./mv_mipi_i2c.sh -w -f expmode -p1 []
+./mv_mipi_i2c.sh -r  expmode
+./mv_mipi_i2c.sh -w  expmode [param1]
 
 0 manual gain
 1 auto gain once
 2 auto gain continuous
-./mv_mipi_i2c.sh -r -f gainmode
-./mv_mipi_i2c.sh -w -f gainmode -p1 []
+./mv_mipi_i2c.sh -r  gainmode
+./mv_mipi_i2c.sh -w  gainmode [param1]
 
 # read back to confirm the real metime take effect
-./mv_mipi_i2c.sh -w -f metime -p1 10000
-./mv_mipi_i2c.sh -r -f metime
+./mv_mipi_i2c.sh -w  metime [us]
+./mv_mipi_i2c.sh -r  metime
 
 # read back to confirm the real mgain take effect
-./mv_mipi_i2c.sh -w -f mgain -p1 2.3
-./mv_mipi_i2c.sh -r -f mgain
+./mv_mipi_i2c.sh -w  mgain  [gain]
+./mv_mipi_i2c.sh -r  mgain
 
-./mv_mipi_i2c.sh -r -f aatarget
-./mv_mipi_i2c.sh -w -f aatarget -p1 [1,255]
+./mv_mipi_i2c.sh -r  aatarget
+./mv_mipi_i2c.sh -w  aatarget [1,255]
 
-./mv_mipi_i2c.sh -r -f aemaxtime
-./mv_mipi_i2c.sh -w -f aemaxtime -p1 []
+./mv_mipi_i2c.sh -r  aemaxtime
+./mv_mipi_i2c.sh -w  aemaxtime [param1]
 
-./mv_mipi_i2c.sh -r -f exptime
-./mv_mipi_i2c.sh -r -f curgain
+./mv_mipi_i2c.sh -r  exptime
+./mv_mipi_i2c.sh -r  curgain
 
-./mv_mipi_i2c.sh -r -f agmaxgain
-./mv_mipi_i2c.sh -w -f agmaxgain -p1 []
+./mv_mipi_i2c.sh -r  agmaxgain
+./mv_mipi_i2c.sh -w  agmaxgain [param1]
 
-./mv_mipi_i2c.sh -w -f aaroi -p1 [x] -p2 [y] -p3 [width] -p4 [height]
-./mv_mipi_i2c.sh -r -f aaroi
+./mv_mipi_i2c.sh -w  aaroi  [x] [y] [width] [height]
+./mv_mipi_i2c.sh -r  aaroi
 
-./mv_mipi_i2c.sh -w -f aaroienable -p1 [0,1]
-./mv_mipi_i2c.sh -r -f aaroienable
+./mv_mipi_i2c.sh -w  aaroienable [0,1]
+./mv_mipi_i2c.sh -r  aaroienable
 
 #run ae ag once and save as manual value
-./mv_mipi_i2c.sh -w -f aeag_run_once_save
+./mv_mipi_i2c.sh -w  aeag_run_once_save
 
 ### ======================
 ### trigger properties 
@@ -128,78 +129,78 @@
 0 continuous
 1 trigger mode
 2 high speed trigger mode
-./mv_mipi_i2c.sh -w -f trgmode -p1 []
-./mv_mipi_i2c.sh -r -f trgmode
+./mv_mipi_i2c.sh -w  trgmode [param1]
+./mv_mipi_i2c.sh -r  trgmode
 
 0 software trigger
 1 hardware trigger
-./mv_mipi_i2c.sh -w -f trgsrc -p1 []
-./mv_mipi_i2c.sh -r -f trgsrc
+./mv_mipi_i2c.sh -w  trgsrc [param1]
+./mv_mipi_i2c.sh -r  trgsrc
 
-./mv_mipi_i2c.sh -w -f trgnum -p1 []
-./mv_mipi_i2c.sh -r -f trgnum
+./mv_mipi_i2c.sh -w  trgnum [param1]
+./mv_mipi_i2c.sh -r  trgnum
 
-./mv_mipi_i2c.sh -w -f trginterval -p1 []
-./mv_mipi_i2c.sh -r -f trginterval
+./mv_mipi_i2c.sh -w  trginterval [param1]
+./mv_mipi_i2c.sh -r  trginterval
 
-./mv_mipi_i2c.sh -w -f trgone
+./mv_mipi_i2c.sh -w  trgone
 
-./mv_mipi_i2c.sh -r -f trgcount
-./mv_mipi_i2c.sh -w -f trgcountclr
+./mv_mipi_i2c.sh -r  trgcount
+./mv_mipi_i2c.sh -w  trgcountclr
 
-./mv_mipi_i2c.sh -r -f trgdelay
-./mv_mipi_i2c.sh -w -f trgdelay -p1 []
+./mv_mipi_i2c.sh -r  trgdelay
+./mv_mipi_i2c.sh -w  trgdelay [param1]
 
 0 Rising edge
 1 Falling edge
-./mv_mipi_i2c.sh -r -f trgedge
-./mv_mipi_i2c.sh -w -f trgedge -p1 []
+./mv_mipi_i2c.sh -r  trgedge
+./mv_mipi_i2c.sh -w  trgedge [param1]
 
-./mv_mipi_i2c.sh -r -f trgfilter_enable
-./mv_mipi_i2c.sh -w -f trgfilter_enable -p1 []
+./mv_mipi_i2c.sh -r  trgfilter_enable
+./mv_mipi_i2c.sh -w  trgfilter_enable [param1]
 
-./mv_mipi_i2c.sh -r -f trgfilter_time
-./mv_mipi_i2c.sh -w -f trgfilter_time -p1 []
+./mv_mipi_i2c.sh -r  trgfilter_time
+./mv_mipi_i2c.sh -w  trgfilter_time [param1]
 
-./mv_mipi_i2c.sh -r -f trgexp_delay
-./mv_mipi_i2c.sh -w -f trgexp_delay -p1 []
+./mv_mipi_i2c.sh -r  trgexp_delay
+./mv_mipi_i2c.sh -w  trgexp_delay [param1]
 
-./mv_mipi_i2c.sh -r -f gpios_status
+./mv_mipi_i2c.sh -r  gpios_status
 
 0 strobe 
 1 userdef
-./mv_mipi_i2c.sh -r -f outio1_mode
-./mv_mipi_i2c.sh -w -f outio1_mode -p1 []
+./mv_mipi_i2c.sh -r  outio1_mode
+./mv_mipi_i2c.sh -w  outio1_mode [param1]
 
 0 low
 1 high
-./mv_mipi_i2c.sh -r -f outio1_usr
-./mv_mipi_i2c.sh -w -f outio1_usr -p1 []
+./mv_mipi_i2c.sh -r  outio1_usr
+./mv_mipi_i2c.sh -w  outio1_usr [param1]
 
-./mv_mipi_i2c.sh -r -f outio1_rvs
-./mv_mipi_i2c.sh -w -f outio1_rvs -p1 []
+./mv_mipi_i2c.sh -r  outio1_rvs
+./mv_mipi_i2c.sh -w  outio1_rvs [param1]
 
 0 strobe 
 1 userdef
 2 trigger wait
 3 XVS
 4 XHS
-./mv_mipi_i2c.sh -r -f outio2_mode
-./mv_mipi_i2c.sh -w -f outio2_mode -p1 []
+./mv_mipi_i2c.sh -r  outio2_mode
+./mv_mipi_i2c.sh -w  outio2_mode [param1]
 
 0 low
 1 high
-./mv_mipi_i2c.sh -r -f outio2_usr
-./mv_mipi_i2c.sh -w -f outio2_usr -p1 []
+./mv_mipi_i2c.sh -r  outio2_usr
+./mv_mipi_i2c.sh -w  outio2_usr [param1]
 
-./mv_mipi_i2c.sh -r -f outio2_rvs
-./mv_mipi_i2c.sh -w -f outio2_rvs -p1 []
+./mv_mipi_i2c.sh -r  outio2_rvs
+./mv_mipi_i2c.sh -w  outio2_rvs [param1]
 
 ### Special function
-./mv_mipi_i2c.sh -r -f snsreg -p1 SensorAddr
+./mv_mipi_i2c.sh -r  snsreg  [SensorAddr]
 
-./mv_mipi_i2c.sh -r -f lanenum
-./mv_mipi_i2c.sh -w -f lanenum -p1 [2/4]
+./mv_mipi_i2c.sh -r  lanenum
+./mv_mipi_i2c.sh -w  lanenum  [2/4]
 
 COMMENT_SAMPLE
 
@@ -212,15 +213,15 @@ I2C_ADDR=0x3b;
 
 print_usage()
 {
-	echo "Usage:  ./mv_mipi_i2c.sh [-r/w] [-f] function name -p1 param1 -p2 param2 -b bus"
+	echo "Usage:  ./mv_mipi_i2c.sh [-r/w]  [function name] [param1] [param2 ] [param3] [param4] -b bus"
 	echo "options:"
 	echo "    -r                       read "
 	echo "    -w                       write"
-	echo "    -f [function name]       function name"
-	echo "    -p1 [param1] 			   param1 of each function"
-	echo "    -p2 [param1] 			   param2 of each function"
-    echo "    -p3 [param3] 			   param3 of each function"
-    echo "    -p4 [param4] 			   param4 of each function"
+	echo "    [function name]       function name"
+	echo "    [param1] 			    param1 of each function"
+	echo "    [param1] 			    param2 of each function"
+    echo "    [param3] 			    param3 of each function"
+    echo "    [param4] 			    param4 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
 	echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
 	echo "Please open this srcipt and read the COMMENT on top for support functions and samples"
@@ -335,89 +336,74 @@ GPIO2_Useroutput=0x1034;
 GPIO2_Reverse=0x1038;
 
 
+
 ######################parse arg###################################
-MODE=read;
-FUNCTION=version;
-PARAM1=0;
-PARAM2=0;
-PARAM3=0;
-PARAM4=0;
-b_arg_param1=0;
-b_arg_param2=0;
-b_arg_param3=0;
-b_arg_param4=0;
-b_arg_functin=0;
+
+MODE="";
+FUNCTION="";
+PARAMS=();
 b_arg_bus=0;
 b_arg_addr=0;
 
 for arg in $@
 do
-	if [ $b_arg_functin -eq 1 ]; then
-		b_arg_functin=0;
-		FUNCTION=$arg;
-		if [ -z $FUNCTION ]; then
-			echo "[error] FUNCTION is null"
-			exit;
-		fi
-	fi
-	if [ $b_arg_param1 -eq 1 ] ; then
-		b_arg_param1=0;
-		PARAM1=$arg;
-	fi
-
-	if [ $b_arg_param2 -eq 1 ] ; then
-		b_arg_param2=0;
-		PARAM2=$arg;
-	fi
-    if [ $b_arg_param3 -eq 1 ] ; then
-		b_arg_param3=0;
-		PARAM3=$arg;
-	fi
-    if [ $b_arg_param4 -eq 1 ] ; then
-		b_arg_param4=0;
-		PARAM4=$arg;
-	fi
-	if [ $b_arg_bus -eq 1 ] ; then
-		b_arg_bus=0;
-		I2C_DEV=$arg;
-	fi
+    if [ $b_arg_bus -eq 1 ] ; then
+        b_arg_bus=0;
+        I2C_DEV=$arg;
+        continue;
+    fi
     if [ $b_arg_addr -eq 1 ] ; then
-		b_arg_addr=0;
-		I2C_ADDR=$arg;
-	fi
-	case $arg in
-		"-r")
-			MODE=read;
-			;;
-		"-w")
-			MODE=write;
-			;;
-		"-f")			
-			b_arg_functin=1;
-			;;
-		"-p1")
-			b_arg_param1=1;
-			;;
-		"-p2")
-			b_arg_param2=1;
-			;;
-        "-p3")
-			b_arg_param3=1;
-			;;
-        "-p4")
-			b_arg_param4=1;
-			;;
-		"-b")
-			b_arg_bus=1;
-			;;
+        b_arg_addr=0;
+        I2C_ADDR=$arg;
+        continue;
+    fi
+    case $arg in
+        "-r")
+            MODE=read;
+            ;;
+        "-w")
+            MODE=write;
+            ;;
+        "-b")
+            b_arg_bus=1;
+            ;;
         "-d")
-			b_arg_addr=1;
-			;;
-		"-h")
-			print_usage;
-			;;
-	esac
+            b_arg_addr=1;
+            ;;
+        "-h")
+            print_usage;
+            ;;
+        *)
+            PARAMS+=($arg);
+            ;;
+    esac
 done
+
+if [ ${#PARAMS[@]} -gt 0 ]; then
+    FUNCTION=${PARAMS[0]};
+fi
+
+if [ -z $MODE ] || [ -z "$FUNCTION" ]; then
+    print_usage;
+    exit;
+fi
+
+if [ ${#PARAMS[@]} -gt 1 ]; then
+    PARAM1=${PARAMS[1]};
+fi
+
+if [ ${#PARAMS[@]} -gt 2 ]; then
+    PARAM2=${PARAMS[2]};
+fi
+
+if [ ${#PARAMS[@]} -gt 3 ]; then
+    PARAM3=${PARAMS[3]};
+fi
+
+if [ ${#PARAMS[@]} -gt 4 ]; then
+    PARAM4=${PARAMS[4]};
+fi
+
 #######################parse arg end########################
 
 #######################Action###############################
@@ -1397,6 +1383,7 @@ write_aeag_run_once_save()
     gainresult=$(./i2c_4read $I2C_DEV $I2C_ADDR $Cur_Gain 2>/dev/null);
     gain_dB=`awk -v x="$gainresult" 'BEGIN {printf "%.1f\n",x/10}'`
     printf "[ONCE result]: exp time %d us, gain %.1f dB\n" $expresult $gain_dB
+
     printf "[Step 5]: set to manual mode\n"
     PARAM1=0;
     write_expmode>/dev/null;
@@ -1412,6 +1399,7 @@ write_aeag_run_once_save()
     read_gainmode;
     read_curgain;
     write_paramsave;
+
     printf "[Finsh!] save param to flash\n"
     
 }
@@ -1528,7 +1516,6 @@ if [ ${MODE} = "read" ] ; then
         "outio2_usr")
             read_outio2_usr;
             ;;
-        
         "outio2_rvs")
             read_outio2_rvs;
             ;;
@@ -1758,3 +1745,4 @@ if [ ${MODE} = "write" ] ; then
         ;;
 	esac
 fi
+

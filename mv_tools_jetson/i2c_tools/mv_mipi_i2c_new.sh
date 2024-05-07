@@ -1406,8 +1406,6 @@ write_aeag_run_once_save()
 
 #######################Action# BEGIN##############################
 
-pinmux;
-
 if [ ${MODE} = "read" ] ; then
 	case $FUNCTION in
 		"manufacturer")

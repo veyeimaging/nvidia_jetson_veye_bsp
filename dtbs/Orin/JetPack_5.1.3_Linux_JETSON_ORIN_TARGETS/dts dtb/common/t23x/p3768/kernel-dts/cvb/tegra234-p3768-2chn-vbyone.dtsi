@@ -1,0 +1,65 @@
+/*
+ * Copyright (c) 2018-2020, www.veye.cc.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/ {
+	cam_i2cmux {
+	i2c@0 {
+        veye_vbyone0: vbyone_0@65 {
+        compatible = "veye,vbyone";
+        priority = <(-1)>;
+        reg = <0x65>;
+        status = "okay";
+        csi-lane-count = <2>;
+        coax-num = <1>;
+        cam-i2c-pt-setting = <0x13>;
+        camera-i2c-address=<0x3b>;
+        
+        trgin-gpio-mode = <0>;
+        out1-gpio-mode = <0>;
+        out2-gpio-mode = <0>;
+        
+        serializer {
+            i2c-address=<0x34>;
+            csi-lane-count = <2>;
+            csi-lane-speed = <1500>;
+            };
+        };
+    };
+    i2c@1 {
+    veye_vbyone1: vbyone_1@65 {
+        compatible = "veye,vbyone";
+        priority = <(-1)>;
+        reg = <0x65>;
+        status = "okay";
+        csi-lane-count = <2>;
+        coax-num = <1>;
+        cam-i2c-pt-setting = <0x13>;
+        camera-i2c-address=<0x3b>;
+        
+        trgin-gpio-mode = <0>;
+        out1-gpio-mode = <0>;
+        out2-gpio-mode = <0>;
+        
+        serializer {
+            i2c-address=<0x34>;
+            csi-lane-count = <2>;
+            csi-lane-speed = <1500>;
+            };
+        };
+    };
+  };
+};

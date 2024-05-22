@@ -34,7 +34,7 @@
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
 
-#define DRIVER_VERSION			KERNEL_VERSION(1, 0x01, 0x03) 
+#define DRIVER_VERSION			KERNEL_VERSION(1, 0x01, 0x04) 
 #include "veye_mvcam.h"
 
 //reserved
@@ -1224,6 +1224,10 @@ static int mvcam_identify_module(struct mvcam * mvcam)
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: RAW_MIPI_AR0234M\n");
             break;
+		case RAW_MIPI_SC535M:
+            mvcam->model_id = device_id;
+            dev_info(&client->dev, "camera is: RAW_MIPI_SC535M\n");
+            break;
         default:
             dev_err(&client->dev, "camera id do not support: %x \n",device_id);
 		return -EIO;
@@ -1413,7 +1417,14 @@ static int mvcam_probe(struct i2c_client *client,
     }else if(mvcam->model_id == RAW_MIPI_AR0234M){
         mvcam->min_width = RAW_AR0234M_ROI_W_MIN;
         mvcam->min_height = RAW_AR0234M_ROI_H_MIN;
-    }
+    }else if (mvcam->model_id == RAW_MIPI_SC535M){
+		mvcam->min_width = RAW_SC535M_ROI_W_MIN;
+		mvcam->min_height = RAW_SC535M_ROI_H_MIN;
+	}
+	else{
+		dev_err(dev, "model id do not support: %x \n",mvcam->model_id);
+	}
+	
     v4l2_dbg(1, debug, mvcam->client, "%s: max width %d; max height %d\n",
 					__func__, mvcam->max_width,mvcam->max_height);
     //read roi

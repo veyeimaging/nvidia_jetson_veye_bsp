@@ -149,6 +149,7 @@ enum enum_TriggerSrc{
 #define RAW_MIPI_SC132M 0x8132
 #define RAW_MIPI_IMX462M 0x8462
 #define RAW_MIPI_AR0234M 0x8234
+#define RAW_MIPI_SC535M 0x8535
 
 /* MV mipi clk is 1.5Gbps */
 #define MVCAM_DEFAULT_LINK_FREQ     1500000000
@@ -175,6 +176,8 @@ enum enum_TriggerSrc{
 #define RAW_IMX462M_ROI_H_MIN    304U
 #define RAW_AR0234M_ROI_W_MIN    64U
 #define RAW_AR0234M_ROI_H_MIN    64U
+#define RAW_SC535M_ROI_W_MIN    64U
+#define RAW_SC535M_ROI_H_MIN    64U
 
 #define MV_CAM_ROI_W_ALIGN  8U
 #define MV_CAM_ROI_H_ALIGN  4U

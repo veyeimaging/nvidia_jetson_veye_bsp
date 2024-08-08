@@ -1,50 +1,42 @@
-/*
- * Copyright (c) 2020-2022, www.veye.cc.  All rights reserved.
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-FileCopyrightText: Copyright (c) 2023-2024, www.veye.cc. All rights reserved.
+
+#include <dt-bindings/clock/tegra234-clock.h>
+#include <dt-bindings/gpio/tegra234-gpio.h>
 
 /*
     VEYE-MIPI-IMX335
 */
 / {
-	tegra-capture-vi  {
-
-			num-channels = <2>;
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
-				 port@0 {
-					reg = <0>;
-					rbpcv3_veyeimx335_vi_in0: endpoint {
-						port-index = <0>;
-						bus-width = <2>;
-						remote-endpoint = <&rbpcv3_veyeimx335_csi_out0>;
+	fragment@0 {
+		target-path = "/";
+		__overlay__ {
+		tegra-capture-vi  {
+				num-channels = <2>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					 port@0 {
+						reg = <0>;
+						rbpcv3_veyeimx335_vi_in0: endpoint {
+							port-index = <1>;
+							bus-width = <2>;
+							remote-endpoint = <&rbpcv3_veyeimx335_csi_out0>;
+						};
 					};
-				};
-				 port@1 {
-					reg = <1>;
-					rbpcv3_veyeimx335_vi_in1: endpoint {
-						port-index = <2>;
-						bus-width = <2>;
-						remote-endpoint = <&rbpcv3_veyeimx335_csi_out1>;
+					 port@1 {
+						reg = <1>;
+						rbpcv3_veyeimx335_vi_in1: endpoint {
+							port-index = <2>;
+							bus-width = <2>;
+							remote-endpoint = <&rbpcv3_veyeimx335_csi_out1>;
+						};
 					};
 				};
 			};
-		};
 
-	host1x@13e00000 {
+	bus@0 {
+	    host1x@13e00000 {
 		nvcsi@15a00000 {
 			num-channels = <2>;
 			#address-cells = <1>;
@@ -225,7 +217,6 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-                    serdes_pix_clk_hz = "187500000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -267,7 +258,6 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-                    serdes_pix_clk_hz = "187500000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -309,7 +299,6 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-                    serdes_pix_clk_hz = "187500000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -351,7 +340,6 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-                    serdes_pix_clk_hz = "187500000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -388,7 +376,7 @@
 				};
 			};
 		};
-        i2c_1: i2c@1 {
+           i2c@1 {
 
 			veyeimx335_cam1: rbpcv3_veyeimx335_c@3b {
 
@@ -507,7 +495,6 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-					serdes_pix_clk_hz = "187500000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -548,7 +535,7 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-                    serdes_pix_clk_hz = "187500000";
+
 					gain_factor = "16";
 					framerate_factor = "1000000";
 					exposure_factor = "1000000";
@@ -588,7 +575,6 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-                    serdes_pix_clk_hz = "187500000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -629,7 +615,6 @@
 					inherent_gain = "1";
 					mclk_multiplier = "2";
 					pix_clk_hz = "148500000";
-                    serdes_pix_clk_hz = "187500000";
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -672,7 +657,7 @@
 
 };
 
-/ {
+
 	 tegra-camera-platform {
 		compatible = "nvidia, tegra-camera-platform";
 
@@ -721,28 +706,29 @@
 		 * The third part contains the last 6 characters of a part number which is found
 		 * in the module's specsheet from the vendor.
 		 */
-		modules {
-			 cam_module0: module0 {
-				badge = "jakku_front_veyeimx335";
-				position = "front";
-				orientation = "1";
-				 cam_module0_drivernode0: drivernode0 {
-					pcl_id = "v4l2_sensor";
-					devname = "veyeimx335 9-003b";
-					proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@0/rbpcv3_veyeimx335_a@3b";
-				};
+			modules {
+				  module0 {
+					badge = "jakku_front_veyeimx335";
+					position = "front";
+					orientation = "1";
+					  drivernode0 {
+						pcl_id = "v4l2_sensor";
+						devname = "veyeimx335 9-003b";
+						sysfs-device-tree = "/sys/firmware/devicetree/base/bus@0/cam_i2cmux/i2c@0/rbpcv3_veyeimx335_a@3b";
+					};
 				
-			};
-			 cam_module1: module1 {
-				badge = "jakku_rear_veyeimx335";
-				position = "rear";
-				orientation = "1";
-				 cam_module1_drivernode0: drivernode0 {
-					pcl_id = "v4l2_sensor";
-					devname = "veyeimx335 10-003b";
-					proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@1/rbpcv3_veyeimx335_c@3b";
-				};
-				
+				  };
+				  module1 {
+					badge = "jakku_rear_veyeimx335";
+					position = "rear";
+					orientation = "1";
+					  drivernode0 {
+						pcl_id = "v4l2_sensor";
+						devname = "veyeimx335 10-003b";
+						sysfs-device-tree = "/sys/firmware/devicetree/base/bus@0/cam_i2cmux/i2c@1/rbpcv3_veyeimx335_c@3b";
+					};
+				  };
+			     };				
 			};
 		};
 	};

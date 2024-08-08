@@ -10,10 +10,7 @@
 #include <linux/lcm.h>
 #include <linux/crc32.h>
 #include <linux/version.h>
-//#include <media/v4l2-ctrls.h>
 #include <media/v4l2-device.h>
-//#include <media/v4l2-fwnode.h>
-//#include <media/v4l2-mediabus.h>
 #include <media/v4l2-event.h>
 #include <linux/of_graph.h>
 
@@ -23,16 +20,17 @@
 #include <media/v4l2-of.h>
 #endif
 
-#include <media/tegra-v4l2-camera.h>
-#include <media/camera_common.h>
-#include <media/mc_common.h>
-
 #include <linux/gpio.h>
 #include <linux/module.h>
 #include <linux/seq_file.h>
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/of_gpio.h>
+
+#include <media/tegra-v4l2-camera.h>
+#include <media/camera_common.h>
+//#include <media/mc_common.h>
+
 
 #define DRIVER_VERSION			KERNEL_VERSION(1, 0x01, 0x04) 
 #include "veye_mvcam.h"
@@ -563,11 +561,17 @@ int mvcam_get_mbus_config(struct v4l2_subdev *sd,
     debug_printk("mvcam_get_mbus_config lane num %d\n",mvcam->lane_num);
 	return 0;
 }
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_csi2_enum_mbus_code(
 			struct v4l2_subdev *sd,
 			struct v4l2_subdev_pad_config *cfg,
 			struct v4l2_subdev_mbus_code_enum *code)
+#else
+static int mvcam_csi2_enum_mbus_code(
+			struct v4l2_subdev *sd,
+			struct v4l2_subdev_state *sd_state,
+			struct v4l2_subdev_mbus_code_enum *code)
+#endif
 {
 	struct mvcam *mvcam = to_mvcam(sd);
 	struct mvcam_format *supported_formats = mvcam->supported_formats;
@@ -581,11 +585,17 @@ static int mvcam_csi2_enum_mbus_code(
 
 	return 0;
 }
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_csi2_enum_framesizes(
 			struct v4l2_subdev *sd,
 			struct v4l2_subdev_pad_config *cfg,
 			struct v4l2_subdev_frame_size_enum *fse)
+#else
+static int mvcam_csi2_enum_framesizes(
+			struct v4l2_subdev *sd,
+			struct v4l2_subdev_state *sd_state,
+			struct v4l2_subdev_frame_size_enum *fse)
+#endif
 {
 	struct mvcam *mvcam = to_mvcam(sd);
     VEYE_TRACE
@@ -601,10 +611,15 @@ static int mvcam_csi2_enum_framesizes(
 	return 0;
 }
 
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_csi2_get_fmt(struct v4l2_subdev *sd,
 								struct v4l2_subdev_pad_config *cfg,
 								struct v4l2_subdev_format *format)
+#else
+static int mvcam_csi2_get_fmt(struct v4l2_subdev *sd,
+								struct v4l2_subdev_state *sd_state,
+								struct v4l2_subdev_format *format)
+#endif
 {
 	struct mvcam *mvcam = to_mvcam(sd);
 	struct mvcam_format *current_format;
@@ -634,10 +649,16 @@ static int mvcam_csi2_get_fmt_idx_by_code(struct mvcam *mvcam,
 	}
 	return -EINVAL;
 }
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_get_selection(struct v4l2_subdev *sd,
 				struct v4l2_subdev_pad_config *cfg,
 				struct v4l2_subdev_selection *sel)
+#else
+static int mvcam_get_selection(struct v4l2_subdev *sd,
+				struct v4l2_subdev_state *sd_state,
+				struct v4l2_subdev_selection *sel)
+#endif
+
 {
 	struct mvcam *mvcam = to_mvcam(sd);
     VEYE_TRACE
@@ -664,9 +685,15 @@ static int mvcam_get_selection(struct v4l2_subdev *sd,
     v4l2_dbg(1, debug, sd, "%s: target %d\n", __func__,V4L2_SEL_TGT_CROP);
     return 0;
 }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_set_selection(struct v4l2_subdev *sd,
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_selection *sel)
+#else
+static int mvcam_set_selection(struct v4l2_subdev *sd,
+		struct v4l2_subdev_state *sd_state,
+		struct v4l2_subdev_selection *sel)
+#endif
 {
    //     struct i2c_client *client = v4l2_get_subdevdata(sd);
         struct mvcam *mvcam = to_mvcam(sd);
@@ -700,10 +727,15 @@ static int mvcam_frm_supported(int roi_x,int wmin, int wmax, int ws,
 
 	return 0;
 }
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_csi2_try_fmt(struct v4l2_subdev *sd,
 		struct v4l2_subdev_pad_config *cfg,
 		struct v4l2_subdev_format *format)
+#else
+static int mvcam_csi2_try_fmt(struct v4l2_subdev *sd,
+		struct v4l2_subdev_state *sd_state,
+		struct v4l2_subdev_format *format)
+#endif
 {
 	struct mvcam *mvcam = to_mvcam(sd);
 	int ret = 0;
@@ -720,10 +752,16 @@ static int mvcam_csi2_try_fmt(struct v4l2_subdev *sd,
 
 	return 0;
 }
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_csi2_set_fmt(struct v4l2_subdev *sd,
 								struct v4l2_subdev_pad_config *cfg,
 								struct v4l2_subdev_format *format)
+#else
+static int mvcam_csi2_set_fmt(struct v4l2_subdev *sd,
+								struct v4l2_subdev_state *sd_state,
+								struct v4l2_subdev_format *format)
+#endif
+
 {
 	int i;
 	struct mvcam *mvcam = to_mvcam(sd);
@@ -748,7 +786,11 @@ static int mvcam_csi2_set_fmt(struct v4l2_subdev *sd,
                 //                      format->pad);
                // *framefmt = format->format;
                v4l2_info(sd, "csi2_try format\n");
+			   #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
                 return mvcam_csi2_try_fmt(sd, cfg, format);
+				#else
+				return mvcam_csi2_try_fmt(sd, sd_state, format);
+				#endif
      } else {
 		i = mvcam_csi2_get_fmt_idx_by_code(mvcam, format->format.code);
 		if (i < 0){
@@ -1015,10 +1057,15 @@ int mvcam_s_power(struct v4l2_subdev *sd, int on)
 	return 0;
 }
 
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_csi2_enum_frameintervals(struct v4l2_subdev *sd,
 				struct v4l2_subdev_pad_config *cfg,
 				struct v4l2_subdev_frame_interval_enum *fie)
+#else
+static int mvcam_csi2_enum_frameintervals(struct v4l2_subdev *sd,
+				struct v4l2_subdev_state *sd_state,
+				struct v4l2_subdev_frame_interval_enum *fie)
+#endif
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	struct camera_common_data *s_data = to_camera_common_data(&client->dev);
@@ -1053,8 +1100,11 @@ static int mvcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 {
 	struct mvcam *mvcam = to_mvcam(sd);
 	struct v4l2_mbus_framefmt *try_fmt =
+	#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 		v4l2_subdev_get_try_format(sd, fh->pad, IMAGE_PAD);
-    
+    #else
+		v4l2_subdev_get_try_format(sd, fh->state, IMAGE_PAD);
+	#endif
 //	struct v4l2_mbus_framefmt *try_fmt_meta =
 //		v4l2_subdev_get_try_format(sd, fh->pad, METADATA_PAD);
     struct v4l2_rect *try_crop;
@@ -1071,7 +1121,11 @@ static int mvcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	try_fmt_meta->field = V4L2_FIELD_NONE;
 */
     /* Initialize try_crop rectangle. */
-	try_crop = v4l2_subdev_get_try_crop(sd, fh->pad, 0);
+	#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
+		try_crop = v4l2_subdev_get_try_crop(sd, fh->pad, 0);
+	#else
+		try_crop = v4l2_subdev_get_try_crop(sd, fh->state, 0);
+	#endif
 	try_crop->top = 0;
 	try_crop->left = 0;
 	try_crop->width = mvcam->max_width;

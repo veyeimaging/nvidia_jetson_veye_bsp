@@ -1,0 +1,21 @@
+
+1. Place the dtsi and dts files from this directory to the source\hardware\nvidia\t23x\nv-public\overlay .
+
+2. Add the follows to the Makefile in this directory.
+
+```
+dtbo-y += tegra234-p3767-camera-p3768-veyecam2m-dual.dtbo
+dtbo-y += tegra234-p3767-camera-p3768-csimx307-dual.dtbo
+dtbo-y += tegra234-p3767-camera-p3768-cssc132-dual.dtbo
+dtbo-y += tegra234-p3767-camera-p3768-veye_mvcam-dual.dtbo
+dtbo-y += tegra234-p3767-camera-p3768-raw_ar0234m-dual.dtbo
+dtbo-y += tegra234-p3767-camera-p3768-raw_imx462m-dual.dtbo
+dtbo-y += tegra234-p3767-camera-p3768-veyeimx335-dual.dtbo
+```
+
+The Makefile in this directory is for reference only!
+
+3. Follow the official nVidia steps to execute `make dtbs`.
+
+4. You will get the compiled output dtbo file in the source/nvidia-oot/device-tree/platform/generic-dts/dtbs/ directory.
+

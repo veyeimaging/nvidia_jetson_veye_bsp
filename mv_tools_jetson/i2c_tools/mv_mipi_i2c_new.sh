@@ -196,12 +196,14 @@
 ./mv_mipi_i2c.sh -r  outio2_rvs
 ./mv_mipi_i2c.sh -w  outio2_rvs [param1]
 
+./mv_mipi_i2c.sh -r  lanenum
+./mv_mipi_i2c.sh -w  lanenum  [2/4]
 ### Special function
 ./mv_mipi_i2c.sh -r  snsreg  [SensorAddr]
 
-./mv_mipi_i2c.sh -r  lanenum
-./mv_mipi_i2c.sh -w  lanenum  [2/4]
+./mv_mipi_i2c.sh -r framecount
 
+./mv_mipi_i2c.sh -r trgmodecap
 COMMENT_SAMPLE
 
 #
@@ -246,6 +248,7 @@ System_reboot=0x001C;
 Time_stamp=0x0020;
 Error_code=0x0024;
 Format_Cap=0x0028;
+TriggerMode_Cap=0x0030;
 
 Image_Acquisition=0x400;
 Trigger_Mode=0x404;
@@ -270,6 +273,10 @@ Nondiscontinuous_mode=0x44C;
 Sensor_Reg_Addr=0x0450;
 Sensor_Reg_Val=0x454;
 Slave_mode=0x460;
+Sensor_Frame_Count=0x464;
+Out_Frame_Count=0x468;
+Trigger_Cycle_Min=0x46C;
+Trigger_Cycle_Max=0x470;
 
 Test_Image_Selector=0x800;
 Pixel_Format=0x804;
@@ -1338,6 +1345,36 @@ write_slavemode()
     printf "w slave mode is %d \n" $PARAM1;
 }
 
+read_framecount()
+{
+    local sns_count=0;
+    local out_count=0;
+    typeset -i sns_count;
+    typeset -i out_count;
+	sns_count=$(./i2c_4read $I2C_DEV $I2C_ADDR $Sensor_Frame_Count 2>/dev/null);
+    out_count=$(./i2c_4read $I2C_DEV $I2C_ADDR $Out_Frame_Count 2>/dev/null);
+    printf "r Sensor framecount is %d , Out framecount is %d\n" $sns_count $out_count;
+}
+
+read_trgmodecap()
+{
+    local value=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $TriggerMode_Cap 2>/dev/null);
+    printf "r trigger mode capbility is 0x%x \n" $value;
+}
+
+read_trgcycle()
+{
+    local cycle_min=0;
+    local cycle_max=0;
+    typeset -i cycle_min;
+    typeset -i cycle_max;
+	cycle_min=$(./i2c_4read $I2C_DEV $I2C_ADDR $Trigger_Cycle_Min 2>/dev/null);
+    cycle_max=$(./i2c_4read $I2C_DEV $I2C_ADDR $Trigger_Cycle_Max 2>/dev/null);
+    printf "r trigger cycle min is %d us,trigger cycle max is %d us\n" $cycle_min $cycle_max;
+}
+
 <<'COMMENT_SAMPLE'
 read_fun()
 {
@@ -1579,6 +1616,15 @@ if [ ${MODE} = "read" ] ; then
             ;;
         "slavemode")
             read_slavemode;
+            ;;
+        "framecount")
+            read_framecount;
+            ;;
+        "trgmodecap")
+            read_trgmodecap;
+            ;;
+        "trgcycle")
+            read_trgcycle;
             ;;
         *)
         echo "NOT SUPPORTED!";

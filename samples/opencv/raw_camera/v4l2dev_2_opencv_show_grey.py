@@ -1,9 +1,6 @@
 import cv2
 import argparse
 import subprocess
-def align_width_down(width):
-    #alignd to 256
-    return width // 256 * 256
     
 def main():
     # Set up command-line argument parser
@@ -14,16 +11,14 @@ def main():
     parser.add_argument('--height', type=int, default=480, help='image height (default: 480)')
     parser.add_argument('--fps', type=int, default=30, help='frame rate (default: 30)')
     args = parser.parse_args()
-    
-    aligned_width = align_width_down(args.width)
-    print(f"Frame Width Align to: {aligned_width}")
+
     v4l2_cmd = f"v4l2-ctl --set-ctrl roi_x={args.roix}"
     subprocess.run(v4l2_cmd, shell=True)
     
     v4l2_cmd = f"v4l2-ctl --set-ctrl roi_y={args.roiy}"
     subprocess.run(v4l2_cmd, shell=True)
     
-    v4l2_cmd = f"v4l2-ctl --set-fmt-video=width={aligned_width},height={args.height}"
+    v4l2_cmd = f"v4l2-ctl --set-fmt-video=width={args.width},height={args.height}"
     subprocess.run(v4l2_cmd, shell=True)
     
     v4l2_cmd = f"v4l2-ctl --set-ctrl frame_rate={args.fps}"
@@ -36,7 +31,7 @@ def main():
         return
 
     # Set the image size
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, aligned_width)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
 
     # Loop over frames and display them

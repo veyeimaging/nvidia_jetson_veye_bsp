@@ -38,6 +38,7 @@
 /*registers*/
 #define Model_Name 0x0004
 #define Video_Mode 0x414 
+#define IMAGE_ACQ 0x42C
 /* #define INIT_ET_INSETTING 1 */
 
 struct reg_32 {
@@ -49,11 +50,13 @@ struct reg_32 {
 
 static veyecam_reg VEYECAM_start[] = {
 	{VEYECAM_TABLE_WAIT_MS, VEYECAM_WAIT_MS_START},
+    {IMAGE_ACQ, 0x1},
 	{VEYECAM_TABLE_WAIT_MS, VEYECAM_WAIT_MS_STREAM},
 	{VEYECAM_TABLE_END, 0x00 }
 };
 
 static veyecam_reg VEYECAM_stop[] = {
+    {IMAGE_ACQ, 0x0},
 	{VEYECAM_TABLE_WAIT_MS, VEYECAM_WAIT_MS_STOP},
 	{VEYECAM_TABLE_END, 0x00 }
 };

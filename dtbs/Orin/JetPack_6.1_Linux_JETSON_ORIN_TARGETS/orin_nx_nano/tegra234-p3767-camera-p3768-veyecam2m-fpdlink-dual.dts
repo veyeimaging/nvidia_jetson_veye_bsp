@@ -42,7 +42,7 @@
 							reset-gpios = <&gpio CAM0_PWDN GPIO_ACTIVE_HIGH>;
                             mode0{
                                 discontinuous_clk = "yes";
-                                serdes_pix_clk_hz = "800000000";
+                                serdes_pix_clk_hz = "100000000";
                             };
 						};
 					};
@@ -58,7 +58,7 @@
 							reset-gpios = <&gpio CAM1_PWDN GPIO_ACTIVE_HIGH>;
                             mode0{
                                 discontinuous_clk = "yes";
-                                serdes_pix_clk_hz = "800000000";
+                                serdes_pix_clk_hz = "100000000";
                             };
 						};
 					};

@@ -23,7 +23,15 @@
 #define Time_stamp 0x0020
 #define Error_code 0x0024
 #define Format_cap 0x0028
-
+#define LaneNum_Cap 0x0034
+#define CameraModel0 0x0038
+#define CameraModel1 0x003C
+#define CameraModel2 0x0040 
+#define CameraModel3 0x0044 
+#define CameraModel4 0x0048 
+#define CameraModel5 0x004C 
+#define CameraModel6 0x0050 
+#define CameraModel7 0x0054 
 
 #define Image_Acquisition 0x400
 #define Trigger_Mode 0x404
@@ -62,7 +70,9 @@
 #define ReadOut_Mode 0x834
 #define Lane_Num 0x83C
 #define MIPI_DataRate 0x840
-    
+#define MIN_ROI_Width 0x844
+#define MIN_ROI_Height 0x848U
+
 #define ISP_module_ctrl 0xC00
 #define Exposure_Mode 0xC04
 #define Target_Brightness 0xC08

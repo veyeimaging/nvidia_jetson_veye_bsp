@@ -31,8 +31,17 @@
 #include <media/camera_common.h>
 //#include <media/mc_common.h>
 
+/*
+v1.01.06
+1. Add a generic model reading function，
+ so that the driver does not need to be updated every time a new product is developed.
+2. roi_x and roi_y are set to v4l2 ctl cur value when probed.
+3. Provide the `mvcam_get_selection` function to achieve the capability of setting the ROI size to less than 640x480 on the RK platform.
+4. create sysfs node for veye_mvcam under /sys/bus/i2c/devices/i2c-X/X-003b/veye_mvcam
+	X is i2c bus number here.
+*/
 
-#define DRIVER_VERSION			KERNEL_VERSION(1, 0x01, 0x04) 
+#define DRIVER_VERSION			KERNEL_VERSION(1, 0x01, 0x06) 
 #include "veye_mvcam.h"
 
 //reserved
@@ -94,6 +103,7 @@ struct mvcam_roi
 struct mvcam {
 	struct v4l2_subdev *subdev;
 	struct media_pad pad[NUM_PADS];
+	struct kobject kobj;
     struct i2c_client *client;
     u32    model_id; 
     
@@ -116,8 +126,10 @@ struct mvcam {
     u32 v_flip;
     
     u32 lane_num;
+	u32 lanecap;
     u32 mipi_datarate;
-    
+    u8 camera_model[32];
+
 	struct v4l2_ctrl_handler ctrl_handler;
     struct v4l2_ctrl *ctrls[MVCAM_MAX_CTRLS];
 	/* V4L2 Controls */
@@ -520,11 +532,13 @@ static void mvcam_v4l2_ctrl_init(struct mvcam *mvcam)
                 //mvcam_read(client, ROI_Offset_X,value);
                 //mvcam_v4l2_ctrls[i].def = value;
                 mvcam_v4l2_ctrls[i].max = mvcam->max_width - mvcam->min_width;
+				mvcam_v4l2_ctrls[i].def = mvcam->roi.left;
             break;
             case V4L2_CID_VEYE_MV_ROI_Y:
                 //mvcam_read(client, ROI_Offset_Y,value);
                 //mvcam_v4l2_ctrls[i].def = value;
                 mvcam_v4l2_ctrls[i].max = mvcam->max_height - mvcam->min_height;
+				mvcam_v4l2_ctrls[i].def = mvcam->roi.top;
             break;
             default:
             break;
@@ -922,6 +936,7 @@ err:
 static void mvcam_get_mipifeature(struct mvcam *mvcam)
 {
     u32 lane_num;
+    u32 lanenum_cap;
     u32 mipi_datarate;
     struct i2c_client *client = mvcam->client;
     mvcam_read(client, Lane_Num, &lane_num);
@@ -930,7 +945,11 @@ static void mvcam_get_mipifeature(struct mvcam *mvcam)
     }else{
         mvcam->lane_num = 2;
     }
-    
+    mvcam_read(client, LaneNum_Cap, &lanenum_cap);
+	if (lanenum_cap <= 0xF)//
+	{
+		mvcam->lanecap = lanenum_cap;
+	}
     mvcam_read(client, MIPI_DataRate, &mipi_datarate);
     if(mipi_datarate == 0xFFFFFFFF)
         mipi_datarate = MVCAM_DEFAULT_LINK_FREQ;
@@ -1225,7 +1244,32 @@ error:
 	return ret;
 
 }
+static int mvcam_identify_module_ex(struct mvcam * mvcam)
+{
+	int ret = 0;
+	u32 value[8];
+	struct i2c_client *client = v4l2_get_subdevdata(mvcam->subdev);
+    
+    ret = mvcam_read(client, CameraModel0, &value[0]);
+	ret |= mvcam_read(client, CameraModel1, &value[1]);
+	ret |= mvcam_read(client, CameraModel2, &value[2]);
+	ret |= mvcam_read(client, CameraModel3, &value[3]);
+	ret |= mvcam_read(client, CameraModel4, &value[4]);
+	ret |= mvcam_read(client, CameraModel5, &value[5]);
+	ret |= mvcam_read(client, CameraModel6, &value[6]);
+	ret |= mvcam_read(client, CameraModel7, &value[7]);
+	ret |= mvcam_read(client, MIN_ROI_Width, &mvcam->min_width);
+	ret |= mvcam_read(client, MIN_ROI_Height, &mvcam->min_height);
+	if (ret) {
+		dev_err(&client->dev, "failed to read camera model\n");
+		ret = -ENODEV;
+		return ret;
+	}
+	strncpy(mvcam->camera_model, (char *)value, sizeof(mvcam->camera_model));
 
+	dev_info(&client->dev, "camera is: %s\n", mvcam->camera_model);
+	return 0;
+}
 /* Verify chip ID */
 static int mvcam_identify_module(struct mvcam * mvcam)
 {
@@ -1245,46 +1289,87 @@ static int mvcam_identify_module(struct mvcam * mvcam)
         case MV_MIPI_IMX178M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: MV-MIPI-IMX178M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-IMX178M");
+			mvcam->min_width = MV_IMX178M_ROI_W_MIN;
+        	mvcam->min_height = MV_IMX178M_ROI_H_MIN;
+			mvcam->lanecap = 0x2;//2lane
             break; 
         case MV_MIPI_IMX296M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is：MV-MIPI-IMX296M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-IMX296M");
+			mvcam->min_width = MV_IMX296M_ROI_W_MIN;
+			mvcam->min_height = MV_IMX296M_ROI_H_MIN;
+			mvcam->lanecap = 0x2;//2lane
             break; 
         case MV_MIPI_SC130M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: MV-MIPI-SC130M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-SC130M");
+			mvcam->min_width = MV_SC130M_ROI_W_MIN;
+			mvcam->min_height = MV_SC130M_ROI_H_MIN;
+			mvcam->lanecap = 0x2;//2lane
             break; 
         case MV_MIPI_IMX265M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: MV-MIPI-IMX265M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-IMX265M");
+			mvcam->min_width = MV_IMX265M_ROI_W_MIN;
+			mvcam->min_height = MV_IMX265M_ROI_H_MIN;
+			mvcam->lanecap = 0x2;//2lane
             break; 
         case MV_MIPI_IMX264M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: MV-MIPI-IMX264M\n");
-            break;
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-IMX264M");
+			mvcam->min_width = MV_IMX264M_ROI_W_MIN;
+			mvcam->min_height = MV_IMX264M_ROI_H_MIN;
+			mvcam->lanecap = 0x2;//2lane
+            break; 
         case RAW_MIPI_SC132M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: RAW-MIPI-SC132M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-SC132M");
+			mvcam->min_width = RAW_SC132M_ROI_W_MIN;
+			mvcam->min_height = RAW_SC132M_ROI_H_MIN;
+			mvcam->lanecap = 0x2;//2lane
             break;
         case MV_MIPI_IMX287M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: MV_MIPI_IMX287M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-IMX287M");
+			mvcam->min_width = MV_IMX287M_ROI_W_MIN;
+			mvcam->min_height = MV_IMX287M_ROI_H_MIN;
+			mvcam->lanecap = 0x2;//2lane
             break;
         case RAW_MIPI_IMX462M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: RAW_MIPI_IMX462M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-IMX462M");
+			mvcam->min_width = RAW_IMX462M_ROI_W_MIN;
+			mvcam->min_height = RAW_IMX462M_ROI_H_MIN;
+			mvcam->lanecap = 0xA;//2lane and 4lane
             break;
         case RAW_MIPI_AR0234M:
             mvcam->model_id = device_id;
             dev_info(&client->dev, "camera is: RAW_MIPI_AR0234M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-AR0234M");
+			mvcam->min_width = RAW_AR0234M_ROI_W_MIN;
+			mvcam->min_height = RAW_AR0234M_ROI_H_MIN;
+			mvcam->lanecap = 0xA;//2lane and 4lane
             break;
 		case RAW_MIPI_SC535M:
             mvcam->model_id = device_id;
-            dev_info(&client->dev, "camera is: RAW_MIPI_SC535M\n");
+            dev_info(&client->dev, "camera is: RAW-MIPI-SC535M\n");
+			snprintf(mvcam->camera_model, sizeof(mvcam->camera_model), "%s", "MV-MIPI-SC535M");
+			mvcam->min_width = RAW_SC535M_ROI_W_MIN;
+			mvcam->min_height = RAW_SC535M_ROI_H_MIN;
+			mvcam->lanecap = 0xA;//2lane and 4lane
             break;
         default:
-            dev_err(&client->dev, "camera id do not support: %x \n",device_id);
-		return -EIO;
+            mvcam->model_id = device_id;
+			ret = mvcam_identify_module_ex(mvcam);
+			break;
     }
     
     ret = mvcam_read(client, Device_Version, &firmware_version);
@@ -1292,6 +1377,12 @@ static int mvcam_identify_module(struct mvcam * mvcam)
         dev_err(&client->dev, "read firmware version failed\n");
     }
     dev_info(&client->dev, "firmware version: 0x%04X\n", firmware_version);
+
+	mvcam_read(client, Sensor_Width, &mvcam->max_width);
+    mvcam_read(client, Sensor_Height, &mvcam->max_height);
+
+    v4l2_dbg(1, debug, mvcam->client, "%s: max width %d; max height %d;min width %d; mini height %d\n",
+					__func__, mvcam->max_width,mvcam->max_height,mvcam->min_width,mvcam->min_height);
 	return 0;
 }
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
@@ -1361,27 +1452,58 @@ error_out:
 	return ret;
 }
 #endif
-/*
-static int mvcam_init_mode(struct v4l2_subdev *sd)
-{
-    struct mvcam *mvcam = to_mvcam(sd);
-    struct i2c_client *client = mvcam->client;
 
-    struct v4l2_subdev_selection sel;
-    //stop acquitsition
-    mvcam_write(client, Image_Acquisition,0);
-    //set to video stream mode
-	mvcam_write(client, Trigger_Mode,0);
-    //set roi
-    mvcam->roi.left = 0;
-    mvcam->roi.top = 0;
-    mvcam->roi.width = mvcam->max_width;
-    mvcam->roi.height = mvcam->max_height;
-    sel.target = V4L2_SEL_TGT_CROP;
-	sel.r = mvcam->roi;
-    mvcam_set_selection(sd, NULL, &sel);
-    return 0;
-}*/
+static ssize_t model_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+    struct mvcam *cam = container_of(kobj, struct mvcam, kobj);
+    return sprintf(buf, "%s\n", cam->camera_model);
+}
+
+static ssize_t width_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+    struct mvcam *cam = container_of(kobj, struct mvcam, kobj);
+    return sprintf(buf, "%d\n", cam->roi.width);
+}
+
+static ssize_t height_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+    struct mvcam *cam = container_of(kobj, struct mvcam, kobj);
+    return sprintf(buf, "%d\n", cam->roi.height);
+}
+
+static ssize_t fps_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
+{
+    struct mvcam *cam = container_of(kobj, struct mvcam, kobj);
+    return sprintf(buf, "%d\n", cam->cur_fps);
+}
+
+static struct kobj_attribute model_attribute = __ATTR(camera_model, 0444, model_show, NULL);
+static struct kobj_attribute width_attribute = __ATTR(width, 0444, width_show, NULL);
+static struct kobj_attribute height_attribute = __ATTR(height, 0444, height_show, NULL);
+static struct kobj_attribute fps_attribute = __ATTR(fps, 0444, fps_show, NULL);
+
+static struct attribute *mvcam_attrs[] = {
+    &model_attribute.attr,
+    &width_attribute.attr,
+    &height_attribute.attr,
+	&fps_attribute.attr,
+    NULL,
+};
+
+static struct attribute_group mvcam_attr_group = {
+    .attrs = mvcam_attrs,
+};
+
+static const struct attribute_group *mvcam_attr_groups[] = {
+    &mvcam_attr_group,
+    NULL,
+};
+
+static struct kobj_type mvcam_ktype = {
+    .sysfs_ops = &kobj_sysfs_ops,
+    .default_groups = mvcam_attr_groups,
+};
+
 static int mvcam_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
 {
@@ -1410,7 +1532,7 @@ static int mvcam_probe(struct i2c_client *client,
 	mvcam->client = client;
     mvcam->s_data = common_data;
     
-    /* Check the hardware configuration in device tree */
+       /* Check the hardware configuration in device tree */
 	if(mvcam_check_hwcfg(dev,mvcam))
 		return -EINVAL;
 
@@ -1442,45 +1564,8 @@ static int mvcam_probe(struct i2c_client *client,
 		goto error_power_off;
 	}
 	mvcam_get_mipifeature(mvcam);
-    mvcam_read(client, Sensor_Width, &mvcam->max_width);
-    mvcam_read(client, Sensor_Height, &mvcam->max_height);
-    if(mvcam->model_id == MV_MIPI_IMX178M){
-        mvcam->min_width = MV_IMX178M_ROI_W_MIN;
-        mvcam->min_height = MV_IMX178M_ROI_H_MIN;
-    }else if(mvcam->model_id == MV_MIPI_SC130M){
-        mvcam->min_width = MV_SC130M_ROI_W_MIN;
-        mvcam->min_height = MV_SC130M_ROI_H_MIN;
-    }else if(mvcam->model_id == MV_MIPI_IMX296M){
-        mvcam->min_width = MV_IMX296M_ROI_W_MIN;
-        mvcam->min_height = MV_IMX296M_ROI_H_MIN;
-    }else if(mvcam->model_id == MV_MIPI_IMX265M){
-        mvcam->min_width = MV_IMX265M_ROI_W_MIN;
-        mvcam->min_height = MV_IMX265M_ROI_H_MIN;
-    }else if(mvcam->model_id == MV_MIPI_IMX264M){
-        mvcam->min_width = MV_IMX264M_ROI_W_MIN;
-        mvcam->min_height = MV_IMX264M_ROI_H_MIN;
-    }else if(mvcam->model_id == RAW_MIPI_SC132M){
-        mvcam->min_width = RAW_SC132M_ROI_W_MIN;
-        mvcam->min_height = RAW_SC132M_ROI_H_MIN;
-    }else if(mvcam->model_id == MV_MIPI_IMX287M){
-        mvcam->min_width = MV_IMX287M_ROI_W_MIN;
-        mvcam->min_height = MV_IMX287M_ROI_H_MIN;
-    }else if(mvcam->model_id == RAW_MIPI_IMX462M){
-        mvcam->min_width = RAW_IMX462M_ROI_W_MIN;
-        mvcam->min_height = RAW_IMX462M_ROI_H_MIN;
-    }else if(mvcam->model_id == RAW_MIPI_AR0234M){
-        mvcam->min_width = RAW_AR0234M_ROI_W_MIN;
-        mvcam->min_height = RAW_AR0234M_ROI_H_MIN;
-    }else if (mvcam->model_id == RAW_MIPI_SC535M){
-		mvcam->min_width = RAW_SC535M_ROI_W_MIN;
-		mvcam->min_height = RAW_SC535M_ROI_H_MIN;
-	}
-	else{
-		dev_err(dev, "model id do not support: %x \n",mvcam->model_id);
-	}
-	
-    v4l2_dbg(1, debug, mvcam->client, "%s: max width %d; max height %d\n",
-					__func__, mvcam->max_width,mvcam->max_height);
+
+
     //read roi
     mvcam_getroi(mvcam);
     
@@ -1518,6 +1603,12 @@ static int mvcam_probe(struct i2c_client *client,
 //		return ret;
 	}
     
+	ret = kobject_init_and_add(&mvcam->kobj, &mvcam_ktype, &client->dev.kobj, "veye_mvcam");
+    if (ret) {
+        dev_err(dev, "kobject_init_and_add failed\n");
+        goto error_media_entity;
+    }
+	
 	ret = v4l2_async_register_subdev(mvcam->subdev);
 	if (ret < 0){
         dev_err(&client->dev, "Failed at v4l2_async_register_subdev for mvcam.\n");

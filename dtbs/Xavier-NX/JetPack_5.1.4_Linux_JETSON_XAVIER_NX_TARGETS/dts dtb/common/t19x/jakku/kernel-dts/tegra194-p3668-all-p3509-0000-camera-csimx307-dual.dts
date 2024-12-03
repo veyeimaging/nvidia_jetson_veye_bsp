@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Jetson Device-tree overlay for dual camera CS-MIPI-IMX307 camera on
+ * dual cam connector baseboards
+ * 
+ * Copyright (c) 2021-2022 NVIDIA CORPORATION. All rights reserved.
+ *
+ */
+
+/dts-v1/;
+/plugin/;
+
+
+/ {
+	overlay-name = "Camera CS-MIPI-IMX307 Dual";
+	jetson-header-name = "Jetson Nano CSI Connector";
+	compatible = "nvidia,p3449-0000+p3668-0000", "nvidia,p3449-0000+p3668-0001", "nvidia,p3509-0000+p3668-0000", "nvidia,p3509-0000+p3668-0001";
+
+	fragment@0 {
+		target = <&csimx307_cam0>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+	fragment@1 {
+		target = <&cam_module0>;
+		__overlay__ {
+			status = "okay";
+			badge = "jakku_front_csimx307";
+			position = "front";
+			orientation = "1";
+		};
+	};
+	fragment@2 {
+		target = <&cam_module0_drivernode0>;
+		__overlay__ {
+			status = "okay";
+			pcl_id = "v4l2_sensor";
+			devname = "csimx307 9-003b";
+			proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@0/rbpcv2_csimx307_a@3b";
+		};
+	};
+	fragment@3 {
+		target = <&csimx307_cam1>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+	fragment@4 {
+		target = <&cam_module1>;
+		__overlay__ {
+			status = "okay";
+			badge = "jakku_rear_csimx307";
+			position = "rear";
+			orientation = "1";
+		};
+	};
+	fragment@5 {
+		target = <&cam_module1_drivernode0>;
+		__overlay__ {
+			status = "okay";
+			pcl_id = "v4l2_sensor";
+			devname = "csimx307 10-003b";
+			proc-device-tree = "/proc/device-tree/cam_i2cmux/i2c@1/rbpcv2_csimx307_c@3b";
+		};
+	};
+	fragment@6 {
+                target = <&imx219_cam0>;
+                __overlay__ {
+                        status = "disabled";
+                };
+        };
+
+	fragment@7 {
+		target = <&rbpcv2_csimx307_vi_in0>;
+		__overlay__ {
+			status = "okay";
+			port-index = <0>;
+			bus-width = <2>;
+			remote-endpoint = <&rbpcv2_csimx307_csi_out0>;
+		};
+	};
+	fragment@8 {
+		target = <&rbpcv2_csimx307_vi_in1>;
+		__overlay__ {
+			status = "okay";
+			port-index = <2>;
+			bus-width = <2>;
+			remote-endpoint = <&rbpcv2_csimx307_csi_out1>;
+		};
+	};
+	fragment@9 {
+		target = <&rbpcv2_csimx307_csi_in0>;
+		__overlay__ {
+			status = "okay";
+			port-index = <0>;
+			bus-width = <2>;
+			remote-endpoint = <&rbpcv2_csimx307_out0>;
+		};
+	};
+	fragment@10 {
+		target = <&rbpcv2_csimx307_csi_out0>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+	fragment@11 {
+		target = <&rbpcv2_csimx307_csi_in1>;
+		__overlay__ {
+			status = "okay";
+			port-index = <2>;
+			bus-width = <2>;
+			remote-endpoint = <&rbpcv2_csimx307_out1>;
+		};
+	};
+	fragment@12 {
+		target = <&rbpcv2_csimx307_csi_out1>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+	fragment@13 {
+		target = <&imx219_cam1>;
+		__overlay__ {
+			status = "disabled";
+		};
+	};
+};

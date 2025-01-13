@@ -19,8 +19,8 @@ print_usage()
 	echo "    -p2 [param1] 			   param2 of each function"
 	echo "    -b [i2c bus num] 		   i2c bus number"
 	echo "    -d [i2c addr] 		   i2c addr if not default 0x3b"
-	echo "support functions: devid,hdver,sensorid,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger£¬mshutter,curshutter"
-    echo "cameramode, nodf, capture, csienable,saturation,wdrbtargetbr,wdrtargetbr, brightness ,contrast , sharppen, aespeed,lsc,boardmodel,yuvseq,i2cauxenable,i2cwen,awbgain,wbmode,mwbgain,antiflicker,awb_boffset,blcstrength,blcpos,paramsave"
+	echo "support functions: devid,hdver,sensorid,wdrmode,videoformat,mirrormode,denoise,agc,lowlight,daynightmode,ircutdir,irtrigger,mshutter,"
+    echo "cameramode, nodf, capture, csienable,saturation,wdrbtargetbr,wdrtargetbr, brightness ,contrast , sharppen,wdrsharppen aespeed,lsc,boardmodel,yuvseq,i2cauxenable,i2cwen,awbgain,wbmode,mwbgain,antiflicker,awb_boffset,blcstrength,blcpos,exptime,paramsave"
     echo "new_expmode,new_mshutter,new_mgain"
 }
 ######################parse arg###################################
@@ -712,6 +712,53 @@ write_sharppen()
 	printf "w sharppen enable is 0x%2x val is 0x%2x \n" $PARAM1 $PARAM2;
 }
 
+read_wdrsharppen()
+{
+    local sharppen_enable=0;
+    local sharppen_val=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDF );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xF2 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	sharppen_enable=$(( ($? >> 2) & 1))
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDF );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xF3 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	sharppen_val=$(($?>>4));
+	printf "r WDR sharppen enable is 0x%2x val is 0x%2x\n" $sharppen_enable $sharppen_val;
+}
+
+write_wdrsharppen()
+{
+    local sharppen_enable=0;
+    local sharppen_val=0;
+	local res=0;
+    
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDF );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xF2 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	sharppen_enable=$(( ($PARAM1 << 2) | $?))
+    
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDF );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xF2 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $sharppen_enable);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    sleep 0.01;
+    
+    sharppen_val=$(($PARAM2<<4|0x0F));
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDF );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0xF3 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $sharppen_val);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	printf "w WDR sharppen enable is 0x%2x val is 0x%2x \n" $PARAM1 $PARAM2;
+}
 read_aespeed()
 {
     local agcspeed=0;
@@ -1378,6 +1425,31 @@ write_auto_shutter_max()
     printf "w max_shutter %d us\n" $max_shutter;
 }
 
+read_exptime()
+{
+    local regval=0;
+    local expreg_l=0;
+    local expreg_h=0;
+	local res=0;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x12);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	expreg_h=$?;
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x13);
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01);
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+	expreg_l=$?;
+    #exptime=expreg*29.6us@30fps mode
+	regval=$((($expreg_h<<8)+$expreg_l));
+	exptime=`echo $regval 29.6 | awk '{printf "%d\n",$1*$2}'`
+	printf "r reg 0x%x, exptime is %d us\n" $regval $exptime;
+    
+}
 
 #######################Action# BEGIN##############################
 
@@ -1460,7 +1532,10 @@ if [ ${MODE} = "read" ] ; then
         "sharppen")
             read_sharppen;
             ;;
-	"wdrtargetbr")
+        "wdrsharppen")
+            read_wdrsharppen;
+            ;;
+        "wdrtargetbr")
 			read_wdrtargetbr;
 			;;
         "lsc")
@@ -1513,6 +1588,9 @@ if [ ${MODE} = "read" ] ; then
                 ;;
         "auto_shutter_max")
             read_auto_shutter_max;
+                ;;
+        "exptime")
+            read_exptime;
                 ;;
 	esac
 fi
@@ -1589,6 +1667,9 @@ if [ ${MODE} = "write" ] ; then
             ;;
         "sharppen")
             write_sharppen;
+            ;;
+        "wdrsharppen")
+            write_wdrsharppen;
             ;;
         "wdrtargetbr")
 			write_wdrtargetbr;

@@ -15,7 +15,7 @@
  */
 
 / {
-    fragment-camera@0 {
+    fragment-fpdcamera@0 {
         target-path = "/";
         __overlay__ {
             tegra-capture-vi {
@@ -91,7 +91,7 @@
                         port@7 {
                             reg = <7>;
                             veyecam2m_fpd_vi_in7: endpoint {
-                                            vc-id = <1>;
+                                vc-id = <1>;
                                 port-index = <5>;
                                 bus-width = <4>;
                                 remote-endpoint = <&veyecam2m_fpd_csi_out7>;
@@ -299,11 +299,11 @@
                             /* Enable EEPROM support */
                             has-eeprom = "0";
 
-                            mode0 { 
+                            mode0 {
                             mclk_khz = "24000";
                             num_lanes = "4";
                             tegra_sinterface = "serial_a";
-                                        vc_id = "0";
+                            vc_id = "0";
                             phy_mode = "DPHY";
                             discontinuous_clk = "yes";
                             dpcm_enable = "false";
@@ -312,14 +312,14 @@
                             active_w = "1920";
                             active_h = "1080";
                             mode_type = "yuv";
-                                        pixel_phase = "uyvy";
-                                        csi_pixel_bit_depth = "16";
+                            pixel_phase = "uyvy";
+                            csi_pixel_bit_depth = "16";
                             readout_orientation = "0";
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                        serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -339,7 +339,7 @@
                                 default_exp_time = "33334";/* us */
                                 embedded_metadata_height = "0";
                         };
-                            ports {
+                        ports {
                                 #address-cells = <1>;
                                 #size-cells = <0>;
 
@@ -393,8 +393,8 @@
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                        serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -469,8 +469,8 @@
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                        serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -544,8 +544,8 @@
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -620,8 +620,8 @@
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                        serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -696,8 +696,8 @@
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                        serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -772,8 +772,8 @@
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                        serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -848,8 +848,8 @@
                             line_length = "2200";
                             inherent_gain = "1";
                             mclk_multiplier = "2";
-                            pix_clk_hz = "200000000";
-                                        serdes_pix_clk_hz = "200000000";
+                            pix_clk_hz = "74250000";
+                                        serdes_pix_clk_hz = "187499999";
                                 gain_factor = "10";
                                 min_gain_val = "10";/* 1DB*/
                                 max_gain_val = "160";/* 16DB*/
@@ -888,7 +888,8 @@
                     };
                 };
             };
-
+        };
+        
             tegra-camera-platform {
                 compatible = "nvidia, tegra-camera-platform";
                 /**
@@ -1028,5 +1029,5 @@
                 };
 			};
 		};
-	};
+    };
 };

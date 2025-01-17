@@ -207,6 +207,13 @@
 
 ./mv_mipi_i2c_new.sh -r  minwh
 ./mv_mipi_i2c_new.sh -r  model
+
+./mv_mipi_i2c_new.sh -r temp
+
+./mv_mipi_i2c_new.sh -r exptime_range
+
+./mv_mipi_i2c_new.sh -r  osdmode
+./mv_mipi_i2c_new.sh -w  osdmode [0/1]
 COMMENT_SAMPLE
 
 #
@@ -253,6 +260,7 @@ Error_code=0x0024;
 Format_Cap=0x0028;
 TriggerMode_Cap=0x0030;
 LaneNum_Cap=0x0034;
+Temp_K=0x0058;
 
 
 Image_Acquisition=0x400;
@@ -302,6 +310,8 @@ Lane_Num=0x83C;
 MIPI_DataRate=0x840;
 MIN_ROI_Width=0x844;
 MIN_ROI_Height=0x848;
+FrameRate_Ex=0x850;
+OSD_Mode=0x854;
 
 ISP_module_ctrl=0xC00;
 Exposure_Mode=0xC04;
@@ -332,6 +342,8 @@ DPC_Start=0xC64;
 DPC_Status=0xC68;
 DPC_Count=0xC6C;
 AAROI_enable=0xC80;
+Max_Exp_time=0xC8C;
+Min_Exp_time=0xC90;
 
 Trigger_Delay=0x1000;
 Trigger_Activation=0x1004;
@@ -1403,7 +1415,52 @@ read_minwh()
     height=$(./i2c_4read $I2C_DEV $I2C_ADDR $MIN_ROI_Height 2>/dev/null);
     printf "r ROI min width is %d height is %d\n" $width $height;
 }
+read_temp()
+{
+    local value=0
+    local kelvin=0
+    local celsius=0
 
+    # Read temperature value, unit is 100 times Kelvin
+    value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Temp_K 2>/dev/null)
+
+    # Calculate the actual Kelvin temperature
+    kelvin=$(echo "scale=2; $value / 100" | bc)
+
+    # Calculate Celsius temperature
+    celsius=$(echo "scale=2; $kelvin - 273.15" | bc)
+
+    # Print temperature values
+    printf "r temperature is %.2f K (%.2f °C)\n" $kelvin $celsius
+}
+
+read_exptime_range()
+{
+    local value=0;
+    local min=0;
+    local max=0;
+    value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Min_Exp_time 2>/dev/null);
+    #0.01us as a unit
+    min=$(echo "$value * 0.01" | bc);
+    value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Max_Exp_time 2>/dev/null);
+    max=$value;
+    printf "r exposure time range is: %.2f us ~ %d us\n" $min $max
+}
+
+read_osdmode()
+{
+    local value=0;
+    typeset -i value;
+    value=$(./i2c_4read $I2C_DEV $I2C_ADDR $OSD_Mode 2>/dev/null);
+    printf "r osd mode is %d \n" $value;
+}
+
+write_osdmode()
+{
+    local res=0;
+    res=$(./i2c_4write $I2C_DEV $I2C_ADDR $OSD_Mode $PARAM1);
+    printf "w osd mode is %d \n" $PARAM1;
+}
 <<'COMMENT_SAMPLE'
 read_fun()
 {
@@ -1661,6 +1718,15 @@ if [ ${MODE} = "read" ] ; then
         "lanecap")
             read_lanecap;
             ;;
+        "temp")
+            read_temp;
+            ;;
+        "exptime_range")
+            read_exptime_range;
+            ;;
+        "osdmode")
+            read_osdmode;
+            ;;
         *)
         echo "NOT SUPPORTED!";
         ;;
@@ -1818,6 +1884,9 @@ if [ ${MODE} = "write" ] ; then
             ;;
         "slavemode")
             write_slavemode;
+            ;;
+        "osdmode")
+            write_osdmode;
             ;;
         *)
         echo "NOT SUPPORTED!";

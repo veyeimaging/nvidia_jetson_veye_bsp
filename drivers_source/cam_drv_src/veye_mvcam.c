@@ -74,7 +74,7 @@ static int debug = 1;
 
 module_param(debug, int, 0644);
 
-#define STARTUP_MIN_DELAY_US	500*1000//500ms
+#define STARTUP_MIN_DELAY_US	700*1000//700ms
 #define STARTUP_DELAY_RANGE_US	1000
 
 struct reg_mv {
@@ -300,12 +300,12 @@ static int mvcam_setroi(struct mvcam *mvcam)
     mvcam_write(client, ROI_Width,mvcam->roi.width);
     msleep(1);
     mvcam_write(client, ROI_Height,mvcam->roi.height);
-    msleep(8);
+    msleep(20);
     //get sensor max framerate 
     mvcam_read(client, MaxFrame_Rate,&fps_reg);
     mvcam->max_fps = fps_reg/100;
-    mvcam_read(client, Framerate,&fps_reg);
-    mvcam->cur_fps = fps_reg/100;
+    //mvcam_read(client, Framerate,&fps_reg);
+    //mvcam->cur_fps = fps_reg/100;
     v4l2_ctrl_modify_range(mvcam->frmrate, 1, mvcam->max_fps, 1, mvcam->cur_fps);
     
 //    dev_info(&client->dev,

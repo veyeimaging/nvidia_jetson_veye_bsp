@@ -17,10 +17,6 @@
 ./mv_mipi_i2c_new.sh -w  i2caddr  0x3c
 ./mv_mipi_i2c_new.sh -r  i2caddr 
 
-# for raw camera only
-./mv_mipi_i2c_new.sh -w  mcubypass [param1]
-./mv_mipi_i2c_new.sh -r  mcubypass 
-
 ./mv_mipi_i2c_new.sh -w  slavemode [param1]
 ./mv_mipi_i2c_new.sh -r  slavemode 
 
@@ -212,8 +208,14 @@
 
 ./mv_mipi_i2c_new.sh -r exptime_range
 
-./mv_mipi_i2c_new.sh -r  osdmode
-./mv_mipi_i2c_new.sh -w  osdmode [0/1]
+./mv_mipi_i2c_new.sh -r osdmode
+./mv_mipi_i2c_new.sh -w osdmode [0/1]
+
+./mv_mipi_i2c_new.sh -r readmodecap
+
+./mv_mipi_i2c_new.sh -r readmode
+./mv_mipi_i2c_new.sh -w readmode [0/1/2]
+
 COMMENT_SAMPLE
 
 #
@@ -258,6 +260,7 @@ System_reboot=0x001C;
 Time_stamp=0x0020;
 Error_code=0x0024;
 Format_Cap=0x0028;
+ReadMode_Cap=0x002C;
 TriggerMode_Cap=0x0030;
 LaneNum_Cap=0x0034;
 Temp_K=0x0058;
@@ -272,7 +275,7 @@ Trigger_Software=0x414;
 Trigger_Count=0x418;
 I2C_Addr=0x41C;
 I2C_Port_Sel=0x420;
-MCU_Bypass=0x424;
+
 User_overlay_enable=0x428;
 User_overlay_zone0=0x42C;
 User_overlay_zone1=0x430;
@@ -584,20 +587,6 @@ write_i2caddr()
     local res=0;
 	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $I2C_Addr $PARAM1);
     printf "w i2c addr is 0x%02x \n" $PARAM1;
-}
-
-read_mcubypass()
-{
-    local value=0;
-    typeset -i value;
-	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $MCU_Bypass 2>/dev/null);
-    printf "r MCU bypass mode 0x%02x \n" $value;
-}
-write_mcubypass()
-{
-    local res=0;
-	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $MCU_Bypass $PARAM1);
-    printf "w MCU bypass mode 0x%02x,camera will reboot \n" $PARAM1;
 }
 
 read_i2cport()
@@ -1461,6 +1450,30 @@ write_osdmode()
     res=$(./i2c_4write $I2C_DEV $I2C_ADDR $OSD_Mode $PARAM1);
     printf "w osd mode is %d \n" $PARAM1;
 }
+
+read_readmodecap()
+{
+    local value=0;
+    typeset -i value;
+    value=$(./i2c_4read $I2C_DEV $I2C_ADDR $ReadMode_Cap 2>/dev/null);
+    printf "r read mode capbility is 0x%x \n" $value;
+}
+
+read_readmode()
+{
+    local value=0;
+    typeset -i value;
+    value=$(./i2c_4read $I2C_DEV $I2C_ADDR $ReadOut_Mode 2>/dev/null);
+    printf "r read mode is 0x%x \n" $value;
+}
+
+write_readmode()
+{
+    local res=0;
+    res=$(./i2c_4write $I2C_DEV $I2C_ADDR $ReadOut_Mode $PARAM1);
+    printf "w read mode is 0x%x \n" $PARAM1;
+}
+
 <<'COMMENT_SAMPLE'
 read_fun()
 {
@@ -1554,9 +1567,6 @@ if [ ${MODE} = "read" ] ; then
             ;;
         "i2caddr")
             read_i2caddr;
-            ;;
-        "mcubypass")
-            read_mcubypass;
             ;;
         "i2cport")
             read_i2cport;
@@ -1727,6 +1737,12 @@ if [ ${MODE} = "read" ] ; then
         "osdmode")
             read_osdmode;
             ;;
+        "readmodecap")
+            read_readmodecap;
+            ;;
+        "readmode")
+            read_readmode;
+            ;;
         *)
         echo "NOT SUPPORTED!";
         ;;
@@ -1746,9 +1762,6 @@ if [ ${MODE} = "write" ] ; then
 			;;
         "i2caddr")
             write_i2caddr;
-            ;;
-        "mcubypass")
-            write_mcubypass;
             ;;
         "i2cport")
             write_i2cport;
@@ -1887,6 +1900,9 @@ if [ ${MODE} = "write" ] ; then
             ;;
         "osdmode")
             write_osdmode;
+            ;;
+        "readmode")
+            write_readmode;
             ;;
         *)
         echo "NOT SUPPORTED!";

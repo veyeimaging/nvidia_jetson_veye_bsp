@@ -28,6 +28,8 @@
  * Deserializer registers
  *----------------------------------------------------------------------------*/
 #define R_2WIREPT_WA_DATA_BYTE 0x0032
+
+#define MAX_DEVICES			   4
 #define R_2WIREPT1_PASS_ADR000 0x0040
 #define R_2WIREPT1_PASS_ADR001 0x0041
 
@@ -76,8 +78,9 @@ struct thcv242a_priv {
 
 	int csi_lane_count;
 	int coax_num;
-	int cam_i2c_pt_setting;
-    int cam_i2c_address;
+	int device_i2c_pt_setting;
+	int num_devices;
+	u32 *devices_i2c_addresses;
     
     int trgin_gpio_mode; // 0: no use ;1 : polling
 	int out1_gpio_mode; // 0: no use ;1 : polling

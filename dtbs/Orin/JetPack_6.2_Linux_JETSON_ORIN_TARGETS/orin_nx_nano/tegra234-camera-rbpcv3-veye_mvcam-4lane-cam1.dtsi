@@ -202,7 +202,7 @@
 				*/
 				mode0 {
 					mclk_khz = "24000";
-					num_lanes = "4";
+					num_lanes = "2";
 					tegra_sinterface = "serial_b";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
@@ -359,7 +359,7 @@
 				*/
 				mode0 { 
 					mclk_khz = "24000";
-					num_lanes = "2";
+					num_lanes = "4";
 					tegra_sinterface = "serial_c";
 					phy_mode = "DPHY";
 					discontinuous_clk = "yes";
@@ -375,9 +375,8 @@
 					line_length = "3088";
 					inherent_gain = "1";
 					mclk_multiplier = "2";
-					/*pix_clk_hz = "750000000";*/
-                    pix_clk_hz = "375000000";
-                    /*serdes_pix_clk_hz = "375000000";*/
+                    pix_clk_hz = "750000000";
+                    /*serdes_pix_clk_hz="187499999";*/
 
 					gain_factor = "16";
 					framerate_factor = "1000000";
@@ -453,7 +452,7 @@
 		* isp_bw_margin_pct = <>;
 		* Isp bandwidth margin in percentage
 		*/
-		num_csi_lanes = <4>;
+		num_csi_lanes = <6>;
 		max_lane_speed = <1500000>;
 		min_bits_per_pixel = <8>;
 		vi_peak_byte_per_pixel = <2>;

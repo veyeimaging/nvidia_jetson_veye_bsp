@@ -10,7 +10,7 @@
 #define CAM_I2C_MUX 	TEGRA234_AON_GPIO(CC, 3)
 
 #include <dt-bindings/tegra234-p3767-0000-common.h>
-#include "tegra234-camera-rbpcv3-veye_mvcam.dtsi"
+#include "tegra234-camera-rbpcv3-veye_mvcam-4lane-cam1.dtsi"
 
 / {
 	overlay-name = "Camera mvcam Dual";

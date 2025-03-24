@@ -286,6 +286,7 @@ static int thcv242a_init_post(struct thcv242a_priv *priv)
 {
     int err = 0;
     unsigned int io_mode = 0;
+    int device_index = 0;
     struct thcv241a_priv * serpriv = priv->ser[0];
     struct device *dev = &priv->client->dev;
     dev_info(dev, "%s: begin \n", __func__);
@@ -352,10 +353,14 @@ static int thcv242a_init_post(struct thcv242a_priv *priv)
     
     err |= thcv242a_write(priv,0x001B,0x18);
     err |= thcv242a_write(priv,R_2WIREPT_WA_DATA_BYTE,0x10);
-    err |= thcv242a_write(priv,R_2WIREPT1_PASS_ADR000,priv->cam_i2c_address);
-    err |= thcv242a_write(priv,R_2WIREPT1_PASS_ADR001,priv->cam_i2c_address);
+
+    for (device_index = 0; device_index < priv->num_devices; device_index++){
+        err |= thcv242a_write(priv,R_2WIREPT1_PASS_ADR000 + device_index * 2 ,priv->devices_i2c_addresses[device_index]);
+        err |= thcv242a_write(priv,R_2WIREPT1_PASS_ADR001 + device_index * 2,priv->devices_i2c_addresses[device_index]);
+    }
     
-    err |= thcv242a_write(priv,R_2WIREPT_WA_DATA_BYTE,priv->cam_i2c_pt_setting);
+    err |= thcv242a_write(priv,R_2WIREPT_WA_DATA_BYTE, priv->device_i2c_pt_setting);
+    
     dev_info(dev, "%s:  successfully \n", __func__);
     return err;
 }
@@ -387,6 +392,7 @@ static int thcv242a_parse_dt(struct thcv242a_priv *priv)
 
 	int err = 0;
 	int val = 0;
+    int device_index = 0;
     
 	if(!np)
 		return -ENODEV;
@@ -417,26 +423,40 @@ static int thcv242a_parse_dt(struct thcv242a_priv *priv)
 		dev_info(dev, "%s: - coax_num %i\n", __func__, val);
 	}
 
-    err = of_property_read_u32(np, "cam-i2c-pt-setting", &val);
+    err = of_property_read_u32(np, "device-i2c-pt-setting", &val);
 	if(err) {
-		dev_info(dev, "%s: - cam-i2c-pt-setting not found\n", __func__);
+		dev_info(dev, "%s: - device-i2c-pt-setting not found\n", __func__);
 
-		priv->cam_i2c_pt_setting = 0x13;
-		dev_info(dev, "%s: - cam_i2c_pt_setting set to default val: 0x12\n", __func__);
+		priv->device_i2c_pt_setting = 0x13;
+		dev_info(dev, "%s: - device_i2c_pt_setting set to default val: 0x13\n", __func__);
 	} else {
-		priv->cam_i2c_pt_setting = val;
-		dev_info(dev, "%s: - cam_i2c_pt_setting %i\n", __func__, val);
+		priv->device_i2c_pt_setting = val;
+		dev_info(dev, "%s: - device_i2c_pt_setting %i\n", __func__, val);
 	}
 
-    err = of_property_read_u32(np, "camera-i2c-address", &val);
-    if(err) {
-        dev_info(dev, "%s: - camera-i2c-address not found\n", __func__);
-        priv->cam_i2c_address = 0x3b;
-        dev_info(dev, "%s: - camera-i2c-address set to default val: 0x18\n",
+    err = of_property_read_u32(np, "num-devices", &val);
+    if ((err) || val > MAX_DEVICES) {
+        dev_info(dev, "%s: - num-devices not found, or more than 4\n", __func__);
+        priv->num_devices = 0;
+        dev_info(dev, "%s: - num-devices set to default val: 0\n",
              __func__);
     } else {
-        dev_info(dev, "%s: - camera-i2c-address: 0x%X \n", __func__, val);
-        priv->cam_i2c_address=val;
+        dev_info(dev, "%s: - num-devices: %X \n", __func__, val);
+        priv->num_devices = val;
+        priv->devices_i2c_addresses = devm_kzalloc(dev, sizeof(u32) * priv->num_devices, GFP_KERNEL);
+    }
+
+    err = of_property_read_u32_array(np, "devices-i2c-addresses", priv->devices_i2c_addresses, priv->num_devices);
+    if (err){
+        dev_info(dev, "%s: - devices-i2c-addresses not found, or it's length no equal to num-devices\n", __func__);
+        priv->num_devices = 0;
+        dev_info(dev, "%s: - num-devices set to default val: 0\n",
+             __func__);
+    } else {
+        dev_info(dev, "%s: - deices-i2c-addresses set to: \n", __func__);
+        for (device_index = 0; device_index < priv->num_devices; device_index++){
+            dev_info(dev, "%s: - device #%i: %i\n", __func__, device_index, priv->devices_i2c_addresses[device_index]);
+        }
     }
     
     err = of_property_read_u32(np, "trgin-gpio-mode", &val);

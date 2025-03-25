@@ -313,6 +313,7 @@ Lane_Num=0x83C;
 MIPI_DataRate=0x840;
 MIN_ROI_Width=0x844;
 MIN_ROI_Height=0x848;
+Min_Frame_Rate=0x84C;
 FrameRate_Ex=0x850;
 OSD_Mode=0x854;
 
@@ -664,6 +665,15 @@ read_maxfps()
     printf "r maxfps @ current setting is %.2f fps\n" $maxfps;
 }
 
+read_minfps()
+{
+    local value=0;
+    local minfps=0;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Min_Frame_Rate 2>/dev/null);
+    minfps=`awk -v x="$value" 'BEGIN {printf "%.4f\n",x/10000}'`
+    printf "r minfps @ current setting is %.4f fps\n" $minfps;
+}
+
 read_imgdir()
 {
     local value=0;
@@ -767,6 +777,24 @@ write_fps()
     reg_val=`awk -v x="$PARAM1" 'BEGIN {printf ("%d\n",x*100)}'`;
 	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $Framerate $reg_val);
     printf "w fps %.02f\n" $PARAM1 ;
+}
+
+read_fps_ex()
+{
+    local value=0;
+    local fps=0;
+    typeset -i value;
+	value=$(./i2c_4read $I2C_DEV $I2C_ADDR $FrameRate_Ex 2>/dev/null);
+    fps=`awk -v x="$value" 'BEGIN {printf "%.4f\n",x/10000}'`
+    printf "r fps is %.04f fps\n" $fps;
+}
+write_fps_ex()
+{
+    local res=0;
+    local reg_val=0;
+    reg_val=`awk -v x="$PARAM1" 'BEGIN {printf ("%d\n",x*10000)}'`;
+	res=$(./i2c_4write $I2C_DEV $I2C_ADDR $FrameRate_Ex $reg_val);
+    printf "w fps %.04f\n" $PARAM1 ;
 }
 
 read_trgmode()
@@ -1429,11 +1457,11 @@ read_exptime_range()
     local min=0;
     local max=0;
     value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Min_Exp_time 2>/dev/null);
-    #0.01us as a unit
-    min=$(echo "$value * 0.01" | bc);
+    #0.1us as a unit
+    min=$(echo "$value * 0.1" | bc);
     value=$(./i2c_4read $I2C_DEV $I2C_ADDR $Max_Exp_time 2>/dev/null);
     max=$value;
-    printf "r exposure time range is: %.2f us ~ %d us\n" $min $max
+    printf "r exposure time range is: %.1f us ~ %d us\n" $min $max
 }
 
 read_osdmode()
@@ -1583,6 +1611,9 @@ if [ ${MODE} = "read" ] ; then
         "maxfps")
             read_maxfps;
             ;;
+        "minfps")
+            read_minfps;
+            ;;
         "imgdir")
             read_imgdir;
             ;;
@@ -1597,6 +1628,9 @@ if [ ${MODE} = "read" ] ; then
             ;;
         "fps")
             read_fps;
+            ;;
+        "fps_ex")
+            read_fps_ex;
             ;;
         "trgmode")
             read_trgmode;
@@ -1789,6 +1823,9 @@ if [ ${MODE} = "write" ] ; then
             ;;
         "fps")
             write_fps;
+            ;;
+        "fps_ex")
+            write_fps_ex;
             ;;
         "trgmode")
             write_trgmode;

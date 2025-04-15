@@ -19,7 +19,7 @@ jobs:
         run: |
           git config --global user.name "mmxuxp"
           git config --global user.email "xumm@veye.cc"
-          # 添加 Gitee 的组织仓库地址
+          # 添加 Gitee 的组织仓库地址 
           git remote add gitee https://mmxuxp:${{ secrets.GITEE_TOKEN }}@gitee.com/veyeimaging/nvidia_jetson_veye_bsp.git
           # 推送源码
           git push -f gitee HEAD:main

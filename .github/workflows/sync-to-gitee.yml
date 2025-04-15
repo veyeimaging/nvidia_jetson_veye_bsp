@@ -1,0 +1,27 @@
+name: Sync to Gitee (Organization)
+
+on:
+  push:
+    branches:
+      - main  # 或 master，取决于你主分支的名字
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+              fetch-depth: 0
+
+      - name: Mirror push to Gitee (org repo)
+        run: |
+          git config --global user.name "mmxuxp"
+          git config --global user.email "xumm@veye.cc"
+          # 添加 Gitee 的组织仓库地址
+          git remote add gitee https://mmxuxp:${{ secrets.GITEE_TOKEN }}@gitee.com/veyeimaging/nvidia_jetson_veye_bsp.git
+          # 推送源码
+          git push -f gitee HEAD:main
+          # 可选：推送标签
+          git push -f gitee --tags

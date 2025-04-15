@@ -3,7 +3,7 @@ name: Sync to Gitee (Organization)
 on:
   push:
     branches:
-      - main  # 或 master，取决于你主分支的名字
+      - master  # 或 master，取决于你主分支的名字
 
 jobs:
   sync:

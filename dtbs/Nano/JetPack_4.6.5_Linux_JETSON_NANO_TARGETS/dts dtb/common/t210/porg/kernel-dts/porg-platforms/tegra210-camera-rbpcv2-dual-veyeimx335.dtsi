@@ -199,7 +199,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -240,7 +240,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -280,7 +280,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -320,7 +320,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -476,7 +476,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -517,7 +517,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -557,7 +557,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 
@@ -597,7 +597,7 @@
 					num_lanes = "2";
 					tegra_sinterface = "serial_a";
 					phy_mode = "DPHY";
-					discontinuous_clk = "yes";
+					discontinuous_clk = "no";
 					dpcm_enable = "false";
 					cil_settletime = "0";
 

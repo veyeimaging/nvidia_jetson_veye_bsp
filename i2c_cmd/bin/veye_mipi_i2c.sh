@@ -347,6 +347,30 @@ write_lowlight()
 {
 	local lowlight=0;
 	local res=0;
+	if [ $PARAM1 -eq 0 ] ; then
+		printf "close lowlight mode\n";
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x6D );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 0xA5);
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+		sleep 0.01;
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x66 );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 0x40);
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	else
+		printf "open lowlight mode\n";
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x6D );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 0xA4);
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+		sleep 0.01;
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x66 );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 0x41 );
+		res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+	fi
+	sleep 0.01;
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDA );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x64 );
 	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $PARAM1);
@@ -1451,6 +1475,49 @@ read_exptime()
     
 }
 
+read_osd()
+{
+    local regval_0=0;
+    local regval_1=0;
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDF );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x58 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+	sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+    regval_0=$?;
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0x47 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5A );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x01 );
+    sleep 0.01;
+	res=$(./i2c_read $I2C_DEV $I2C_ADDR  0x14 );
+    regval_1=$?;
+    printf "r close osd 0x%x, 0x%x\n" $regval_0 $regval_1;
+}
+
+write_osd()
+{
+ 	local regval_0=0;
+    local regval_1=0;
+	if [ $PARAM1 -eq 1 ] ; then
+		printf "w open osd\n";
+		regval_0=0xA9;
+		regval_1=0xB0;
+	else
+        printf "w close osd\n";
+		regval_0=0xA8;
+		regval_1=0x30;
+	fi
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0xDF );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x58 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $regval_0 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+    sleep 0.01;
+    res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x10 0x47 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x11 0x5A );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x12 $regval_1 );
+	res=$(./i2c_write $I2C_DEV $I2C_ADDR  0x13 0x00 );
+}
 #######################Action# BEGIN##############################
 
 if [ `whoami` != "root" ];then
@@ -1592,6 +1659,9 @@ if [ ${MODE} = "read" ] ; then
         "exptime")
             read_exptime;
                 ;;
+        "osd")
+            read_osd;
+                ;;
 	esac
 fi
 
@@ -1724,6 +1794,9 @@ if [ ${MODE} = "write" ] ; then
                 ;;
         "auto_shutter_max")
             write_auto_shutter_max;
+                ;;
+        "osd")
+            write_osd;
                 ;;
 	esac
     sleep 0.1;

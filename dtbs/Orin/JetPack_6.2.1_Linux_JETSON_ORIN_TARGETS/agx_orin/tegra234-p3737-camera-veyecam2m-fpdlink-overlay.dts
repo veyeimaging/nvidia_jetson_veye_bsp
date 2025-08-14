@@ -1,0 +1,435 @@
+// SPDX-License-Identifier: GPL-2.0-only
+// SPDX-FileCopyrightText: Copyright (c) 2015-2024, www.veye.cc.  All rights reserved.
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/clock/tegra234-clock.h>
+#include <dt-bindings/gpio/tegra234-gpio.h>
+#include <dt-bindings/tegra234-p3737-0000+p3701-0000.h>
+
+#include "tegra234-p3737-fpdlink-8chn-90ub954-common.dtsi"
+#include "tegra234-camera-fpdlink-veyecam2m-a00.dtsi"
+
+/ {
+	overlay-name = "Jetson Camera VEYE2M fpdlink module";
+	jetson-header-name = "Jetson AGX CSI Connector";
+	
+	compatible = JETSON_COMPATIBLE;
+	fragment@1 {
+		target-path = "/";
+		__overlay__ {
+            /* all cameras are enabled by default */
+             tegra-capture-vi {
+                ports {
+                     status = "okay";
+                     port@0 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                     port@1 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                     port@2 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                     port@3 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                     port@4 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                     port@5 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                     port@6 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                     port@7 {
+                        status = "okay";
+                         endpoint {
+                            status = "okay";
+                        };
+                    };
+                };
+            };
+            
+            tegra-camera-platform {
+                    compatible = "nvidia, tegra-camera-platform";
+                    
+                    /**
+                    * tpg_max_iso = <>;
+                    * Max iso bw for 6 streams of tpg
+                    * streams * nvcsi_freq * PG_bitrate / RG10 * BPP
+                    * 6 * 102Mhz * 32 bits/ 10 bits * 2 Bps
+                    * = 3916.8 MBps
+                    */
+                    tpg_max_iso = <3916800>;
+
+                    modules {
+                         module0 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                         module1 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                         module2 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                         module3 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                         module4 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                        module5 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                        module6 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                        module7 {
+                            status = "okay";
+                             drivernode0 {
+                                status = "okay";
+                            };
+                            
+                        };
+                    };
+                };
+                
+        bus@0 {
+            host1x@13e00000 {
+                 nvcsi@15a00000 {
+                    status = "okay";
+                    num-tpg-channels = <36>;
+                     channel@0 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@0 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@1 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                     channel@1 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@2 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@3 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                     channel@2 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@4 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@5 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                     channel@3 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@6 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@7 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                     channel@4 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@8 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@9 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                     channel@5 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@10 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@11 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                     channel@6 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@12 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@13 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                     channel@7 {
+                        status = "okay";
+                        ports {
+				status = "okay";
+                             port@0 {
+                                status = "okay";
+                                 endpoint@14 {
+                                    status = "okay";
+                                };
+                            };
+                             port@1 {
+                                status = "okay";
+                                 endpoint@15 {
+                                    status = "okay";
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+            
+                i2c@3180000 {
+                    tca9548@70 {
+                        status = "okay";
+                        compatible = "nxp,pca9548";
+                        reg = <0x70>;
+                        #address-cells = <1>;
+                        #size-cells = <0>;
+                        skip_mux_detect;
+                        i2c@0 {
+                            reg = <0>;
+                            i2c-mux,deselect-on-exit;
+                            #address-cells = <1>;
+                            #size-cells = <0>;
+                             veyecam2m_fpd_a@3b {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                            veyecam2m_fpd_b@3c {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                        i2c@1 {
+                            reg = <1>;
+                            i2c-mux,deselect-on-exit;
+                            #address-cells = <1>;
+                            #size-cells = <0>;
+                             veyecam2m_fpd_c@3b {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                             veyecam2m_fpd_d@3c {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                        i2c@2 {
+                            reg = <2>;
+                            i2c-mux,deselect-on-exit;
+                            #address-cells = <1>;
+                            #size-cells = <0>;
+                             veyecam2m_fpd_e@3b {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                             veyecam2m_fpd_f@3c {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                        i2c@3 {
+                            reg = <3>;
+                            i2c-mux,deselect-on-exit;
+                            #address-cells = <1>;
+                            #size-cells = <0>;
+                             veyecam2m_fpd_g@3b {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                             veyecam2m_fpd_h@3c {
+                                status = "okay";
+                                ports {
+                                    status = "okay";
+                                    port@0 {
+                                        status = "okay";
+                                        endpoint {
+                                            status = "okay";
+                                        };
+                                    };
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+};
+

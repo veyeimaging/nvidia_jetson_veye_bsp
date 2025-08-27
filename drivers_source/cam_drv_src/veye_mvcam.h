@@ -134,10 +134,11 @@
 #define V4L2_CID_VEYE_MV_ROI_Y  				(V4L2_CID_VEYE_MV_BASE + 6)
 
 enum enum_TriggerMode{
-    Image_Continues = 0,
-    Image_Trigger = 1,
-    Image_Speed_Trigger = 2,
-    Image_trigger_mode_num,
+    Video_Streaming_mode = 0,
+    Normal_Trigger_mode = 1,
+    Rolling_Shutter_Trigger_mode = 2,
+    Pulse_trigger_mode = 3,
+    Trigger_mode_num,
 };
 
 enum enum_TriggerSrc{

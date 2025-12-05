@@ -2,7 +2,7 @@ KERNEL_ROOT=/lib/modules/$(shell uname -r)/build
 
 PWD=$(shell pwd)
 
-obj-m := veyecam.o cs_imx307.o cs_sc132.o ds90ub954.o veye_imx335.o veye_vbyone.o veye_mvcam.o
+obj-m := veyecam.o cs_imx307.o cs_sc132.o ds90ub954.o veye_imx335.o veye_vbyone.o veye_mvcam.o veye_gxcam.o
 
 EXTRA_CFLAGS += -I/usr/src/nvidia/nvidia-oot/include
 KBUILD_EXTRA_SYMBOLS := /usr/src/nvidia/nvidia-oot/Module.symvers

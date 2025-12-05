@@ -29,6 +29,7 @@ dtbo-$(BUILD_ENABLE) += tegra194-p3668-all-p3509-0000-camera-veye_mvcam-dual.dtb
 dtbo-$(BUILD_ENABLE) += tegra194-p3668-all-p3509-0000-camera-csimx307-dual.dtbo
 dtbo-$(BUILD_ENABLE) += tegra194-p3668-all-p3509-0000-camera-cssc132-dual.dtbo
 dtbo-$(BUILD_ENABLE) += tegra194-p3668-all-p3509-0000-camera-veyeimx335-dual.dtbo
+dtbo-$(BUILD_ENABLE) += tegra194-p3668-all-p3509-0000-camera-veye_gxcam-dual.dtbo
 
 ifneq ($(dtb-y),)
 dtb-y := $(addprefix $(makefile-path)/,$(dtb-y))

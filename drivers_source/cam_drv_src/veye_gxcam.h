@@ -60,9 +60,28 @@
 #define CameraModel5 0x004C 
 #define CameraModel6 0x0050 
 #define CameraModel7 0x0054 
+#define Temp_K 0x0058
+#define VideoModeCap 0x005C
+#define VideoModeNum 0x0060
+#define VidoeMode_WH1 0x0064
+#define VideoMode_Param1 0x0068
+#define VidoeMode_WH20 x006C
+#define VideoMode_Param2 0x0070
+#define VidoeMode_WH3 0x0074
+#define VideoMode_Param3 0x0078
+#define VidoeMode_WH4 0x007C
+#define VideoMode_Param4 0x0080
+#define VidoeMode_WH5 0x0084
+#define VideoMode_Param5 0x0088
+#define VidoeMode_WH6 0x008C
+#define VideoMode_Param6 0x0090
+#define VidoeMode_WH7 0x0094
+#define VideoMode_Param7 0x0098
+#define VidoeMode_WH8 0x009C
+#define VideoMode_Param8 0x00A0
 
 #define Image_Acquisition 0x400
-#define Trigger_Mode 0x404
+#define Work_Mode 0x404
 #define Trigger_Source 0x408
 #define Trigger_Num 0x40C
 #define Trigger_Inerval 0x410
@@ -93,7 +112,7 @@
 #define ROI_Offset_X 0x820
 #define ROI_Offset_Y 0x824
 #define Image_Direction 0x828
-#define Data_shift 0x82C
+#define Video_Mode 0x82C
 #define Black_Level 0x830
 #define ReadOut_Mode 0x834
 #define Lane_Num 0x83C
@@ -153,7 +172,7 @@
 
 /* user define v4l2 controls*/
 #define V4L2_CID_VEYE_GX_BASE					(V4L2_CID_USER_BASE + 0x1100)
-#define V4L2_CID_VEYE_GX_TRIGGER_MODE			(V4L2_CID_VEYE_GX_BASE + 1)
+#define V4L2_CID_VEYE_GX_WORK_MODE			    (V4L2_CID_VEYE_GX_BASE + 1)
 #define V4L2_CID_VEYE_GX_TRIGGER_SRC			(V4L2_CID_VEYE_GX_BASE + 2)
 #define V4L2_CID_VEYE_GX_SOFT_TRGONE			(V4L2_CID_VEYE_GX_BASE + 3)
 #define V4L2_CID_VEYE_GX_SYNC_ROLE				(V4L2_CID_VEYE_GX_BASE + 4)
@@ -161,13 +180,14 @@
 //#define V4L2_CID_VEYE_GX_ROI_X		        	(V4L2_CID_VEYE_GX_BASE + 5)
 //#define V4L2_CID_VEYE_GX_ROI_Y  				(V4L2_CID_VEYE_GX_BASE + 6)
 
-enum enum_TriggerMode{
+
+enum enum_WorkMode{
     Video_Streaming_mode = 0,
     Normal_Trigger_mode = 1,
     Rolling_Shutter_MultiFrame_Trigger_mode = 2,
     Pulse_trigger_mode = 3,
     Sync_mode = 4,
-    Trigger_mode_num,
+    Work_mode_num,
 };
 
 enum enum_TriggerSrc{
@@ -181,6 +201,14 @@ enum enum_TriggerSyncRole{
     Sync_Slave = 1,
     Sync_role_num,
 };
+
+enum enum_ReadOutMode{
+    Readout_Normal = 0,
+    Readout_Binning = 1,
+    Readout_Subsampling = 2,
+    Readout_mode_num,
+};
+
 #define I2C_READ_RETRY_COUNT 1
 #define I2C_WRITE_RETRY_COUNT 1
 
@@ -194,9 +222,6 @@ enum enum_TriggerSyncRole{
 #define GXCAM_MIPI_DATA_LANS 2
 
 #define GXCAM_DEF_FPS 60
-
-#define GX_CAM_ROI_W_ALIGN  8U
-#define GX_CAM_ROI_H_ALIGN  4U
 
 enum mipi_datatype {
     IMAGE_DT_YUV420_8 = 0x18,
@@ -226,7 +251,9 @@ enum mv_datatype_index{
     MV_DT_Mono12 = 2,
     MV_DT_Mono14 = 3,
     MV_DT_UYVY = 4,
-    MV_DT_YUYV = 5,
+    MV_DT_RGB888 = 5,
+    MV_DT_Temp = 6,
+    MV_DT_YUYV = 7,
 };
 
 enum yuv_order {

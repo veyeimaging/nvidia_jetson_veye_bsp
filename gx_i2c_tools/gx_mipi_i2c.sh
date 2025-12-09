@@ -204,8 +204,8 @@ I2C_ADDR=0x3b;
 ./gx_mipi_i2c.sh -w lsc
 ./gx_mipi_i2c.sh -r lsc
 
-./gx_mipi_i2c.sh -w dehazeparam
-./gx_mipi_i2c.sh -r dehazeparam
+./gx_mipi_i2c.sh -w dehaze
+./gx_mipi_i2c.sh -r dehaze
 
 ./gx_mipi_i2c.sh -w drc
 ./gx_mipi_i2c.sh -r drc

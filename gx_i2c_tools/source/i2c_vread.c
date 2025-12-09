@@ -40,7 +40,8 @@ static int gxcam_readl_reg(int fd, uint8_t i2c_addr, uint16_t reg, uint32_t *val
 
 	if (ioctl(fd, I2C_RDWR, &msgset) != msgset.nmsgs)
     {
-        printf("Write i2c err \n");
+		fprintf(stderr, "I2C write  err: addr=0x%02x reg=0x%04x (%s)\n",
+            i2c_addr, reg, strerror(errno));
 		return -1;
     }
 

@@ -136,10 +136,27 @@ I2C_DEV=10;
 
 I2C_ADDR=0x3b;
 
-pinmux()
-{
-	sh ./camera_i2c_config >> /dev/null 2>&1
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+I2C_VREAD="$SCRIPT_DIR/i2c_vread"
+I2C_VWRITE="$SCRIPT_DIR/i2c_vwrite"
+
+case "$1" in
+    -r)
+        if [[ ! -f "$I2C_VREAD" ]] || [[ ! -x "$I2C_VREAD" ]]; then
+            echo "❌ Error: Required tool not found or not executable: $I2C_VREAD" >&2
+            exit 1
+        fi
+        ;;
+    -w)
+        if [[ ! -f "$I2C_VWRITE" ]] || [[ ! -x "$I2C_VWRITE" ]]; then
+            echo "❌ Error: Required tool not found or not executable: $I2C_VWRITE" >&2
+            exit 1
+        fi
+        ;;
+    *)
+        ;;
+esac
+
 
 i2c_read() 
 {
@@ -1104,7 +1121,7 @@ write_slowshutter()
     local gainth=$2;
     i2c_write $SlowShutter "$enable"
     i2c_write $SlowShutter_GainTh "$gainth"
-    printf "Write  SlowShutter is %d SlowShutter_GainTh is %d \n" "$enable" "$gainth" ;
+    printf "Write  SlowShutter enable is %d SlowShutter_GainTh is %.1f dB\n" "$enable" "$(( gainth / 10 ))";
 }
 
 read_slowshutter()
@@ -1113,7 +1130,7 @@ read_slowshutter()
     local gainth=0;
     enable=$(i2c_read $SlowShutter);
     gainth=$(i2c_read $SlowShutter_GainTh);
-    printf "Read  SlowShutter is %d  SlowShutter_GainTh is %d  \n" "$enable" " $gainth" ;
+    printf "Read  SlowShutter enable is %d  SlowShutter_GainTh is %.1f dB\n" "$enable" "$(( gainth / 10 ))" ;
 }
 
 #WDR_Option/WDR_strength
@@ -1123,7 +1140,7 @@ write_wdrparam()
     local strength=$2;
     i2c_write $WDR_Option "$enable"
     i2c_write $WDR_strength "$strength"
-    printf "Write  WDR_Option is %d  WDR_strength is %d \n" "$enable" "$strength";
+    printf "Write  WDR_Option enable is %d  WDR_strength is %d \n" "$enable" "$strength";
 }
 
 read_wdrparam()
@@ -1132,7 +1149,7 @@ read_wdrparam()
     local strength=0;
     enable=$(i2c_read $WDR_Option);
     strength=$(i2c_read $WDR_strength);    
-    printf "Read  WDR_Option is %d WDR_strength is %d  \n" "$enable" "$strength" ;
+    printf "Read  WDR_Option enable is %d WDR_strength is %d  \n" "$enable" "$strength" ;
 }
 
 #Sharppen_strength
@@ -1437,14 +1454,14 @@ read_lsc()
 }
 
 #Dehaze_strength
-write_dehazeparam()
+write_dehaze()
 {
     local strength=$1;
     i2c_write $Dehaze_strength "$strength"
     printf "Write  Dehaze_strength is %d \n" "$strength";
 }
 
-read_dehazeparam()
+read_dehaze()
 {
     local strength=0;
     strength=$(i2c_read $Dehaze_strength);    

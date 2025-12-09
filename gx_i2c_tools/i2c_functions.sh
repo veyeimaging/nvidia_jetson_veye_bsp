@@ -1119,18 +1119,22 @@ write_slowshutter()
 {
     local enable=$1;
     local gainth=$2;
+    local gainth_scaled
+    gainth_scaled=$(awk "BEGIN {printf \"%.0f\", $gainth * 10}")
     i2c_write $SlowShutter "$enable"
-    i2c_write $SlowShutter_GainTh "$gainth"
-    printf "Write  SlowShutter enable is %d SlowShutter_GainTh is %.1f dB\n" "$enable" "$(( gainth / 10 ))";
+    i2c_write $SlowShutter_GainTh "$gainth_scaled"
+    printf "Write  SlowShutter enable is %d SlowShutter_GainTh is %.1f dB\n" "$enable" "$gainth";
 }
 
 read_slowshutter()
 {
-    local enable=0;
-    local gainth=0;
-    enable=$(i2c_read $SlowShutter);
-    gainth=$(i2c_read $SlowShutter_GainTh);
-    printf "Read  SlowShutter enable is %d  SlowShutter_GainTh is %.1f dB\n" "$enable" "$(( gainth / 10 ))" ;
+    local enable=0
+    local gainth_raw=0
+    local gainth=0
+    enable=$(i2c_read $SlowShutter)
+    gainth_raw=$(i2c_read $SlowShutter_GainTh)
+    gainth=$(awk "BEGIN {printf \"%.1f\", $gainth_raw / 10.0}")
+    printf "Read  SlowShutter enable is %d  SlowShutter_GainTh is %.1f dB\n" "$enable" "$gainth" ;
 }
 
 #WDR_Option/WDR_strength

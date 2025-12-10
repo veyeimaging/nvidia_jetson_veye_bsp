@@ -180,11 +180,11 @@ I2C_ADDR=0x3b;
 ./gx_mipi_i2c.sh -w sharppen
 ./gx_mipi_i2c.sh -r sharppen
 
-./gx_mipi_i2c.sh -w denoise_strength_2D
-./gx_mipi_i2c.sh -r denoise_strength_2D
+./gx_mipi_i2c.sh -w denoise2d
+./gx_mipi_i2c.sh -r denoise2d
 
-./gx_mipi_i2c.sh -w denoise_strength_3D
-./gx_mipi_i2c.sh -r denoise_strength_3D
+./gx_mipi_i2c.sh -w denoise3d
+./gx_mipi_i2c.sh -r denoise3d
 
 ./gx_mipi_i2c.sh -w saturation
 ./gx_mipi_i2c.sh -r saturation

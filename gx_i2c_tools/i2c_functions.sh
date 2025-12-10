@@ -1172,14 +1172,14 @@ read_sharppen()
 }
 
 #Denoise_strength_2D
-write_denoise_strength_2D()
+write_denoise2d()
 {
     local str2D=$1;
     i2c_write $Denoise_strength_2D "$str2D"
     printf "Write Denoise_strength_2D is  %d   \n" "$str2D";
 }
 
-read_denoise_strength_2D()
+read_denoise2d()
 {
     local res=0;
     res=$(i2c_read $Denoise_strength_2D);
@@ -1187,14 +1187,14 @@ read_denoise_strength_2D()
 }
 
 #Denoise_strength_3D
-write_denoise_strength_3D()
+write_denoise3d()
 {
     local str3D=$1;
     i2c_write $Denoise_strength_3D "$str3D"
     printf "Write  Denoise_strength_3D is %d   \n" "$str3D";
 }
 
-read_denoise_strength_3D()
+read_denoise3d()
 {
     local res=0;
     res=$(i2c_read $Denoise_strength_3D);

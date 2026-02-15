@@ -18,7 +18,9 @@ Integer values:
 - csi-lane-speed        CSI lane speed in Mbps (900, 1118 or 1500)
                                                         default vaule: 1500
 - coax-num              Number of Coax cable
-- cam-i2c-pt-setting    Pass through setting i2c
+- device-i2c-pt-setting Pass through setting i2c
+- num-devices           Number of devices
+- devices-i2c-addresses I2C addresses of devices (0x3b)
 
 String values:
 - pdb-gpio              Power-down gpio(no use or polling)        
@@ -40,7 +42,6 @@ Integer values:
 - i2c-address           I2C address of serializer(0x36)  
 - csi-lane-count        Number of CSI lanes   default value: 2
 - csi-lane-speed        CSI lane speed in Mbps (900, 1118 or 1500)
-- camera-i2c-address   I2C address of camera(0x3b)
 
 /*------------------------------------------------------------------------------
 * ------------------------------------------------------------------------------
@@ -62,17 +63,19 @@ veye_vbyone: vbyone@65 {
     csi-lane-count = <2>;
     csi-lane-speed = <1500>;
     coax-num = <1>;
-    cam-i2c-pt-setting = <0x13>;
+    device-i2c-pt-setting = <0x13>;
 
     pdb-gpio-mode = <0>;
     trgin-gpio-mode = <1>;
     out1-gpio-mode = <1>;
     out2-gpio-mode = <1>;
     
+    num-devices = <1>;
+    devices-i2c-addresses=<0x3b>;
+    
     serializer {
         i2c-address=<0x34>;
         csi-lane-count = <2>;
         csi-lane-speed = <1500>;
-        camera-i2c-address=<0x3b>;
     };
 };

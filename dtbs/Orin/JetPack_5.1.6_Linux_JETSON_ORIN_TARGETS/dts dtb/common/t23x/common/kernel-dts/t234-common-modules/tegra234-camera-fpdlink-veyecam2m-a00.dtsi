@@ -1,0 +1,1028 @@
+/*
+ * Copyright (c) 2015-2022, www.veye.cc.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/ {
+	tegra-capture-vi {
+		num-channels = <8>;
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			port@0 {
+				reg = <0>;
+				veyecam2m_fpd_vi_in0: endpoint {
+					vc-id = <0>;
+					port-index = <0>;
+					bus-width = <4>;
+					remote-endpoint = <&veyecam2m_fpd_csi_out0>;
+				};
+			};
+			port@1 {
+				reg = <1>;
+				veyecam2m_fpd_vi_in1: endpoint {
+					vc-id = <1>;
+					port-index = <0>;
+					bus-width = <4>;
+					remote-endpoint = <&veyecam2m_fpd_csi_out1>;
+				};
+			};
+			port@2 {
+				reg = <2>;
+				veyecam2m_fpd_vi_in2: endpoint {
+					vc-id = <0>;
+					port-index = <2>;
+					bus-width = <4>;
+					remote-endpoint = <&veyecam2m_fpd_csi_out2>;
+				};
+			};
+			port@3 {
+				reg = <3>;
+				veyecam2m_fpd_vi_in3: endpoint {
+					vc-id = <1>;
+					port-index = <2>;
+					bus-width = <4>;
+					remote-endpoint = <&veyecam2m_fpd_csi_out3>;
+				};
+			};
+			port@4 {
+				reg = <4>;
+				veyecam2m_fpd_vi_in4: endpoint {
+					vc-id = <0>;
+					port-index = <4>;
+					bus-width = <4>;
+					remote-endpoint = <&veyecam2m_fpd_csi_out4>;
+				};
+			};
+			port@5 {
+				reg = <5>;
+				veyecam2m_fpd_vi_in5: endpoint {
+					vc-id = <1>;
+					port-index = <4>;
+					bus-width = <4>;
+					
+					remote-endpoint = <&veyecam2m_fpd_csi_out5>;
+					};
+				};
+                port@6 {
+					reg = <6>;
+					veyecam2m_fpd_vi_in6: endpoint {
+						vc-id = <0>;
+						port-index = <5>;
+						bus-width = <4>;
+						remote-endpoint = <&veyecam2m_fpd_csi_out6>;
+						
+					};
+				};
+				port@7 {
+					reg = <7>;
+					veyecam2m_fpd_vi_in7: endpoint {
+                        			vc-id = <1>;
+						port-index = <5>;
+						bus-width = <4>;
+						remote-endpoint = <&veyecam2m_fpd_csi_out7>;
+						
+					};
+				};
+			};
+		};
+	
+
+	host1x@13e00000 {
+		nvcsi@15a00000 {
+			num-channels = <8>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+			channel@0 {
+				reg = <0>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in0: endpoint@0 {
+							port-index = <0>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out0>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out0: endpoint@1 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in0>;
+						};
+					};
+				};
+			};
+			channel@1 {
+				reg = <1>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in1: endpoint@2 {
+							port-index = <0>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out1>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out1: endpoint@3 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in1>;
+						};
+					};
+				};
+			};
+			channel@2 {
+				reg = <2>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in2: endpoint@4 {
+							port-index = <2>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out2>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out2: endpoint@5 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in2>;
+						};
+					};
+				};
+			};
+			channel@3 {
+				reg = <3>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in3: endpoint@6 {
+							port-index = <2>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out3>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out3: endpoint@7 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in3>;
+						};
+					};
+				};
+			};
+			channel@4 {
+				reg = <4>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in4: endpoint@8 {
+							port-index = <4>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out4>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out4: endpoint@9 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in4>;
+						};
+					};
+				};
+			};
+			channel@5 {
+				reg = <5>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in5: endpoint@10 {
+							port-index = <4>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out5>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out5: endpoint@11 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in5>;
+						};
+					};
+				};
+			};
+            channel@6 {
+				reg = <6>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in6: endpoint@12 {
+							port-index = <6>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out6>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out6: endpoint@13 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in6>;
+						};
+					};
+				};
+			};
+            channel@7 {
+				reg = <7>;
+				ports {
+					#address-cells = <1>;
+					#size-cells = <0>;
+					port@0 {
+						reg = <0>;
+						veyecam2m_fpd_csi_in7: endpoint@14 {
+							port-index = <6>;
+							bus-width = <4>;
+							remote-endpoint = <&veyecam2m_fpd_out7>;
+						};
+					};
+					port@1 {
+						reg = <1>;
+						veyecam2m_fpd_csi_out7: endpoint@15 {
+							remote-endpoint = <&veyecam2m_fpd_vi_in7>;
+						};
+					};
+				};
+			};
+		};
+	};
+
+	i2c@3180000 {
+		tca9548@70 {
+			i2c@0 {
+				veyecam2m_fpd_a@3b {
+					compatible = "nvidia,veyecam";
+					reg = <0x3b>;
+					devnode = "video0";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					tegra_sinterface = "serial_a";
+                    			vc_id = "0";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out0: endpoint {
+								vc-id = <0>;
+								port-index = <0>;
+								bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in0>;
+							};
+						};
+					};
+				};
+			
+
+			
+				veyecam2m_fpd_b@3c {
+					compatible = "nvidia,veyecam";
+					reg = <0x3c>;
+					devnode = "video1";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					tegra_sinterface = "serial_a";
+                    			vc_id = "1";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out1: endpoint {
+								vc-id = <1>;
+								port-index = <0>;
+								bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in1>;
+							};
+						};
+					};
+				};
+			};
+
+			i2c@1 {
+				veyecam2m_fpd_c@3b {
+					compatible = "nvidia,veyecam";
+					reg = <0x3b>;
+					devnode = "video2";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					tegra_sinterface = "serial_c";
+                    			vc_id = "0";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out2: endpoint {
+								vc-id = <0>;
+								port-index = <2>;
+								bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in2>;
+							};
+						};
+					};
+				};
+			
+				veyecam2m_fpd_d@3c {
+					compatible = "nvidia,veyecam";
+					reg = <0x3c>;
+					devnode = "video3";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					tegra_sinterface = "serial_c";
+                    			vc_id = "1";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out3: endpoint {
+								vc-id = <1>;
+								port-index = <2>;
+								bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in3>;
+							};
+						};
+					};
+				};
+			};
+
+			i2c@2 {
+				veyecam2m_fpd_e@3b {
+					compatible = "nvidia,veyecam";
+					reg = <0x3b>;
+					devnode = "video4";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					tegra_sinterface = "serial_e";
+                    			vc_id = "0";
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out4: endpoint {
+								vc-id = <0>;
+								port-index = <4>;
+								bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in4>;
+							};
+						};
+					};
+				};
+			
+				veyecam2m_fpd_f@3c  {
+					compatible = "nvidia,veyecam";
+					reg = <0x3c>;
+					devnode = "video5";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					vc_id = "1";
+					tegra_sinterface = "serial_e";
+                    			
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out5: endpoint {
+								vc-id = <1>;
+                                port-index = <4>;
+                                bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in5>;
+							};
+						};
+					};
+				};
+			};
+            i2c@3 {
+				veyecam2m_fpd_g@3b {
+					compatible = "nvidia,veyecam";
+					reg = <0x3b>;
+					devnode = "video6";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					vc_id = "0";
+					tegra_sinterface = "serial_g";
+                    			
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out6: endpoint {
+								vc-id = <0>;
+								port-index = <6>;
+								bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in6>;
+							};
+						};
+					};
+				};
+			
+				veyecam2m_fpd_h@3c  {
+					compatible = "nvidia,veyecam";
+					reg = <0x3c>;
+					devnode = "video7";
+
+					/* Physical dimensions of sensor */
+                    physical_w = "5.6";
+                    physical_h = "3.1";
+
+					/* Define any required hw resources needed by driver */
+					/* ie. clocks, io pins, power sources */
+					avdd-reg = "vana";
+					iovdd-reg = "vif";
+
+					/* Enable EEPROM support */
+					has-eeprom = "0";
+
+					mode0 { 
+					mclk_khz = "24000";
+					num_lanes = "4";
+					vc_id = "1";
+					tegra_sinterface = "serial_g";
+                    			
+					phy_mode = "DPHY";
+					discontinuous_clk = "yes";
+					dpcm_enable = "false";
+					cil_settletime = "0";
+
+					active_w = "1920";
+					active_h = "1080";
+					mode_type = "yuv";
+			                    pixel_phase = "uyvy";
+			                    csi_pixel_bit_depth = "16";
+					readout_orientation = "0";
+					line_length = "2200";
+					inherent_gain = "1";
+					mclk_multiplier = "2";
+					pix_clk_hz = "200000000";
+                    			serdes_pix_clk_hz = "200000000";
+						gain_factor = "10";
+						min_gain_val = "10";/* 1DB*/
+						max_gain_val = "160";/* 16DB*/
+						step_gain_val = "1";
+						default_gain = "10";
+						min_hdr_ratio = "1";
+						max_hdr_ratio = "1";
+						framerate_factor = "1000000";
+						min_framerate = "1816577";/*1.816577 */
+						max_framerate = "30000000";/*30*/
+						step_framerate = "1";
+						default_framerate = "30000000";
+						exposure_factor = "1000000";
+						min_exp_time = "34";/* us */
+						max_exp_time = "550385";/* us */
+						step_exp_time = "1";
+						default_exp_time = "33334";/* us */
+						embedded_metadata_height = "0";
+				};
+
+					ports {
+						#address-cells = <1>;
+						#size-cells = <0>;
+
+						port@0 {
+							reg = <0>;
+							veyecam2m_fpd_out7: endpoint {
+								vc-id = <1>;
+                                port-index = <6>;
+                                bus-width = <4>;
+								remote-endpoint = <&veyecam2m_fpd_csi_in7>;
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+
+	tegra-camera-platform {
+		compatible = "nvidia, tegra-camera-platform";
+		/**
+		* Physical settings to calculate max ISO BW
+		*
+		* num_csi_lanes = <>;
+		* Total number of CSI lanes when all cameras are active
+		*
+		* max_lane_speed = <>;
+		* Max lane speed in Kbit/s
+		*
+		* min_bits_per_pixel = <>;
+		* Min bits per pixel
+		*
+		* vi_peak_byte_per_pixel = <>;
+		* Max byte per pixel for the VI ISO case
+		*
+		* vi_bw_margin_pct = <>;
+		* Vi bandwidth margin in percentage
+		*
+		* max_pixel_rate = <>;
+		* Max pixel rate in Kpixel/s for the ISP ISO case
+		* Set this to the highest pix_clk_hz out of all available modes.
+		*
+		* isp_peak_byte_per_pixel = <>;
+		* Max byte per pixel for the ISP ISO case
+		*
+		* isp_bw_margin_pct = <>;
+		* Isp bandwidth margin in percentage
+		*/
+		num_csi_lanes = <16>;
+		max_lane_speed = <1600000>;
+		min_bits_per_pixel = <16>;
+		vi_peak_byte_per_pixel = <2>;
+		vi_bw_margin_pct = <25>;
+		isp_peak_byte_per_pixel = <5>;
+		isp_bw_margin_pct = <25>;
+
+		/**
+		* The general guideline for naming badge_info contains 3 parts, and is as follows,
+		* The first part is the camera_board_id for the module; if the module is in a FFD
+		* platform, then use the platform name for this part.
+		* The second part contains the position of the module, ex. “rear” or “front”.
+		* The third part contains the last 6 characters of a part number which is found
+		* in the module's specsheet from the vender.
+		*/
+		modules {
+			module0 {
+				badge = "veyecam2m_fpd_bottomleft_P5V27C";
+				position = "bottomleft";
+				orientation = "1";
+				drivernode0 {
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 30-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@0/veyecam2m_fpd_a@3b";
+				};
+
+			};
+			module1 {
+				badge = "veyecam2m_fpd_centerleft_P5V27C";
+				position = "centerleft";
+				orientation = "1";
+				drivernode0 {
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 30-003c";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@0/veyecam2m_fpd_b@3c";
+				};
+
+			};
+			module2 {
+				badge = "veyecam2m_fpd_centerright_P5V27C";
+				position = "centerright";
+				orientation = "1";
+				drivernode0 {
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 31-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@1/veyecam2m_fpd_c@3b";
+				};
+
+			};
+			module3 {
+				badge = "veyecam2m_fpd_topleft_P5V27C";
+				position = "topleft";
+				orientation = "1";
+				drivernode0 {
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 31-003c";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@1/veyecam2m_fpd_d@3c";
+				};
+
+			};
+			module4 {
+				badge = "veyecam2m_fpd_bottomright_P5V27C";
+				position = "bottomright";
+				orientation = "1";
+				drivernode0 {
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 32-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@2/veyecam2m_fpd_e@3b";
+				};
+
+			};
+			module5 {
+				badge = "veyecam2m_fpd_topright_P5V27C";
+				position = "topright";
+				orientation = "1";
+				drivernode0 {
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 32-003c";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@2/veyecam2m_fpd_f@3c";
+				};
+
+			};
+			     module6 {
+				badge = "veyecam2m_fpd_topright2_P5V27C";
+				position = "bottomright2";
+				orientation = "1";
+				drivernode0 {
+	
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 33-003b";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@3/veyecam2m_g@3b";
+				};
+
+			};
+             module7 {
+				badge = "veyecam2m_fpd_topright2_P5V27C";
+				position = "topright2";
+				orientation = "1";
+				drivernode0 {
+	
+					pcl_id = "v4l2_sensor";
+					devname = "veyecam2m_fpd 33-003c";
+					proc-device-tree = "/proc/device-tree/i2c@3180000/tca9548@70/i2c@3/veyecam2m_h@3c";
+				};
+
+			};
+		};
+	};
+};

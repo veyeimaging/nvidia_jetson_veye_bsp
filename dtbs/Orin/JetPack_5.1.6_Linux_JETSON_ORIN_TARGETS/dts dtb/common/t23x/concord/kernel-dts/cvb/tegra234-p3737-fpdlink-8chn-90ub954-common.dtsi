@@ -1,0 +1,191 @@
+/*
+ * Copyright (c) 2018-2019, NVIDIA CORPORATION.  All rights reserved.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/ {
+	i2c@3180000 {
+		tca9548@70 {
+        i2c@0 {
+            fpdlink0: ds90ub954_a@30 {
+            compatible = "ti,ds90ub954";
+            reg = <0x30>;
+            status = "okay";
+            csi-lane-count = <4>;
+            csi-lane-speed = <800>;
+            //continuous-clock;
+            //pdb-gpio = <&gpio TEGRA_GPIO(S, 7) 0>;
+            //pass-gpio = <&gpio TEGRA_GPIO(S, 0) 0>;
+            //lock-gpio = <&gpio TEGRA_GPIO(T, 0) 0>;
+            i2c_address_s0: num-alias-pairs0 {list-cells = <1>;};
+            i2c_address_s1: num-alias-pairs1 {list-cells = <1>;};
+            serializers {
+                status = "okay";
+                num-channels = <2>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+                serializer@0 {
+                    status = "okay";
+                    rx-channel=<0>;
+                    i2c-address=<0x19>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x0>;
+                    i2c-slave = <&i2c_address_s0 0x3b>;
+                    slave-alias = <&i2c_address_s0 0x3b>;
+                };
+                serializer@1 {
+                    status = "okay";
+                    //status = "disabled";
+                    rx-channel=<1>;
+                    i2c-address=<0x20>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x1>;
+                    i2c-slave = <&i2c_address_s1 0x3b>;
+                    slave-alias = <&i2c_address_s1 0x3c>;
+                };
+            };
+        };
+    };
+    i2c@1 {
+            fpdlink1: ds90ub954_b@30 {
+            compatible = "ti,ds90ub954";
+            reg = <0x30>;
+            status = "okay";
+            //status = "disabled";
+            csi-lane-count = <4>;
+            csi-lane-speed = <800>;
+            //continuous-clock;
+            //pdb-gpio = <&gpio TEGRA_GPIO(S, 7) 0>;
+            //pass-gpio = <&gpio TEGRA_GPIO(S, 0) 0>;
+            //lock-gpio = <&gpio TEGRA_GPIO(T, 0) 0>;
+            i2c_address_s2: num-alias-pairs0 {list-cells = <1>;};
+            i2c_address_s3: num-alias-pairs1 {list-cells = <1>;};
+            serializers {
+                status = "okay";
+                num-channels = <2>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+                serializer@0 {
+                    status = "okay";
+                    rx-channel=<0>;
+                    i2c-address=<0x19>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x0>;
+                    i2c-slave = <&i2c_address_s2 0x3b>;
+                    slave-alias = <&i2c_address_s2 0x3b>;
+                };
+                serializer@1 {
+                    status = "okay";
+                    rx-channel=<1>;
+                    i2c-address=<0x20>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x1>;
+                    i2c-slave = <&i2c_address_s3 0x3b>;
+                    slave-alias = <&i2c_address_s3 0x3c>;
+                };
+            };
+        };
+    };
+    i2c@2 {
+            fpdlink2: ds90ub954_c@30 {
+            compatible = "ti,ds90ub954";
+            reg = <0x30>;
+            status = "okay";
+            //status = "disabled";
+            csi-lane-count = <4>;
+            csi-lane-speed = <800>;
+            //continuous-clock;
+            //pdb-gpio = <&gpio TEGRA_GPIO(S, 7) 0>;
+            //pass-gpio = <&gpio TEGRA_GPIO(S, 0) 0>;
+            //lock-gpio = <&gpio TEGRA_GPIO(T, 0) 0>;
+            i2c_address_s4: num-alias-pairs0 {list-cells = <1>;};
+            i2c_address_s5: num-alias-pairs1 {list-cells = <1>;};
+            serializers {
+                status = "okay";
+                num-channels = <2>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+                serializer@0 {
+                    status = "okay";
+                    rx-channel=<0>;
+                    i2c-address=<0x19>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x0>;
+                    i2c-slave = <&i2c_address_s4 0x3b>;
+                    slave-alias = <&i2c_address_s4 0x3b>;
+                };
+                serializer@1 {
+                    status = "okay";
+                    rx-channel=<1>;
+                    i2c-address=<0x20>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x1>;
+                    i2c-slave = <&i2c_address_s5 0x3b>;
+                    slave-alias = <&i2c_address_s5 0x3c>;
+                };
+            };
+        };
+    };
+    i2c@3 {
+            fpdlink3: ds90ub954_d@30 {
+            compatible = "ti,ds90ub954";
+            reg = <0x30>;
+            status = "okay";
+            //status = "disabled";
+            csi-lane-count = <4>;
+            csi-lane-speed = <800>;
+            //continuous-clock;
+            //pdb-gpio = <&gpio TEGRA_GPIO(S, 7) 0>;
+            //pass-gpio = <&gpio TEGRA_GPIO(S, 0) 0>;
+            //lock-gpio = <&gpio TEGRA_GPIO(T, 0) 0>;
+            i2c_address_s6: num-alias-pairs0 {list-cells = <1>;};
+            i2c_address_s7: num-alias-pairs1 {list-cells = <1>;};
+            serializers {
+                status = "okay";
+                num-channels = <2>;
+                #address-cells = <1>;
+                #size-cells = <0>;
+                serializer@0 {
+                    status = "okay";
+                    rx-channel=<0>;
+                    i2c-address=<0x19>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x0>;
+                    i2c-slave = <&i2c_address_s6 0x3b>;
+                    slave-alias = <&i2c_address_s6 0x3b>;
+                };
+                serializer@1 {
+                    status = "okay";
+                    rx-channel=<1>;
+                    i2c-address=<0x20>;
+                    csi-lane-count = <2>;
+                    //continuous-clock;
+                    virtual-channel-map = <0x1>;
+                    i2c-slave = <&i2c_address_s7 0x3b>;
+                    slave-alias = <&i2c_address_s7 0x3c>;
+                };
+            };
+        };
+    };
+};
+};
+};

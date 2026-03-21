@@ -1491,7 +1491,7 @@ static struct attribute *mvcam_attrs[] = {
 	&fps_attribute.attr,
     NULL,
 };
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
 static struct attribute_group mvcam_attr_group = {
     .attrs = mvcam_attrs,
 };
@@ -1500,10 +1500,15 @@ static const struct attribute_group *mvcam_attr_groups[] = {
     &mvcam_attr_group,
     NULL,
 };
+#endif
 
 static struct kobj_type mvcam_ktype = {
     .sysfs_ops = &kobj_sysfs_ops,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,13,0)
     .default_groups = mvcam_attr_groups,
+#else
+    .default_attrs = mvcam_attrs,
+#endif
 };
 
 static int mvcam_probe(struct i2c_client *client,

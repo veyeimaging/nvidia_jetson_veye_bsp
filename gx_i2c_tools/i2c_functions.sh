@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#This script is a part of mv_mipi_i2c.sh
+#This script is a part of gx_mipi_i2c.sh
 
 ######################reglist###################################
 
@@ -130,11 +130,13 @@ Exposure_Delay=0x1010;
 GPIO1_OutSelect=0x1020;
 GPIO1_Reverse=0x1028;
 
-# 全局默认总线（单相机模式用）
 # I2C_DEV
 I2C_DEV=10;
 
 I2C_ADDR=0x3b;
+
+REG_SENSOR=1;
+REG_ARM=0;
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 I2C_VREAD="$SCRIPT_DIR/i2c_vread"
@@ -157,11 +159,16 @@ case "$1" in
         ;;
 esac
 
+i2c_readsensor() 
+{
+    local reg=$1
+    ./i2c_vread $I2C_DEV $I2C_ADDR "$reg" $REG_SENSOR 2>/dev/null | tail -n1
+}
 
 i2c_read() 
 {
     local reg=$1
-    ./i2c_vread $I2C_DEV $I2C_ADDR "$reg" 2>/dev/null | tail -n1
+    ./i2c_vread $I2C_DEV $I2C_ADDR "$reg" $REG_ARM 2>/dev/null | tail -n1
 }
 
 i2c_write() 
@@ -197,6 +204,18 @@ read_model()
             export MODEL_NAME
             printf "Read Model_Name is GX-MIPI-IMX662\n";
             ;;
+        "1636")
+            #IMX664
+            MODEL_NAME="GX-MIPI-IMX664"
+            export MODEL_NAME
+            printf "Read Model_Name is GX-MIPI-IMX664\n";
+            ;;
+		"564")
+            #AR0234
+            MODEL_NAME="GX-MIPI-AR0234"
+            export MODEL_NAME
+            printf "Read Model_Name is GX-MIPI-AR0234\n";
+            ;;
         *)
             printf "model 0x%08X not recognized\n" "$model"
             return 1
@@ -215,6 +234,14 @@ read_sensorname()
     "1634")
         #IMX662
         printf "Read Sensor_Name is IMX662-AAQR\n";
+    ;;
+    "1636")
+        #IMX664
+        printf "Read Sensor_Name is IMX664-AAQR1\n";
+    ;;
+	"564")
+        #ar0234
+        printf "Read Sensor_Name is AR0234-AAQR\n";
     ;;
     *)
      printf " model %8x not recognized\n" $model;
@@ -1486,5 +1513,14 @@ read_drc()
     printf "Read  DRC_strength is %d   \n" "$drc";
 }
 
+#./gx_mipi_i2c.sh -r snsreg <reg_addr> -b <iic_bus>
+read_snsreg() 
+{
+    local reg_addr=$1
+    
+ 
+    local value
+    value=$(i2c_readsensor "$reg_addr")
 
-
+    printf "Read Sensor Reg $reg_addr, val=0x%x \n" "$value";
+}

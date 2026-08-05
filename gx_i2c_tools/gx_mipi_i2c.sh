@@ -50,6 +50,9 @@ I2C_ADDR=0x3b;
 ./gx_mipi_i2c.sh -r videomodewh8
 ./gx_mipi_i2c.sh -r videomodeparam8
 
+./gx_mipi_i2c.sh -r sensortemp
+./gx_mipi_i2c.sh -r isptemp
+
 ./gx_mipi_i2c.sh -w imgacq
 
 ./gx_mipi_i2c.sh -r workmode

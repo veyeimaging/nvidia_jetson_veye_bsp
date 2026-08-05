@@ -27,7 +27,7 @@ CameraModel4=0x0048;
 CameraModel5=0x004C;
 CameraModel6=0x0050;
 CameraModel7=0x0054;
-Temp_K=0x0058;
+SensorTempK=0x0058;
 VideoModeCap=0x005C;
 VideoModeNum=0x0060;
 VidoeMode_WH1=0x0064;
@@ -46,6 +46,7 @@ VidoeMode_WH7=0x0094;
 VideoMode_Param7=0x0098;
 VidoeMode_WH8=0x009C;
 VideoMode_Param8=0x00A0;
+ISP_TempK=0x00A4;
 #0x0400
 Image_Acquisition=0x400;
 Work_Mode=0x404;
@@ -189,7 +190,7 @@ read_manufacturer()
     case $Manufacturer in
     "1447385413")
         #VEYE
-        printf "Read Manufacturer_Name is VEYE\n";
+        printf "Read Manufacturer_Name is VEYE IMAGING\n";
     ;;
     *)
      printf "Manufacturer %8x not recognized\n" $Manufacturer;
@@ -1382,6 +1383,8 @@ read_cameramodel7()
     printf "Read CameraModel7 is 0x%x \n" $cameramodel;
 }
 
+
+
 #read_trgcycle()
 #{
  #   local cycle_min=0;
@@ -1393,24 +1396,39 @@ read_cameramodel7()
  #   printf "Read Trigger_Cycle_Min is %d us,Trigger_Cycle_Max is %d us\n" $cycle_min $cycle_max;
 #}
 
-#read_temp()
-#{
- #   local value=0
- #   local kelvin=0
- #   local celsius=0
+read_sensortemp()
+{
+    local raw_value=$(i2c_read $SensorTempK)
+  
+    if [ -z "$raw_value" ] || [ "$raw_value" -le 0 ]; then
+        printf "Read SensorTemp: Not Supported (Raw=0)\n"
+        return 1
+    fi
 
-    # Read temperature value, unit is 100 times Kelvin
- #   value=$(i2c_read $Temp_K);
+    local result=$(awk "BEGIN {printf \"%.2f %.2f\", $raw_value/100.0, ($raw_value/100.0)-273.15}")
+    
+    local temp_k=$(echo $result | cut -d' ' -f1)
+    local temp_c=$(echo $result | cut -d' ' -f2)
 
-    # Calculate the actual Kelvin temperature
- #   kelvin=$(echo "scale=2; $value / 100" | bc);
+    printf "Read SensorTemp: Raw=%d | Temp_K=%s K | Temp_C=%s °C\n" "$raw_value" "$temp_k" "$temp_c"
+}
+read_isptemp()
+{
+   
+    local raw_value=$(i2c_read $ISP_TempK)
+ 
+    if [ -z "$raw_value" ] || [ "$raw_value" -le 0 ]; then
+        printf "Read ISP_Temp: Not Supported or Read Failed (Raw=0)\n"
+        return 1
+    fi
 
-    # Calculate Celsius temperature
- #   celsius=$(echo "scale=2; $kelvin - 273.15" | bc);
+    local result=$(awk "BEGIN {printf \"%.2f %.2f\", $raw_value/100.0, ($raw_value/100.0)-273.15}")
+  
+    local temp_k=$(echo $result | cut -d' ' -f1)
+    local temp_c=$(echo $result | cut -d' ' -f2)
 
-    # Print temperature values
-#    printf "Read temperature is %.2f K (%.2f \u2103)\n" "$kelvin" "$celsius"
-#}
+    printf "Read ISP_Temp: Raw=%d | Temp_K=%s K | Temp_C=%s °C\n" "$raw_value" "$temp_k" "$temp_c"
+}
 
 read_readmodecap()
 {

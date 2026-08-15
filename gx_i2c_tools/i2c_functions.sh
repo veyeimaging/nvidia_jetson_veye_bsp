@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#This script is a part of mv_mipi_i2c.sh
+#This script is a part of gx_mipi_i2c.sh
 
 ######################reglist###################################
 
@@ -64,7 +64,7 @@ Day_night_mode=0x474;
 IRCUT_dir=0x478;
 Day_night_Trigger_pin_polarity=0x47C;
 IRCUT_Timer=0x480;
-
+ReDriver_Reg=0x48C;
 #0x0800
 Test_Image_Selector=0x800;
 Pixel_Format=0x804;
@@ -84,7 +84,7 @@ MIN_ROI_Width=0x844;
 MIN_ROI_Height=0x848;
 MinFrame_Rate=0x84C;
 FrameRate_Ex=0x850;
-
+MetaData_mode=0x858;
 #0x0c00
 
 Exposure_Mode=0xC04;
@@ -123,6 +123,9 @@ LSC=0xCC8;
 Dehaze_strength=0xCCC;
 Gamma_Selection=0xCD0;
 DRC_strength=0xCD4;
+SCENE_CUSTOM=0xCD8;
+Cur_ISO=0xCDC;
+AE_Weight=0xCE0;
 #0x1000
 Trigger_Delay=0x1000;
 Trigger_Activation=0x1004;
@@ -130,11 +133,13 @@ Exposure_Delay=0x1010;
 GPIO1_OutSelect=0x1020;
 GPIO1_Reverse=0x1028;
 
-# 全局默认总线（单相机模式用）
 # I2C_DEV
 I2C_DEV=10;
 
 I2C_ADDR=0x3b;
+
+REG_SENSOR=1;
+REG_ARM=0;
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 I2C_VREAD="$SCRIPT_DIR/i2c_vread"
@@ -157,11 +162,16 @@ case "$1" in
         ;;
 esac
 
+i2c_readsensor() 
+{
+    local reg=$1
+    ./i2c_vread $I2C_DEV $I2C_ADDR "$reg" $REG_SENSOR 2>/dev/null | tail -n1
+}
 
 i2c_read() 
 {
     local reg=$1
-    ./i2c_vread $I2C_DEV $I2C_ADDR "$reg" 2>/dev/null | tail -n1
+    ./i2c_vread $I2C_DEV $I2C_ADDR "$reg" $REG_ARM 2>/dev/null | tail -n1
 }
 
 i2c_write() 
@@ -197,6 +207,36 @@ read_model()
             export MODEL_NAME
             printf "Read Model_Name is GX-MIPI-IMX662\n";
             ;;
+        "1636")
+            #IMX664
+            MODEL_NAME="GX-MIPI-IMX664"
+            export MODEL_NAME
+            printf "Read Model_Name is GX-MIPI-IMX664\n";
+            ;;
+		"564")
+            #AR0234
+            MODEL_NAME="GX-MIPI-AR0234"
+            export MODEL_NAME
+            printf "Read Model_Name is GX-MIPI-AR0234\n";
+            ;;
+        "34402")
+            #IMX8662
+            MODEL_NAME="GXC-MIPI-IMX662"
+            export MODEL_NAME
+            printf "Read Model_Name is GXC-MIPI-IMX662\n";
+            ;;
+        "34404")
+            #IMX8664
+            MODEL_NAME="GXC-MIPI-IMX664"
+            export MODEL_NAME
+            printf "Read Model_Name is GXC-MIPI-IMX664\n";
+            ;;
+        "33332")
+            #IMX8234
+            MODEL_NAME="GXC-MIPI-AR0234"
+            export MODEL_NAME
+            printf "Read Model_Name is GXC-MIPI-AR0234\n";
+            ;;
         *)
             printf "model 0x%08X not recognized\n" "$model"
             return 1
@@ -215,6 +255,14 @@ read_sensorname()
     "1634")
         #IMX662
         printf "Read Sensor_Name is IMX662-AAQR\n";
+    ;;
+    "1636")
+        #IMX664
+        printf "Read Sensor_Name is IMX664-AAQR1\n";
+    ;;
+	"33332")
+        #ar8234
+        printf "Read Sensor_Name is AR0234CSSC\n";
     ;;
     *)
      printf " model %8x not recognized\n" $model;
@@ -832,6 +880,19 @@ write_fps()
 	i2c_write $FrameRate_Ex "$reg_value"
     printf "Write FrameRate_Ex is %.04f fps \n" "$fps";
 }
+read_metadata_mode()
+{
+    local value=0;
+    typeset -i value;
+    value=$(i2c_read $MetaData_mode);
+    printf "Read MetaData_mode is %d \n" $value;
+}
+write_metadata_mode()
+{
+    local metadata_mode=$1;
+    i2c_write $MetaData_mode "$metadata_mode"
+    printf "Write MetaData_mode is %d \n" "$metadata_mode";
+}
 
 read_expmode()
 {
@@ -1332,24 +1393,24 @@ read_cameramodel7()
  #   printf "Read Trigger_Cycle_Min is %d us,Trigger_Cycle_Max is %d us\n" $cycle_min $cycle_max;
 #}
 
-read_temp()
-{
-    local value=0
-    local kelvin=0
-    local celsius=0
+#read_temp()
+#{
+ #   local value=0
+ #   local kelvin=0
+ #   local celsius=0
 
     # Read temperature value, unit is 100 times Kelvin
-    value=$(i2c_read $Temp_K);
+ #   value=$(i2c_read $Temp_K);
 
     # Calculate the actual Kelvin temperature
-    kelvin=$(echo "scale=2; $value / 100" | bc);
+ #   kelvin=$(echo "scale=2; $value / 100" | bc);
 
     # Calculate Celsius temperature
-    celsius=$(echo "scale=2; $kelvin - 273.15" | bc);
+ #   celsius=$(echo "scale=2; $kelvin - 273.15" | bc);
 
     # Print temperature values
-    printf "Read temperature is %.2f K (%.2f \u2103)\n" "$kelvin" "$celsius"
-}
+#    printf "Read temperature is %.2f K (%.2f \u2103)\n" "$kelvin" "$celsius"
+#}
 
 read_readmodecap()
 {
@@ -1486,5 +1547,63 @@ read_drc()
     printf "Read  DRC_strength is %d   \n" "$drc";
 }
 
+write_scene_custom()
+{
+    local scene=$1;
+    i2c_write $SCENE_CUSTOM "$scene"
+    printf "Write  scene is %d   \n" "$scene";
+}
+
+read_scene_custom()
+{
+    local scene=0;
+    scene=$(i2c_read $SCENE_CUSTOM);
+    printf "Read  scene is %d   \n" "$scene";
+}
+
+read_cur_iso()
+{
+    local iso=0;
+    iso=$(i2c_read $Cur_ISO);
+    printf "Read Cur_ISO is %d \n" $iso;
+}
+
+read_aeweight()
+{
+    local aeweight=0;
+    aeweight=$(i2c_read $AE_Weight);
+    printf "Read AE_Weight is %d \n" $aeweight; 
+}
+
+write_aeweight()
+{
+    local aeweight=$1;
+    i2c_write $AE_Weight "$aeweight"
+    printf "Write  AE_Weight is %d \n" "$aeweight"; 
+}
+
+read_redriver()
+{
+    local redriver=0;
+    redriver=$(i2c_read $ReDriver_Reg);
+    printf "Read ReDriver_Reg is 0x%x \n" $redriver;
+}
+write_redriver()
+{ 
+    local redriver=$1;
+    i2c_write $ReDriver_Reg "$redriver"
+    printf "Write ReDriver_Reg is 0x%x \n" $redriver;
+}
 
 
+#./gx_mipi_i2c.sh -r snsreg <reg_addr> -b <iic_bus>
+read_snsreg() 
+{
+    local reg_addr=$1
+    
+ 
+    local value
+    value=$(i2c_readsensor "$reg_addr")
+
+    printf "Read Sensor Reg $reg_addr, val=0x%x \n" "$value";
+}

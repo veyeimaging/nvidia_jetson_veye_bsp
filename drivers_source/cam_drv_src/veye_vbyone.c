@@ -660,9 +660,12 @@ ERR:
 /*------------------------------------------------------------------------------
  * PROBE FUNCTION
  *----------------------------------------------------------------------------*/
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static int thcv242a_probe(struct i2c_client *client)
+#else
 static int thcv242a_probe(struct i2c_client *client,
 			   const struct i2c_device_id *id)
+#endif
 {
 	struct thcv242a_priv *priv;
 	struct device *dev = &client->dev;
@@ -736,8 +739,11 @@ err_parse_dt:
 	devm_kfree(dev, priv);
 	return err;
 }
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static void thcv242a_remove(struct i2c_client *client)
+#else
 static int thcv242a_remove(struct i2c_client *client)
+#endif
 {
 	struct thcv242a_priv *priv = dev_get_drvdata(&client->dev);
 
@@ -746,7 +752,11 @@ static int thcv242a_remove(struct i2c_client *client)
 	thcv242a_free_gpio(priv);
 
 	dev_info(&client->dev, "thcv242a removed\n");
-    return 0;
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+	return;
+	#else
+	return 0;
+	#endif
 }
 
 static const struct of_device_id veye_vbyone_dt_ids[] = {
@@ -772,6 +782,6 @@ MODULE_DEVICE_TABLE(of, veye_vbyone_dt_ids);
 MODULE_DEVICE_TABLE(i2c, veye_vbyone_id);
 module_i2c_driver(thcv242a_driver);
 
-MODULE_AUTHOR("Xu Mengmeng <xumm@csoneplus.com>");
+MODULE_AUTHOR("xumm <xumm@veye.com>");
 MODULE_DESCRIPTION("V-by-ONE driver from VEYE IMAGING");
 MODULE_LICENSE("GPL v2");

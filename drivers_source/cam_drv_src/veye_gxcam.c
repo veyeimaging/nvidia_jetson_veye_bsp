@@ -634,10 +634,10 @@ static void gxcam_v4l2_ctrl_init(struct gxcam *gxcam)
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
-int gxcam_g_mbus_config(struct v4l2_subdev *sd,
+static int gxcam_g_mbus_config(struct v4l2_subdev *sd,
 				struct v4l2_mbus_config *cfg)
 #else
-int gxcam_get_mbus_config(struct v4l2_subdev *sd,
+static int gxcam_get_mbus_config(struct v4l2_subdev *sd,
 				unsigned int pad,
 				struct v4l2_mbus_config *cfg)
 #endif
@@ -652,12 +652,19 @@ int gxcam_get_mbus_config(struct v4l2_subdev *sd,
 	 */
 	cfg->type = V4L2_MBUS_CSI2_DPHY;
 #endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+	//cfg->bus.mipi_csi2.flags = V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK;
+	cfg->bus.mipi_csi2.num_data_lanes = gxcam->lane_num;
+#else
 	cfg->flags = V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK;
     if(gxcam->lane_num == 4){
         cfg->flags |= V4L2_MBUS_CSI2_4_LANE; /* XXX wierd */
     }else{
         cfg->flags |= V4L2_MBUS_CSI2_2_LANE; /* XXX wierd */
     }
+#endif
+
     debug_printk("gxcam_get_mbus_config lane num %d\n",gxcam->lane_num);
 	return 0;
 }
@@ -779,10 +786,10 @@ __gxcam_get_pad_crop(struct gxcam *gxcam,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
         /* older kernels use v4l2_subdev_get_try_crop with cfg */
         return v4l2_subdev_get_try_crop(gxcam->subdev, cfg, pad);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
+		return v4l2_subdev_get_try_crop(gxcam->subdev, sd_state,pad);
 #else
-        /* newer kernels use subdev state helper */
-        return v4l2_subdev_get_try_crop(gxcam->subdev, sd_state,
-									   pad);
+		return v4l2_subdev_state_get_crop(sd_state,pad);
 #endif
     case V4L2_SUBDEV_FORMAT_ACTIVE:
         ret = gxcam_read_sel(gxcam, &gxcam->crop);
@@ -926,7 +933,7 @@ static int mvdatatype_to_mbus_code(int data_type)
 	return -1;
 }
 
-int get_fmt_index(struct gxcam *gxcam,u32 datatype)
+static int get_fmt_index(struct gxcam *gxcam,u32 datatype)
 {
     int i = 0;
     for(;i < gxcam->num_supported_formats;++i)
@@ -1175,7 +1182,7 @@ static int gxcam_power_off(struct gxcam *gxcam)
 	return 0;
 }
 
-int gxcam_s_power(struct v4l2_subdev *sd, int on)
+static int gxcam_s_power(struct v4l2_subdev *sd, int on)
 {
     struct gxcam *gxcam = to_gxcam(sd);
 	//struct camera_common_data *s_data = gxcam->s_data;
@@ -1234,10 +1241,12 @@ static int gxcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	struct v4l2_mbus_framefmt *try_fmt =
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 		v4l2_subdev_get_try_format(sd, fh->pad, IMAGE_PAD);
-    #else
+    #elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
 		v4l2_subdev_get_try_format(sd, fh->state, IMAGE_PAD);
+	#else
+		v4l2_subdev_state_get_format(fh->state, IMAGE_PAD);
 	#endif
-
+	
     struct v4l2_rect *try_crop;
 	/* Initialize try_fmt */
 	try_fmt->width = gxcam->imgmode_list[gxcam->current_imgmode_idx].width;
@@ -1254,8 +1263,10 @@ static int gxcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
     /* Initialize try_crop rectangle. */
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 		try_crop = v4l2_subdev_get_try_crop(sd, fh->pad, 0);
-	#else
+	#elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
 		try_crop = v4l2_subdev_get_try_crop(sd, fh->state, 0);
+	#else
+		try_crop = v4l2_subdev_state_get_crop(fh->state, 0);
 	#endif
 	try_crop->top = 0;
 	try_crop->left = 0;
@@ -1508,9 +1519,12 @@ static struct kobj_type gxcam_ktype = {
     .sysfs_ops = &kobj_sysfs_ops,
     .default_groups = gxcam_attr_groups,
 };
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static int gxcam_probe(struct i2c_client *client)
+#else
 static int gxcam_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+#endif
 {
 	struct device *dev = &client->dev;
 	struct gxcam *gxcam;
@@ -1632,8 +1646,11 @@ error_power_off:
 
 	return ret;
 }
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static void gxcam_remove(struct i2c_client *client)
+#else
 static int gxcam_remove(struct i2c_client *client)
+#endif
 {
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
 	struct gxcam *gxcam = to_gxcam(sd);
@@ -1645,7 +1662,11 @@ static int gxcam_remove(struct i2c_client *client)
     #if defined(CONFIG_MEDIA_CONTROLLER)
 	media_entity_cleanup(&sd->entity);
     #endif
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+	return;
+	#else
 	return 0;
+	#endif
 }
 
 static struct i2c_device_id veyegx_cam_dt_ids[] = {

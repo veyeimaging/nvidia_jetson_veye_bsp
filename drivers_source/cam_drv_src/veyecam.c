@@ -882,9 +882,12 @@ static int veyecam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 static const struct v4l2_subdev_internal_ops veyecam_subdev_internal_ops = {
 	.open = veyecam_open,
 };
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static int veyecam_probe(struct i2c_client *client)
+#else
 static int veyecam_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+#endif
 {
 	struct device *dev = &client->dev;
 	struct tegracam_device *tc_dev;
@@ -941,9 +944,11 @@ static int veyecam_probe(struct i2c_client *client,
 
 	return 0;
 }
-
-static int
-veyecam_remove(struct i2c_client *client)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static void veyecam_remove(struct i2c_client *client)
+#else
+static int veyecam_remove(struct i2c_client *client)
+#endif
 {
 	struct camera_common_data *s_data = to_camera_common_data(&client->dev);
 	struct veyecam *priv = (struct veyecam *)s_data->priv;
@@ -951,7 +956,11 @@ veyecam_remove(struct i2c_client *client)
 	tegracam_v4l2subdev_unregister(priv->tc_dev);
 	tegracam_device_unregister(priv->tc_dev);
     VEYE_TRACE
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+	return;
+	#else
 	return 0;
+	#endif
 }
 
 static const struct i2c_device_id veyecam_id[] = {
@@ -974,6 +983,6 @@ static struct i2c_driver veyecam_i2c_driver = {
 
 module_i2c_driver(veyecam_i2c_driver);
 
-MODULE_DESCRIPTION("Media Controller driver for CSONEPLUS VEYECAM");
-MODULE_AUTHOR("xumm@csoneplus.com  Tianjin Zhonganyijia Tech Co.,Ltd.");
+MODULE_AUTHOR("xumm <www.veye.cc>");
+MODULE_DESCRIPTION("VEYE GX series mipi camera v4l2 driver");
 MODULE_LICENSE("GPL v2");

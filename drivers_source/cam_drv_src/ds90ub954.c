@@ -1611,9 +1611,12 @@ next:
 /*------------------------------------------------------------------------------
  * PROBE FUNCTION
  *----------------------------------------------------------------------------*/
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static int ds90ub954_probe(struct i2c_client *client)
+#else
 static int ds90ub954_probe(struct i2c_client *client,
 			   const struct i2c_device_id *id)
+#endif
 {
 	struct ds90ub954_priv *priv;
 	struct device *dev = &client->dev;
@@ -1707,8 +1710,11 @@ err_parse_dt:
 	devm_kfree(dev, priv);
 	return err;
 }
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static void ds90ub954_remove(struct i2c_client *client)
+#else
 static int ds90ub954_remove(struct i2c_client *client)
+#endif
 {
 	struct ds90ub954_priv *priv = dev_get_drvdata(&client->dev);
 
@@ -1717,7 +1723,11 @@ static int ds90ub954_remove(struct i2c_client *client)
 	ds90ub954_free_gpio(priv);
 
 	dev_info(&client->dev, "ds90ub954 removed\n");
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+	return;
+	#else
 	return 0;
+	#endif
 }
 
 static const struct i2c_device_id ds90ub954_id[] = {

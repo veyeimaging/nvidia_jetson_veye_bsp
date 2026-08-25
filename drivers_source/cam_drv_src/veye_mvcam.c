@@ -550,10 +550,10 @@ static void mvcam_v4l2_ctrl_init(struct mvcam *mvcam)
 
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
-int mvcam_g_mbus_config(struct v4l2_subdev *sd,
+static int mvcam_g_mbus_config(struct v4l2_subdev *sd,
 				struct v4l2_mbus_config *cfg)
 #else
-int mvcam_get_mbus_config(struct v4l2_subdev *sd,
+static int mvcam_get_mbus_config(struct v4l2_subdev *sd,
 				unsigned int pad,
 				struct v4l2_mbus_config *cfg)
 #endif
@@ -568,15 +568,22 @@ int mvcam_get_mbus_config(struct v4l2_subdev *sd,
 	 */
 	cfg->type = V4L2_MBUS_CSI2_DPHY;
 #endif
+	
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+	//cfg->bus.mipi_csi2.flags = V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK;
+	cfg->bus.mipi_csi2.num_data_lanes = mvcam->lane_num;
+#else
 	cfg->flags = V4L2_MBUS_CSI2_NONCONTINUOUS_CLOCK;
     if(mvcam->lane_num == 4){
         cfg->flags |= V4L2_MBUS_CSI2_4_LANE; /* XXX wierd */
     }else{
         cfg->flags |= V4L2_MBUS_CSI2_2_LANE; /* XXX wierd */
     }
+#endif
     debug_printk("mvcam_get_mbus_config lane num %d\n",mvcam->lane_num);
 	return 0;
 }
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 static int mvcam_csi2_enum_mbus_code(
 			struct v4l2_subdev *sd,
@@ -865,7 +872,7 @@ static int mvdatatype_to_mbus_code(int data_type)
 	return -1;
 }
 
-int get_fmt_index(struct mvcam *mvcam,u32 datatype)
+static int get_fmt_index(struct mvcam *mvcam,u32 datatype)
 {
     int i = 0;
     for(;i < mvcam->num_supported_formats;++i)
@@ -1064,7 +1071,7 @@ static int mvcam_power_off(struct mvcam *mvcam)
 	return 0;
 }
 
-int mvcam_s_power(struct v4l2_subdev *sd, int on)
+static int mvcam_s_power(struct v4l2_subdev *sd, int on)
 {
     struct mvcam *mvcam = to_mvcam(sd);
 	//struct camera_common_data *s_data = mvcam->s_data;
@@ -1123,8 +1130,10 @@ static int mvcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	struct v4l2_mbus_framefmt *try_fmt =
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 		v4l2_subdev_get_try_format(sd, fh->pad, IMAGE_PAD);
-    #else
+    #elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
 		v4l2_subdev_get_try_format(sd, fh->state, IMAGE_PAD);
+	#else 
+		v4l2_subdev_state_get_format(fh->state, IMAGE_PAD);
 	#endif
 //	struct v4l2_mbus_framefmt *try_fmt_meta =
 //		v4l2_subdev_get_try_format(sd, fh->pad, METADATA_PAD);
@@ -1144,8 +1153,10 @@ static int mvcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
     /* Initialize try_crop rectangle. */
 	#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
 		try_crop = v4l2_subdev_get_try_crop(sd, fh->pad, 0);
-	#else
+	#elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0)
 		try_crop = v4l2_subdev_get_try_crop(sd, fh->state, 0);
+	#else
+		try_crop = v4l2_subdev_state_get_crop(fh->state, 0);
 	#endif
 	try_crop->top = 0;
 	try_crop->left = 0;
@@ -1510,9 +1521,12 @@ static struct kobj_type mvcam_ktype = {
     .default_attrs = mvcam_attrs,
 #endif
 };
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static int mvcam_probe(struct i2c_client *client)
+#else
 static int mvcam_probe(struct i2c_client *client,
 			const struct i2c_device_id *id)
+#endif
 {
 	struct device *dev = &client->dev;
 	struct mvcam *mvcam;
@@ -1635,8 +1649,11 @@ error_power_off:
 
 	return ret;
 }
-
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+static void mvcam_remove(struct i2c_client *client)
+#else
 static int mvcam_remove(struct i2c_client *client)
+#endif
 {
 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
 	struct mvcam *mvcam = to_mvcam(sd);
@@ -1648,7 +1665,12 @@ static int mvcam_remove(struct i2c_client *client)
     #if defined(CONFIG_MEDIA_CONTROLLER)
 	media_entity_cleanup(&sd->entity);
     #endif
+	
+	#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0)
+	return;
+	#else
 	return 0;
+	#endif
 }
 
 static struct i2c_device_id veyemv_cam_dt_ids[] = {

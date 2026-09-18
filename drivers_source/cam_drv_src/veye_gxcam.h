@@ -169,6 +169,13 @@
 #define GPIO2_OutStatus 0x103C
 /* register ends*/
 
+/* VideoModeCap bits */
+#define GXCAM_MODE_ROI          0x01  /* Bit0: ROI mode */
+#define GXCAM_MODE_VIDEOMODE    0x02  /* Bit1: Preset VideoMode mode */
+
+/* ROI alignment */
+#define GXCAM_ROI_W_ALIGN  8U
+#define GXCAM_ROI_H_ALIGN  4U
 
 /* user define v4l2 controls*/
 #define V4L2_CID_VEYE_GX_BASE					(V4L2_CID_USER_BASE + 0x1100)
@@ -177,8 +184,8 @@
 #define V4L2_CID_VEYE_GX_SOFT_TRGONE			(V4L2_CID_VEYE_GX_BASE + 3)
 #define V4L2_CID_VEYE_GX_SYNC_ROLE				(V4L2_CID_VEYE_GX_BASE + 4)
 #define V4L2_CID_VEYE_GX_FRAME_RATE				(V4L2_CID_VEYE_GX_BASE + 5)
-//#define V4L2_CID_VEYE_GX_ROI_X		        	(V4L2_CID_VEYE_GX_BASE + 5)
-//#define V4L2_CID_VEYE_GX_ROI_Y  				(V4L2_CID_VEYE_GX_BASE + 6)
+#define V4L2_CID_VEYE_GX_ROI_X			        	(V4L2_CID_VEYE_GX_BASE + 6)
+#define V4L2_CID_VEYE_GX_ROI_Y					(V4L2_CID_VEYE_GX_BASE + 7)
 
 
 enum enum_WorkMode{

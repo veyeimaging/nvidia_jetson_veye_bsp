@@ -28,6 +28,9 @@
 //#include <media/mc_common.h>
 
 /*
+	v1.02.00:
+	Add dual mode support: read VideoModeCap register to determine
+	whether the camera supports ROI mode or preset VideoMode mode.
 	v1.0.2:
 	rename trigger_mode-->work_mode.
 	v1.0.1:
@@ -36,7 +39,7 @@
 	first release version
 */
 
-#define DRIVER_VERSION			KERNEL_VERSION(1, 0x00, 0x02) 
+#define DRIVER_VERSION			KERNEL_VERSION(1, 0x02, 0x00) 
 #include "veye_gxcam.h"
 
 //reserved
@@ -126,6 +129,8 @@ enum enum_v4l2_ctrls_index{
 	CID_VEYE_GX_SOFT_TRGONE,
 	CID_VEYE_GX_SYNC_ROLE,
 	CID_VEYE_GX_FRAME_RATE,
+	CID_VEYE_GX_ROI_X,
+	CID_VEYE_GX_ROI_Y,
 	GXCAM_MAX_CTRLS,
 };
 struct gxcam {
@@ -149,6 +154,7 @@ struct gxcam {
     u32 current_width;
 	u32 current_height;
     u32 cur_fps;
+	u32 max_fps;
 	//image mode
 	struct v4l2_rect crop;
     u32 h_flip;
@@ -159,8 +165,20 @@ struct gxcam {
     u32 mipi_datarate;
     u8 camera_model[32];
 	u64 pixelrate;
+
+	/* VideoModeCap */
+	u32 video_mode_cap;
+
+	/* ROI mode fields */
+	u32 max_width;
+	u32 max_height;
+	u32 min_width;
+	u32 min_height;
+	struct v4l2_rect roi;
+
 	struct v4l2_ctrl_handler ctrl_handler;
     struct v4l2_ctrl *ctrls[GXCAM_MAX_CTRLS];
+	struct v4l2_ctrl *frmrate;
 	/* V4L2 Controls */
  //   struct v4l2_ctrl *frmrate;
 
@@ -409,6 +427,56 @@ static int gxcam_get_wh(struct gxcam *gxcam)
 	return 0;
 }
 
+static inline int gxcam_roi_mode(struct gxcam *gxcam)
+{
+	return (gxcam->video_mode_cap & GXCAM_MODE_ROI) ? 1 : 0;
+}
+
+static int gxcam_setroi(struct gxcam *gxcam)
+{
+	u32 fps_reg;
+	struct i2c_client *client = gxcam->client;
+	v4l2_dbg(1, debug, gxcam->client, "%s:set roi(%d,%d,%d,%d)\n",
+			 __func__, gxcam->roi.left, gxcam->roi.top,
+			 gxcam->roi.width, gxcam->roi.height);
+	gxcam_write(client, ROI_Offset_X, gxcam->roi.left);
+	msleep(1);
+	gxcam_write(client, ROI_Offset_Y, gxcam->roi.top);
+	msleep(1);
+	gxcam_write(client, ROI_Width, gxcam->roi.width);
+	msleep(1);
+	gxcam_write(client, ROI_Height, gxcam->roi.height);
+	msleep(20);
+	/* Update current width/height */
+	gxcam->current_width = gxcam->roi.width;
+	gxcam->current_height = gxcam->roi.height;
+	/* get sensor max framerate after ROI change */
+	gxcam_read(client, MaxFrame_Rate, &fps_reg);
+	gxcam->max_fps = fps_reg / 10000;
+	if (gxcam->frmrate)
+		v4l2_ctrl_modify_range(gxcam->frmrate, 1, gxcam->max_fps, 1, gxcam->cur_fps);
+	return 0;
+}
+
+static int gxcam_enum_roi_cap(struct gxcam *gxcam)
+{
+	struct i2c_client *client = gxcam->client;
+	int ret = 0;
+	ret |= gxcam_read_d(client, Sensor_Width, &gxcam->max_width);
+	ret |= gxcam_read_d(client, Sensor_Height, &gxcam->max_height);
+	ret |= gxcam_read_d(client, MIN_ROI_Width, &gxcam->min_width);
+	ret |= gxcam_read_d(client, MIN_ROI_Height, &gxcam->min_height);
+	if (ret) {
+		dev_err(&client->dev, "%s: failed to read ROI capability\n", __func__);
+		return -ENODEV;
+	}
+	v4l2_dbg(1, debug, client,
+		 "%s: max(%d,%d) min(%d,%d)\n",
+		 __func__, gxcam->max_width, gxcam->max_height,
+		 gxcam->min_width, gxcam->min_height);
+	return 0;
+}
+
 
 
 static int gxcam_g_volatile_ctrl(struct v4l2_ctrl *ctrl)
@@ -474,6 +542,18 @@ static int gxcam_s_ctrl(struct v4l2_ctrl *ctrl)
 		break;
 	case V4L2_CID_VEYE_GX_SYNC_ROLE:
 		ret = gxcam_write(client, Sync_Role,ctrl->val);
+		break;
+	case V4L2_CID_VEYE_GX_ROI_X:
+		gxcam->roi.left = rounddown(ctrl->val, GXCAM_ROI_W_ALIGN);
+		v4l2_dbg(1, debug, gxcam->client, "set roi_x %d round to %d.\n",
+			 ctrl->val, gxcam->roi.left);
+		ret = 0;
+		break;
+	case V4L2_CID_VEYE_GX_ROI_Y:
+		gxcam->roi.top = rounddown(ctrl->val, GXCAM_ROI_H_ALIGN);
+		v4l2_dbg(1, debug, gxcam->client, "set roi_y %d round to %d.\n",
+			 ctrl->val, gxcam->roi.top);
+		ret = 0;
 		break;
 	default:
 		dev_info(&client->dev,
@@ -573,6 +653,28 @@ static struct v4l2_ctrl_config gxcam_v4l2_ctrls[] = {
 		.step = 1,
 		.flags = V4L2_CTRL_FLAG_VOLATILE|V4L2_CTRL_FLAG_EXECUTE_ON_WRITE,
 	},
+	{
+		.ops = &gxcam_ctrl_ops,
+		.id = V4L2_CID_VEYE_GX_ROI_X,
+		.name = "roi_x",
+		.type = V4L2_CTRL_TYPE_INTEGER,
+		.def = 0,
+		.min = 0,
+		.max = 0, /* to read from camera */
+		.step = GXCAM_ROI_W_ALIGN,
+		.flags = 0,
+	},
+	{
+		.ops = &gxcam_ctrl_ops,
+		.id = V4L2_CID_VEYE_GX_ROI_Y,
+		.name = "roi_y",
+		.type = V4L2_CTRL_TYPE_INTEGER,
+		.def = 0,
+		.min = 0,
+		.max = 0, /* to read from camera */
+		.step = GXCAM_ROI_H_ALIGN,
+		.flags = 0,
+	},
 
 };
 //grab some ctrls while streaming
@@ -586,6 +688,12 @@ static void gxcam_v4l2_ctrl_grab(struct gxcam *gxcam,bool grabbed)
         v4l2_ctrl_grab(gxcam->ctrls[CID_VEYE_GX_FRAME_RATE], grabbed);
     if (gxcam->ctrls[CID_VEYE_GX_SYNC_ROLE])
         v4l2_ctrl_grab(gxcam->ctrls[CID_VEYE_GX_SYNC_ROLE], grabbed);
+    if (gxcam_roi_mode(gxcam)) {
+        if (gxcam->ctrls[CID_VEYE_GX_ROI_X])
+            v4l2_ctrl_grab(gxcam->ctrls[CID_VEYE_GX_ROI_X], grabbed);
+        if (gxcam->ctrls[CID_VEYE_GX_ROI_Y])
+            v4l2_ctrl_grab(gxcam->ctrls[CID_VEYE_GX_ROI_Y], grabbed);
+    }
 
 }
 
@@ -620,6 +728,18 @@ static void gxcam_v4l2_ctrl_init(struct gxcam *gxcam)
                 v4l2_dbg(1, debug, gxcam->client, "%s:default framerate %lld , max fps %lld \n", __func__, \
                     gxcam_v4l2_ctrls[i].def,gxcam_v4l2_ctrls[i].max);
             break;
+			case V4L2_CID_VEYE_GX_ROI_X:
+				if (gxcam_roi_mode(gxcam)) {
+					gxcam_v4l2_ctrls[i].max = gxcam->max_width - gxcam->min_width;
+					gxcam_v4l2_ctrls[i].def = gxcam->roi.left;
+				}
+			break;
+			case V4L2_CID_VEYE_GX_ROI_Y:
+				if (gxcam_roi_mode(gxcam)) {
+					gxcam_v4l2_ctrls[i].max = gxcam->max_height - gxcam->min_height;
+					gxcam_v4l2_ctrls[i].def = gxcam->roi.top;
+				}
+			break;
 			case V4L2_CID_PIXEL_RATE:
 				if(gxcam->pixelrate != 0){
 					gxcam_v4l2_ctrls[i].min = gxcam->pixelrate;
@@ -707,6 +827,17 @@ static int gxcam_csi2_enum_framesizes(
 	struct gxcam *gxcam = to_gxcam(sd);
     VEYE_TRACE
 
+	if (gxcam_roi_mode(gxcam)) {
+		/* ROI mode: only current ROI size is available */
+		if (fse->index != 0)
+			return -EINVAL;
+		if (fse->code != gxcam->supported_formats[gxcam->current_format_idx].mbus_code)
+			return -EINVAL;
+		fse->min_width = fse->max_width = gxcam->roi.width;
+		fse->min_height = fse->max_height = gxcam->roi.height;
+		return 0;
+	}
+
 	if (fse->index >= gxcam->num_imgmodes)
 		return -EINVAL;
     if (fse->code != gxcam->supported_formats[gxcam->current_format_idx].mbus_code)
@@ -735,9 +866,14 @@ static int gxcam_csi2_get_fmt(struct v4l2_subdev *sd,
 	VEYE_TRACE
 
 	current_format = &gxcam->supported_formats[gxcam->current_format_idx];
-	current_format = &gxcam->supported_formats[gxcam->current_format_idx];
-	format->format.width = gxcam->imgmode_list[gxcam->current_imgmode_idx].width;
-	format->format.height = gxcam->imgmode_list[gxcam->current_imgmode_idx].height;
+
+	if (gxcam_roi_mode(gxcam)) {
+		format->format.width = gxcam->roi.width;
+		format->format.height = gxcam->roi.height;
+	} else {
+		format->format.width = gxcam->imgmode_list[gxcam->current_imgmode_idx].width;
+		format->format.height = gxcam->imgmode_list[gxcam->current_imgmode_idx].height;
+	}
 
     
 	format->format.code = current_format->mbus_code;
@@ -816,14 +952,17 @@ static int gxcam_get_selection(struct v4l2_subdev *sd,
     VEYE_TRACE
 	switch (sel->target) {
 	case V4L2_SEL_TGT_CROP: {
-		#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
-		sel->r  = *__gxcam_get_pad_crop(gxcam, cfg, sel->pad,
+		if (gxcam_roi_mode(gxcam)) {
+			sel->r = gxcam->roi;
+		} else {
+			#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
+			sel->r  = *__gxcam_get_pad_crop(gxcam, cfg, sel->pad,
 								sel->which);
-		#else
-    	sel->r = *__gxcam_get_pad_crop(gxcam, sd_state, sel->pad,
+			#else
+    		sel->r = *__gxcam_get_pad_crop(gxcam, sd_state, sel->pad,
     						sel->which);
-		#endif
-
+			#endif
+		}
     		break;
 	    }        
         //active area
@@ -832,8 +971,13 @@ static int gxcam_get_selection(struct v4l2_subdev *sd,
         case V4L2_SEL_TGT_CROP_BOUNDS:
             sel->r.top = 0;
             sel->r.left = 0;
-            sel->r.width = gxcam->current_width;
-            sel->r.height = gxcam->current_height;
+			if (gxcam_roi_mode(gxcam)) {
+				sel->r.width = gxcam->max_width;
+				sel->r.height = gxcam->max_height;
+			} else {
+				sel->r.width = gxcam->current_width;
+				sel->r.height = gxcam->current_height;
+			}
 		break;
         default:
 		return -EINVAL;
@@ -841,6 +985,40 @@ static int gxcam_get_selection(struct v4l2_subdev *sd,
     sel->flags = V4L2_SEL_FLAG_LE;
     v4l2_dbg(1, debug, sd, "%s: target %d\n", __func__,V4L2_SEL_TGT_CROP);
     return 0;
+}
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
+static int gxcam_set_selection(struct v4l2_subdev *sd,
+		struct v4l2_subdev_pad_config *cfg,
+		struct v4l2_subdev_selection *sel)
+#else
+static int gxcam_set_selection(struct v4l2_subdev *sd,
+		struct v4l2_subdev_state *sd_state,
+		struct v4l2_subdev_selection *sel)
+#endif
+{
+	struct gxcam *gxcam = to_gxcam(sd);
+
+	if (!gxcam_roi_mode(gxcam))
+		return -EINVAL;
+
+	switch (sel->target) {
+	case V4L2_SEL_TGT_CROP:
+		gxcam->roi.left = clamp(rounddown(sel->r.left, GXCAM_ROI_W_ALIGN),
+					0U, gxcam->max_width - gxcam->min_width);
+		gxcam->roi.top = clamp(rounddown(sel->r.top, GXCAM_ROI_H_ALIGN),
+					0U, gxcam->max_height - gxcam->min_height);
+		gxcam->roi.width = clamp(rounddown(sel->r.width, GXCAM_ROI_W_ALIGN),
+					gxcam->min_width, gxcam->max_width);
+		gxcam->roi.height = clamp(rounddown(sel->r.height, GXCAM_ROI_H_ALIGN),
+					gxcam->min_height, gxcam->max_height);
+		gxcam_setroi(gxcam);
+		break;
+	default:
+		return -EINVAL;
+	}
+	v4l2_dbg(1, debug, sd, "%s: target %d\n", __func__, V4L2_SEL_TGT_CROP);
+	return 0;
 }
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
@@ -877,18 +1055,31 @@ static int gxcam_csi2_set_fmt(struct v4l2_subdev *sd,
 	//print
 	v4l2_dbg(1, debug, sd, "%s: set Pixel_Format = (0x%X)\n",
 				__func__, new_format->data_type);
-	//set image mode according to width and height
-	for (i = 0; i < gxcam->num_imgmodes; i++) {
-		if (format->format.width ==
-			gxcam->imgmode_list[i].width &&
-			format->format.height ==
-			gxcam->imgmode_list[i].height) {
-			gxcam->current_imgmode_idx = i;
-			//write registers to set image mode
-			gxcam_write(gxcam->client, Video_Mode,i);
-			break;
+
+	if (gxcam_roi_mode(gxcam)) {
+		/* ROI mode: set resolution via ROI registers */
+		struct v4l2_subdev_selection sel;
+		gxcam->roi.width = clamp(rounddown(format->format.width, GXCAM_ROI_W_ALIGN),
+					gxcam->min_width, gxcam->max_width);
+		gxcam->roi.height = clamp(rounddown(format->format.height, GXCAM_ROI_H_ALIGN),
+					gxcam->min_height, gxcam->max_height);
+		sel.target = V4L2_SEL_TGT_CROP;
+		sel.r = gxcam->roi;
+		gxcam_set_selection(sd, NULL, &sel);
+	} else {
+		/* VideoMode mode: select preset mode */
+		for (i = 0; i < gxcam->num_imgmodes; i++) {
+			if (format->format.width ==
+				gxcam->imgmode_list[i].width &&
+				format->format.height ==
+				gxcam->imgmode_list[i].height) {
+				gxcam->current_imgmode_idx = i;
+				gxcam_write(gxcam->client, Video_Mode, i);
+				break;
+			}
 		}
 	}
+
 	//set roi
 	format->format.code = new_format->mbus_code;
 	format->format.field = V4L2_FIELD_NONE;
@@ -1249,8 +1440,13 @@ static int gxcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	
     struct v4l2_rect *try_crop;
 	/* Initialize try_fmt */
-	try_fmt->width = gxcam->imgmode_list[gxcam->current_imgmode_idx].width;
-	try_fmt->height = gxcam->imgmode_list[gxcam->current_imgmode_idx].height;
+	if (gxcam_roi_mode(gxcam)) {
+		try_fmt->width = gxcam->max_width;
+		try_fmt->height = gxcam->max_height;
+	} else {
+		try_fmt->width = gxcam->imgmode_list[gxcam->current_imgmode_idx].width;
+		try_fmt->height = gxcam->imgmode_list[gxcam->current_imgmode_idx].height;
+	}
 	try_fmt->code = gxcam->supported_formats[0].mbus_code;
 	try_fmt->field = V4L2_FIELD_NONE;
 
@@ -1270,8 +1466,13 @@ static int gxcam_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
 	#endif
 	try_crop->top = 0;
 	try_crop->left = 0;
-	try_crop->width = gxcam->imgmode_list[gxcam->current_imgmode_idx].width;
-	try_crop->height = gxcam->imgmode_list[gxcam->current_imgmode_idx].height;
+	if (gxcam_roi_mode(gxcam)) {
+		try_crop->width = gxcam->max_width;
+		try_crop->height = gxcam->max_height;
+	} else {
+		try_crop->width = gxcam->imgmode_list[gxcam->current_imgmode_idx].width;
+		try_crop->height = gxcam->imgmode_list[gxcam->current_imgmode_idx].height;
+	}
     
     
 	return 0;
@@ -1295,7 +1496,7 @@ static const struct v4l2_subdev_pad_ops gxcam_pad_ops = {
 	.enum_frame_size = gxcam_csi2_enum_framesizes,
     //v4.9 kernel can not support selection correctly
 	.get_selection = gxcam_get_selection,
-	//.set_selection = gxcam_set_selection,
+	.set_selection = gxcam_set_selection,
     #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 	.get_mbus_config	= gxcam_get_mbus_config,
     #endif
@@ -1344,6 +1545,9 @@ static int gxcam_enum_controls(struct gxcam *gxcam)
 			continue;
 		}
 		gxcam->ctrls[i] = ctrl;
+		if (ctrl->id == V4L2_CID_VEYE_GX_FRAME_RATE) {
+			gxcam->frmrate = ctrl;
+		}
         dev_dbg(&client->dev, "init control %s success\n",gxcam_v4l2_ctrls[i].name);
 	}
 
@@ -1582,7 +1786,21 @@ static int gxcam_probe(struct i2c_client *client,
 		ret = -ENODEV;
 		goto error_power_off;
 	}
-	gxcam_enum_imgmode(gxcam);
+	/* Read VideoModeCap to determine camera mode */
+	gxcam_read_d(client, VideoModeCap, &gxcam->video_mode_cap);
+	dev_info(&client->dev, "VideoModeCap: 0x%x\n", gxcam->video_mode_cap);
+	if (gxcam_roi_mode(gxcam)) {
+		gxcam_enum_roi_cap(gxcam);
+		/* Read current ROI */
+		gxcam_read_d(client, ROI_Offset_X, &gxcam->roi.left);
+		gxcam_read_d(client, ROI_Offset_Y, &gxcam->roi.top);
+		gxcam_read_d(client, ROI_Width, &gxcam->roi.width);
+		gxcam_read_d(client, ROI_Height, &gxcam->roi.height);
+		gxcam->current_width = gxcam->roi.width;
+		gxcam->current_height = gxcam->roi.height;
+	} else {
+		gxcam_enum_imgmode(gxcam);
+	}
 	gxcam_get_mipifeature(gxcam);
     //read roi
     gxcam_get_wh(gxcam);
